@@ -1,33 +1,36 @@
 # text_gpu_tool
+
 一个工具菜单
-![alt text](image.png)
 
+![工具界面](image.png)
 
-#如何使用
+## 如何使用
 
+### 1. 安装依赖
 
+```bash
+pip install noneprompt toml pyinstaller
+```
 
-#1
-安装依赖
+### 2. 环境配置
 
-"pip install noneprompt toml pyinstaller"
+1. 安装 DCGM
+2. 将测试工具放置到以下固定目录：
+   - `/home/aisuan/gpu-burn`
+   - `/home/aisuan/nccl`
+   - `/home/aisuan/fd`
 
+### 3. 打包
 
-#2
-dcgm自己安装
-然后其他把测试工具放到固定目录就行了
-/home/aisuan/gpu-burn
-/home/aisuan/nccl
-/home/aisuan/fd
-
-
-#3打包 
+```bash
 pyinstaller main.spec
+```
 
+---
 
+## 注意事项
 
-
-
-
-
-
+- 请确保所有依赖都已正确安装
+- 测试工具必须放置在指定的目录中
+- 打包前请检查 main.spec 配置文件
+```
