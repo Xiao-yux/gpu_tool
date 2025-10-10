@@ -1,0 +1,13 @@
+apt install -y gcc g++ clang lld make patchelf python3-dev ccache
+pip install noneprompt toml Nuitka watchdog
+
+python -m nuitka \
+    --onefile \
+    --standalone \
+    --lto=yes \
+    --clang \
+    --include-package=utils \
+    --include-data-file=config.toml=config.toml \
+    --output-dir=dist \
+    --remove-output \
+    main.py

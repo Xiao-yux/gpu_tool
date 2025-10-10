@@ -1,0 +1,37 @@
+[CONFIG]
+config_file= "/etc/aisuan/config.toml" #配置文件
+main_file = "/usr/local/bin/aisuan"  #主程序
+DEBUG = true  #调试模式
+
+
+[UPDATE]
+update_file = "/usr/local/bin/aisuan"  #更新文件
+update_url = "http://192.168.1.1:8080/update.json"  #更新地址
+
+[LOG]
+log_path = "/home/aisuan/log"  #日志路径
+log_file = "aisuan.log"  #日志文件
+log_level = "info"  #日志级别
+console_output = false
+
+[MENU]
+main = ["MENU.A","MENU.B"]  #主菜单
+[[DD]]
+[MENU.A]
+name = "系统信息"  #名称
+type = "meu"  #类型 是菜单
+menu = ["MENU.A.1","MENU.A.2"]  #子菜单
+
+[MENU.A.1]
+name = "cpu 内存信息"
+type = "sh_file"  #脚本
+cmd = "sys_info.sh"  
+
+[MENU.A.2]
+name = "退出"
+type = "exit"  #退出
+
+[MENU.B]
+name = "菜单2"  #名称
+type = "bash"  #脚本
+cmd = "echo hello world"  #脚本内容
