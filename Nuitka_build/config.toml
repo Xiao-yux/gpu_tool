@@ -1,4 +1,5 @@
 [CONFIG]
+version = "1.0.3"  #版本号
 config_file= "/etc/aisuan/config.toml" #配置文件
 main_file = "/usr/local/bin/aisuan"  #主程序
 DEBUG = true  #调试模式
@@ -7,6 +8,7 @@ gpu_burn_path = "/home/aisuan/gpu_burn"  #gpu_burn路径
 nccl_path = "/home/aisuan/nccl"  #nccl测试路径
 
 [UPDATE]
+#待实现，不用管
 update_file = "/usr/local/bin/aisuan"  #更新文件
 update_url = "http://192.168.1.1:8080/update.json"  #更新地址
 

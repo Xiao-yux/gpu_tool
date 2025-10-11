@@ -3,10 +3,7 @@ import toml
 import os
 import utils.tools as tools
 import utils.log as log
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 
-import threading
 
 config_file= "/etc/aisuan/config.toml" #配置文件
 main_file = "/usr/local/bin/aisuan"  #主程序
