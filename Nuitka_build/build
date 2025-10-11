@@ -1,4 +1,4 @@
-apt install -y gcc g++ clang lld make patchelf python3-dev ccache
+apt install -y gcc g++ clang lld make patchelf python3-dev ccache python3
 pip install noneprompt toml Nuitka watchdog
 
 python -m nuitka \

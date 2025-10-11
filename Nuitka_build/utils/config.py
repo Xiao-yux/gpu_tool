@@ -7,7 +7,6 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 import threading
-CONFIG = {}
 
 config_file= "/etc/aisuan/config.toml" #配置文件
 main_file = "/usr/local/bin/aisuan"  #主程序
@@ -19,17 +18,15 @@ class Config:
         self.tmpconfig = self.tool.get_tmp_path() + '/config.toml'
         self.config = config_file
         self.load_config() 
-        self.log = log.Log()
+        self.log = log.Log(self.__config.get('LOG'))
+        self.log.msg('配置文件加载完成')
     def load_config(self):
         """ 加载配置文件"""
         self.is_config()
         try:
             with open(self.config, 'r', encoding='utf-8') as f:
                 self.__config = toml.load(f)
-                # 更新全局配置变量
                 self.debug()
-                global CONFIG
-                CONFIG = self.__config.copy()
         except Exception as e:
             print(e)
     def is_config(self)-> bool:
@@ -44,7 +41,6 @@ class Config:
             return False
     def get_config_value(self, key: str) -> dict:
         """ 获取配置文件中的值"""
-        print(self.__config)
         return self.__config.get(key)
     def debug(self):
         if self.__config.get('CONFIG')['DEBUG']:
@@ -52,7 +48,8 @@ class Config:
             return True
         else:
             return False
-    
+    def return_config(self):
+        return self.__config
 if __name__ == '__main__':
     a = Config()
 

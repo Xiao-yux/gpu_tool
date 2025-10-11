@@ -1,19 +1,19 @@
 import logging
 import os
-import utils.config as conf
 import time
 import utils.tools as util
 
 # 日志类 ， 传入config
 class Log():
-    def __init__(self):
-        self.config = conf.CONFIG["LOG"]
-        print(self.config)
+    def __init__(self,logconfig=None):
+        self.config = logconfig
+        
         if self.config is None:
             print("Error: No log config found")
             exit(1)
         self.ut= util.Tools()
-        self.config["log_path"] = f"{self.ut.get_pwd()}/log/{self.ut.get_serial_number().strip() or 'tmp'}"
+        self.config["log_path"] = self.config["log_path"] + f"/{self.ut.get_serial_number().strip() or 'tmp'}"
+        # print(self.config["log_path"])
         #创建目录
         if not os.path.exists(self.config["log_path"]):
             os.makedirs(self.config["log_path"])
@@ -27,12 +27,13 @@ class Log():
         
         # 存储其他logger
         self.loggers = {"main": self.main_logger}
+        self.main_logger.info("日志系统初始化完成")
 
     def _create_logger(self, name, filename):
         logger = logging.getLogger(name)
-        if self.config["log_level"] == "DEBUG" and self.config["log_level"] == "debug":
+        if self.config["log_level"] == "DEBUG":
             logger.setLevel(logging.DEBUG)
-        elif self.config["log_level"] == "INFO" and self.config["log_level"] == "info":
+        elif self.config["log_level"] == "INFO":
             logger.setLevel(logging.INFO)
 
         # 创建文件处理器
@@ -58,9 +59,12 @@ class Log():
 
         return logger
     def get_log_file(self):
-        # 获取日志文件路径
-        return self.log_dir
+       '''获取日志文件路径'''
+       
+       return self.log_dir
+    
     def msg(self, message, level="INFO", logger_name="main"):
+        
         if logger_name not in self.loggers:
             self.main_logger.warning(f"Logger {logger_name} not found, using main logger")
             logger_name = "main"
