@@ -13,17 +13,17 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
         
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc g++ clang lld make patchelf python3-dev ccache python3 upx
+        sudo apt-get install -y gcc g++ clang lld make patchelf python3-dev ccache python3
         
     - name: Install Python dependencies
       run: |
@@ -35,10 +35,11 @@ jobs:
       
     - name: Compress with UPX
       run: |
+        sudo apt-get install -y upx
         make upx
         
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-artifacts
         path: dist/
