@@ -27,6 +27,8 @@ class Menu:
         choices.append(Choice("GPUburn压测", "3"))
         choices.append(Choice("Dcgmi测试", "4"))
         choices.append(Choice("Nccl测试", "5"))
+        choices.append(Choice("关机", "6"))
+        choices.append(Choice("退出", "7"))
         prompt = ListPrompt("请选择:",choices).prompt()
 
         if prompt.data == "1":
@@ -39,6 +41,10 @@ class Menu:
             self.torun = self.dcgmi_test
         elif prompt.data == "5":
             self.torun = self.nccl_test
+        elif prompt.data == "6":
+            os.system("poweoff")
+        elif prompt.data == "7":
+            exit()
         self.torun()
     def system_info(self):
         self.tobak = self.main_menu
@@ -71,7 +77,7 @@ class Menu:
         logname = "fieldiag.log"
         self.log.create_log_file(logname)
         fdpath = self.path["fd_path"]
-        defarg = f"--no_bmc --log {self.log.get_log_file()}"
+        defarg = f"--no_bmc --log {self.log.get_log_file()}/fd"
         arg =f"{self.path['fd_exe']}"
         choices: list[Choice] = []
         choices.append(Choice("运行Level1 测试", "1"))
