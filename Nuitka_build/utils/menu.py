@@ -246,7 +246,7 @@ class Menu:
         else:
             print(f"执行命令: {path}/{command}")
         try:
-            
+            self.log.create_log_file(logname)
             print("执行开始")
             process = subprocess.Popen(
                 command,

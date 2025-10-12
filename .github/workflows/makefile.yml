@@ -35,7 +35,7 @@ jobs:
         cd Nuitka_build
         python -m nuitka --onefile --standalone --lto=yes --assume-yes-for-downloads\
           --clang --include-package=utils --static-libpython=yes\
-          --include-data-dir=bash=bash --disable-pytest-detection\
+          --include-data-dir=bash=bash\
           --include-data-file=config.toml=config.toml --show-progress\
           --output-dir=dist --output-filename=main --remove-output main.py
       
