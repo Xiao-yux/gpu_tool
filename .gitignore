@@ -5,3 +5,4 @@ Nuitka_build/nuitka-crash-report.xml
 Nuitka_build/dist
 __pycache__
 *.pyc
+*.pyo

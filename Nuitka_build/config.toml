@@ -2,10 +2,14 @@
 version = "1.0.3"  #版本号
 config_file= "/etc/aisuan/config.toml" #配置文件
 main_file = "/usr/local/bin/aisuan"  #主程序
-DEBUG = true  #调试模式
+DEBUG = false  #调试模式
 fd_path = "/home/aisuan/fd"  #fieldiag路径
 gpu_burn_path = "/home/aisuan/gpu_burn"  #gpu_burn路径
 nccl_path = "/home/aisuan/nccl"  #nccl测试路径
+fd_exe = "fieldiag.sh"  #fieldiag可执行文件
+gpu_burn_exe = "gpu_burn"  #gpu_burn可执行文件
+nccl_exe = "all_reduce_perf"  #nccl可执行文件
+
 
 [UPDATE]
 #待实现，不用管
