@@ -42,9 +42,9 @@ class Menu:
         elif prompt.data == "5":
             self.torun = self.nccl_test
         elif prompt.data == "6":
-            os.system("poweoff")
+            subprocess.run(['poweroff'])
         elif prompt.data == "7":
-            exit()
+            os._exit(0)
         self.torun()
     def system_info(self):
         self.tobak = self.main_menu

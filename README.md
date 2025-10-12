@@ -28,3 +28,8 @@ make
 
 
 ## 有问题请提issue
+
+
+#待更新
+`cpu burn 的同时显示温度频率占用率`
+`mem test`

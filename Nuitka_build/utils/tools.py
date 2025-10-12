@@ -2,7 +2,7 @@
 import os
 import pathlib
 import sys
-
+import subprocess
 
 class Tools:
     def __init__(self):
@@ -30,12 +30,12 @@ class Tools:
                 return 0
                 
             result = subprocess.run(
-                ['nvidia-smi', '--query-gpu=count', '--format=csv,noheader,nounits','| head -n 1'],
+                'nvidia-smi --query-gpu=count --format=csv,noheader,nounits | head -n 1',
                 capture_output=True,
                 text=True,
                 check=True
             )
-            
+            print(result.stdout.strip())
             # 尝试将结果转换为整数
             gpu_count = int(result.stdout.strip())
             return gpu_count
