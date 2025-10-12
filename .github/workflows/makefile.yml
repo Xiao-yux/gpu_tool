@@ -31,12 +31,19 @@ jobs:
         pip install noneprompt toml Nuitka
         
     - name: Build with Nuitka
-      run: make nuitka
+      run: |
+        cd Nuitka_build
+        python -m nuitka --onefile --standalone --lto=yes \
+          --clang --include-package=utils \
+          --include-data-dir=bash=bash \
+          --include-data-file=config.toml=config.toml \
+          --output-dir=dist --output-filename=main --remove-output main.py
       
     - name: Compress with UPX
       run: |
         sudo apt-get install -y upx
-        make upx
+        cd Nuitka_build/dist
+        upx --best main
         
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
