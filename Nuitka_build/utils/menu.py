@@ -272,11 +272,14 @@ class Menu:
             print("执行结束")
             print(f"日志路径: {self.log.get_log_file()}/{logname}")
             # 按下回车继续
+            if self.path['fd_exe'] in command:
+                self.tool.rest_gpu_server()
             input("按回车键返回菜单...")
         except Exception as e:
             self.log.msg(f"运行命令失败: {e}")
             print(f"执行失败: {e}")
 
+        
         self.tobak()
             
             

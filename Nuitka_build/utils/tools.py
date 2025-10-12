@@ -49,6 +49,13 @@ class Tools:
     def get_serial_number(self):
         # 返回主板序列号
         return os.popen('dmidecode -s system-serial-number').read()
+    def rest_gpu_server(self):
+        # 重启GPU服务
+        os.system('systemctl restart nvidia-powerd')
+        os.system('systemctl restart dcgm')
+        os.system('systemctl restart nvidia-fabricmanager')
+        os.system('systemctl restart nvidia-persistenced')
+        return True
 if __name__ == '__main__':
     tools = Tools()
     print(tools.get_tmp_path())
