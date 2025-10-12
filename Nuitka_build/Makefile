@@ -5,6 +5,7 @@ CC     = clang
 nuitka:
 	python -m nuitka --onefile --standalone --lto=yes \
 	    --clang --include-package=utils \
+		--include-data-dir=bash=bash \
 	    --include-data-file=config.toml=config.toml \
 	    --output-dir=dist --output-filename=main --remove-output $(SOURCE)
 
@@ -15,3 +16,6 @@ clean:
 	rm -rf dist main.build main.dist
 
 .PHONY: nuitka upx clean
+
+
+

@@ -9,8 +9,11 @@ class Tools:
         ...
 
     def get_tmp_path(self) -> str:
-        '''获取解压的临时目录路径'''
-        return os.path.join(os.path.dirname(__file__),"../")
+        '''获取临时目录'''
+        temp_dir = os.path.join(os.path.dirname(__file__))
+        a = temp_dir.replace('utils','')
+        return a
+
     def get_dist_path(self) -> str:
         '''获取程序所在目录'''
         return str(pathlib.Path(sys.argv[0]).parent.resolve()) + '/aisuan'
@@ -30,15 +33,15 @@ class Tools:
     def copy_file(self, src, dst)-> None:
         '''复制文件'''
         os.system(f'cp {src} {dst}')
-        
+    
     def get_gpu_info(self):
-        return os.popen(f'bash {os.path.join(os.path.dirname(__file__), "../bash/nvidia_info.sh")}').read()
+        return os.popen(f"bash {self.get_tmp_path()}bash/nvidia_info.sh").read()
     def get_sys_info(self):
         # 返回系统信息
-        return os.popen(f'bash {os.path.join(os.path.dirname(__file__), "../bash/sys_info.sh")}').read()
+        return os.popen(f'bash {self.get_tmp_path()}bash/sys_info.sh').read()
     def get_eth_info(self):
         # 网卡硬盘信息
-        return os.popen(f'bash {os.path.join(os.path.dirname(__file__), "../bash/CX_DISK_INFO.sh")}').read()
+        return os.popen(f'bash {self.get_tmp_path()}bash/CX_DISK_INFO.sh').read()
     
     def get_pwd(self)-> str:
         '''返回用户当前目录'''
