@@ -34,20 +34,15 @@ jobs:
       run: |
         cd Nuitka_build
         python -m nuitka --onefile --standalone --lto=yes --assume-yes-for-downloads\
-          --clang --include-package=utils --static-libpython=yes\
+          --clang --include-package=utils \
           --include-data-dir=bash=bash\
           --include-data-file=config.toml=config.toml --show-progress\
           --output-dir=dist --output-filename=main --remove-output main.py
-      
-    - name: Compress with UPX
-      run: |
-        sudo apt-get install -y upx
-        cd Nuitka_build/dist
-        upx --best main
+    
     - name: Rename binary
       run: |
         cd Nuitka_build/dist
-        mv main ${{ steps.project_info.outputs.name }}_linux_${{ steps.project_info.outputs.arch }}
+        mv main tools_linux_($uname -m)
         
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
@@ -59,6 +54,6 @@ jobs:
       if: github.event_name == 'release'
       uses: softprops/action-gh-release@v1
       with:
-        files: Nuitka_build/dist/${{ steps.project_info.outputs.name }}_linux_${{ steps.project_info.outputs.arch }}
+        files: Nuitka_build/dist/tools_linux_($uname -m)
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
