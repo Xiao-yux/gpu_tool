@@ -42,7 +42,7 @@ jobs:
     - name: Rename binary
       run: |
         cd Nuitka_build/dist
-        mv main tools_linux_($uname -m)
+        mv main tools_linux
         
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
@@ -54,6 +54,6 @@ jobs:
       if: github.event_name == 'release'
       uses: softprops/action-gh-release@v1
       with:
-        files: Nuitka_build/dist/tools_linux_($uname -m)
+        files: Nuitka_build/dist/tools_linux
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
