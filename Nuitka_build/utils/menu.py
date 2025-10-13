@@ -19,7 +19,7 @@ class Menu:
         self.tobak = self.main_menu  #上一级菜单
         self.torun = self.main_menu   #下一级菜单
         self.boxtxt = "空格键选择, 回车键确认, Ctrl+C 退出程序"
-        self.is_gpu_available()
+        self.is_gpu_available() #检查系统
     def main_menu(self):
         choices: list[Choice] = []
         choices.append(Choice("系统信息", "1"))
@@ -92,7 +92,7 @@ class Menu:
         elif prompt.data == "3":
             a = self.fd_test_arg()
             self.log.msg(f"选择的自定义参数: {a}",logger_name="fieldiag")
-            cmd = f"{arg} {a}"
+            cmd = f"{arg} {a} --log {self.log.get_log_file()}/fd"
         elif prompt.data == "4":
             self.tobak()
         self.run_command(cmd,fdpath,logname)
@@ -210,29 +210,40 @@ class Menu:
 
         self.run_command(arg,logname="dcgmi")
     def is_gpu_available(self):
-        """检查系统bus中是否有可用的 GPU"""
+        """检查系统"""
         
-        a = os.popen("lspci | grep -i nvidia").read()
-        if a == "":
+       
+        if not os.popen("lspci | grep -i nvidia").read():
             print("未检测到 GPU，部分功能将不可用")
             self.log.msg("未检测到 GPU，部分功能将不可用")
+            
+        if not os.path.exists("/usr/bin/nvidia-smi"):
+            print("未检测到 nvidia-smi，请确保已正确安装 NVIDIA 驱动，部分功能将不可用")
+            self.log.msg("未检测到 nvidia-smi，请确保已正确安装 NVIDIA 驱动，部分功能将不可用")
         #检测gpuburn
+        
         if not os.path.exists(f"{self.path['gpu_burn_path']}/{self.path['gpu_burn_exe']}"):
-            print(f"未检测到 {self.path['gpu_burn_exe']}，请确保已正确安装 gpu-burn，GPUburn 功能将不可用")
+            print(f"未检测到 {self.path['gpu_burn_path']}/{self.path['gpu_burn_exe']}，请确保已正确安装 gpu-burn，GPUburn 功能将不可用")
             self.log.msg(f"未检测到 {self.path['gpu_burn_exe']}，请确保已正确安装 gpu-burn，GPUburn 功能将不可用")
         #检测nccl
         if not os.path.exists(f"{self.path['nccl_path']}/{self.path['nccl_exe']}"):
-            print(f"未检测到 {self.path['nccl_exe']}，请确保已正确安装 NCCL，NCCL 测试功能将不可用")
+            print(f"未检测到 {self.path['nccl_path']}/{self.path['nccl_exe']}，请确保已正确安装 NCCL，NCCL 测试功能将不可用")
             self.log.msg(f"未检测到 {self.path['nccl_exe']}，请确保已正确安装 NCCL，NCCL 测试功能将不可用")
         #检测fieldiag
         if not os.path.exists(f"{self.path['fd_path']}/{self.path['fd_exe']}"):
-            print(f"未检测到 {self.path['fd_exe']}，请确保已正确安装 Fielddiag，FD 测试功能将不可用")
+            print(f"未检测到 {self.path['fd_path']}/{self.path['fd_exe']}，请确保已正确安装 Fielddiag，FD 测试功能将不可用")
             self.log.msg(f"未检测到 {self.path['fd_exe']}，请确保已正确安装 Fielddiag，FD 测试功能将不可用")
         #检测dcgmi
         if not os.path.exists("/usr/bin/dcgmi"):
             print("未检测到 dcgmi，请确保已正确安装 DCGM，DCGMI 测试功能将不可用")
             self.log.msg("未检测到 dcgmi，请确保已正确安装 DCGM，DCGMI 测试功能将不可用")
-
+        #检测nccllib
+        if not os.popen("dpkg -l | grep -i libnccl2").read():
+            print("未检测到 libnccl2，请确保已正确安装 NCCLlib，NCCL 测试功能将不可用")
+            self.log.msg("未检测到 libnccl2，请确保已正确安装 NCCL，NCCL 测试功能将不可用")
+        if not os.popen("dpkg -l | grep -i libnccl-dev").read():
+            print("未检测到 libnccl-dev，请确保已正确安装 NCCLlib，NCCL 测试功能将不可用")
+            self.log.msg("未检测到 libnccl-dev，请确保已正确安装 NCCL，NCCL 测试功能将不可用")
     def nccl_test(self):
         gpu_count = self.tool.get_gpu_count()
         arg = f"{self.path['nccl_exe']} -b 256M -e 20G -f 2 -g {gpu_count}"
@@ -249,10 +260,13 @@ class Menu:
         """运行命令并实时输出日志"""
         if path is None:
             print(f"执行命令: {command}")
+            
         else:
             print(f"执行命令: {path}/{command}")
+            command = f"{path}/{command}"
         try:
             self.log.create_log_file(logname)
+            self.log.msg(f"执行命令: {command}",logger_name=logname)
             print("执行开始")
             process = subprocess.Popen(
                 command,

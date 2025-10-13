@@ -24,25 +24,17 @@ class Tools:
         return os.path.exists(config_file)
     
     def get_gpu_count(self):
-    # 返回GPU数量
-        try:
-            if not os.path.exists('/usr/bin/nvidia-smi'):
-                return 0
-                
-            result = subprocess.run(
-                'nvidia-smi --query-gpu=count --format=csv,noheader,nounits | head -n 1',
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            print(result.stdout.strip())
-            # 尝试将结果转换为整数
-            gpu_count = int(result.stdout.strip())
-            return gpu_count
-            
-        except (subprocess.CalledProcessError, FileNotFoundError, ValueError):
-            # 如果nvidia-smi失败或输出无法转换为整数，返回0
+        '''返回GPU数量'''
+
+        if not os.path.exists('/usr/bin/nvidia-smi'):
+            print("检测不到 nvidia-smi，无法获取 GPU 数量")
             return 0
+                
+        if not os.popen('nvidia-smi --query-gpu=count --format=csv,noheader,nounits | grep -i nvidia').read():
+            return os.popen('nvidia-smi --query-gpu=count --format=csv,noheader,nounits').read().split('\n')[0]
+
+
+
     def copy_file(self, src, dst)-> None:
         '''复制文件'''
         os.system(f'cp {src} {dst}')

@@ -6,9 +6,9 @@ DEBUG = false  #调试模式
 fd_path = "/home/aisuan/fd"  #fieldiag路径
 gpu_burn_path = "/home/aisuan/gpu_burn"  #gpu_burn路径
 nccl_path = "/home/aisuan/nccl"  #nccl测试路径
-fd_exe = "./fieldiag.sh"  #fieldiag可执行文件
-gpu_burn_exe = "./gpu_burn"  #gpu_burn可执行文件
-nccl_exe = "./all_reduce_perf"  #nccl可执行文件
+fd_exe = "fieldiag.sh"  #fieldiag可执行文件
+gpu_burn_exe = "gpu_burn"  #gpu_burn可执行文件
+nccl_exe = "all_reduce_perf"  #nccl可执行文件
 
 
 [UPDATE]

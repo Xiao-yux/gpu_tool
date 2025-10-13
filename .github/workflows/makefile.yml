@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     
     steps:
     - uses: actions/checkout@v4
@@ -51,9 +51,12 @@ jobs:
         path: Nuitka_build/dist/
         
     - name: Release
-      if: github.event_name == 'release'
       uses: softprops/action-gh-release@v1
       with:
         files: Nuitka_build/dist/tools_linux
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+        tag_name: v${{ github.run_number }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # mlx_sn.sh  —— 自动列出所有 Mellanox ConnectX 网卡 SN
+echo "============ 网卡信息 ============"
 lspci -nn 2>/dev/null | grep -iE "ethernet|infiniband|network" | sort | awk -F': ' '{
     split($1, parts, " ");
     device_id = parts[1];
@@ -12,7 +13,7 @@ lspci -nn 2>/dev/null | grep -iE "ethernet|infiniband|network" | sort | awk -F':
         print device_id ": " desc
     }
 }'
-echo "--------------------------------------------------"
+echo "----------------Mellanox 设备SN-------------------------"
 
 printf "%-12s %-45s %10s %s\n" "pci" "Name" "SN"
 for d in /sys/bus/pci/devices/*; do
@@ -30,7 +31,30 @@ for d in /sys/bus/pci/devices/*; do
 done
 
 printf "\n"
-echo "============ DISK INFO ============"
+echo "============ 硬盘信息 ============"
 lsblk -d -o NAME,SERIAL,MODEL,TYPE,SIZE,TRAN | grep -v loop
 
 
+
+echo "===== 电源信息 ====="
+dmidecode -t 39 2>/dev/null | awk -F': ' '
+BEGIN {count = 1}
+/Model Part Number:/ {model = $2}
+/Serial Number:/ {serial = $2}
+/Max Power Capacity:/ {
+    split($2, parts, " ");
+    power = parts[1]
+}
+/^$/ {
+    if (model) {
+        printf "PSU%d: %s | %s | %s W\n",
+               count, model, serial, power
+        count++
+        model = ""; serial = ""; power = ""
+    }
+}'
+
+if [[ $count -eq 1 ]]; then
+    echo "未检测到电源信息"
+fi
+echo
