@@ -4,7 +4,6 @@ import subprocess
 from utils.putlin import SingleLineDisplay
 import os
 
-version = "1.0.3"
 
 
 class Menu:
@@ -15,7 +14,7 @@ class Menu:
         self.tool = config.tool
         self.log.msg("初始化 CLI 菜单")
         self.disp = SingleLineDisplay("欢迎使用菜单...\n", show=True)
-        self.disp.update(f"当前版本: {version}\n", show=True)
+        self.disp.update(f"当前版本: {self.path['version']}\n", show=True)
         self.tobak = self.main_menu  #上一级菜单
         self.torun = self.main_menu   #下一级菜单
         self.boxtxt = "空格键选择, 回车键确认, Ctrl+C 退出程序"

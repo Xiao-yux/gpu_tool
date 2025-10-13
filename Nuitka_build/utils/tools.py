@@ -40,12 +40,13 @@ class Tools:
         os.system(f'cp {src} {dst}')
     
     def get_gpu_info(self):
+        '''返回GPU信息'''
         return os.popen(f"bash {self.get_tmp_path()}bash/nvidia_info.sh").read()
     def get_sys_info(self):
-        # 返回系统信息
+        '''# 返回系统信息'''
         return os.popen(f'bash {self.get_tmp_path()}bash/sys_info.sh').read()
     def get_eth_info(self):
-        # 网卡硬盘信息
+        '''# 网卡硬盘信息'''
         return os.popen(f'bash {self.get_tmp_path()}bash/CX_DISK_INFO.sh').read()
     
     def get_pwd(self)-> str:
