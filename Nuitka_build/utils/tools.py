@@ -32,6 +32,8 @@ class Tools:
                 
         if not os.popen('nvidia-smi --query-gpu=count --format=csv,noheader,nounits | grep -i nvidia').read():
             return os.popen('nvidia-smi --query-gpu=count --format=csv,noheader,nounits').read().split('\n')[0]
+        else:
+            return 0
 
 
 
@@ -39,13 +41,13 @@ class Tools:
         '''复制文件'''
         os.system(f'cp {src} {dst}')
     
-    def get_gpu_info(self):
+    def get_gpu_info(self)-> str:
         '''返回GPU信息'''
         return os.popen(f"bash {self.get_tmp_path()}bash/nvidia_info.sh").read()
-    def get_sys_info(self):
+    def get_sys_info(self) -> str:
         '''# 返回系统信息'''
         return os.popen(f'bash {self.get_tmp_path()}bash/sys_info.sh').read()
-    def get_eth_info(self):
+    def get_eth_info(self) -> str:
         '''# 网卡硬盘信息'''
         return os.popen(f'bash {self.get_tmp_path()}bash/CX_DISK_INFO.sh').read()
     

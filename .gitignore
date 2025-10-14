@@ -6,3 +6,4 @@ Nuitka_build/dist
 __pycache__
 *.pyc
 *.pyo
+.vscode

@@ -68,6 +68,7 @@ class Menu:
         elif prompt.data == "6":
             a = os.popen("ipmitool lan print").read()
         print(a)
+        self.log.create_log_file("sysinfo")
         self.log.msg(a,logger_name="sysinfo")
         input("按回车键返回菜单...")
         self.tobak()
@@ -246,6 +247,8 @@ class Menu:
     def nccl_test(self):
         gpu_count = self.tool.get_gpu_count()
         arg = f"{self.path['nccl_exe']} -b 256M -e 20G -f 2 -g {gpu_count}"
+        self.log.create_log_file("nccl")
+        print(f"检测到 GPU 数量: {gpu_count}")
         self.log.msg(f"检测到 GPU 数量: {gpu_count}",logger_name="nccl")
         if int(gpu_count) < 1:
             self.log.msg("未检测到 GPU，无法运行 NCCL 测试",logger_name="nccl")

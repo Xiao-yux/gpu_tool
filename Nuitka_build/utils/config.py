@@ -17,6 +17,7 @@ class Config:
         self.load_config() 
         self.log = log.Log(self.__config.get('LOG'))
         self.log.msg('配置文件加载完成')
+        self.sys_save()
     def load_config(self):
         """ 加载配置文件"""
         self.is_config()
@@ -26,6 +27,12 @@ class Config:
                 self.debug()
         except Exception as e:
             print(e)
+    def sys_save(self):
+        """收集系统信息"""
+        self.log.create_log_file("system_info.log")
+        self.log.msg(self.tool.get_sys_info(), logger_name="system_info.log")
+        self.log.msg(self.tool.get_eth_info(), logger_name="system_info.log")
+        self.log.msg(self.tool.get_gpu_info(), logger_name="system_info.log")
     def is_config(self)-> bool:
         """ 判断配置文件是否存在"""
         # print(self.tool.is_config_path())

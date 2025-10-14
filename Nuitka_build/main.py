@@ -2,7 +2,7 @@ import utils.config as config
 import utils.menu as menu
 from art import tprint, text2art
 import argparse
-
+import utils.update as update
 def parse_arguments(ver=None):
     """
     解析命令行参数。
@@ -38,6 +38,7 @@ def main():
         
     print(text2art("Aisuan", chr_ignore=True))
     cfg.log.msg('运行菜单')
+    update.Update(cfg)
     men = menu.Menu(cfg)
     men.run()
 

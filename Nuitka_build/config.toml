@@ -4,8 +4,8 @@ config_file= "/etc/aisuan/config.toml" #配置文件
 main_file = "/usr/local/bin/aisuan"  #主程序
 DEBUG = false  #调试模式
 fd_path = "/home/aisuan/fd"  #fieldiag路径
-gpu_burn_path = "/home/aisuan/gpu_burn"  #gpu_burn路径
-nccl_path = "/home/aisuan/nccl"  #nccl测试路径
+gpu_burn_path = "/home/aisuan/gpu-burn"  #gpu_burn路径
+nccl_path = "/home/aisuan/nccl-tests/build"  #nccl测试路径
 fd_exe = "fieldiag.sh"  #fieldiag可执行文件
 gpu_burn_exe = "gpu_burn"  #gpu_burn可执行文件
 nccl_exe = "all_reduce_perf"  #nccl可执行文件
@@ -14,7 +14,7 @@ nccl_exe = "all_reduce_perf"  #nccl可执行文件
 [UPDATE]
 #待实现，不用管
 update_file = "/usr/local/bin/aisuan"  #更新文件
-update_url = "http://192.168.1.1:8080/update.json"  #更新地址
+update_url = "http://192.168.10.15/update.json"  #更新地址
 
 [LOG]
 log_path = "/home/aisuan/log"  #日志路径
