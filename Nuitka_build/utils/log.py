@@ -84,7 +84,7 @@ class Log():
         else:
             logger.info(message)
 
-    def create_log_file(self, log_file):
+    def create_log_file(self, log_file) -> str:
         # 创建新的logger
         logger_name = os.path.splitext(log_file)[0]  # 去掉文件扩展名作为logger名称
         if logger_name not in self.loggers:

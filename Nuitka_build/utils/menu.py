@@ -68,8 +68,6 @@ class Menu:
         elif prompt.data == "6":
             a = os.popen("ipmitool lan print").read()
         print(a)
-        self.log.create_log_file("sysinfo")
-        self.log.msg(a,logger_name="sysinfo")
         input("按回车键返回菜单...")
         self.tobak()
     def fd_test(self):
@@ -260,6 +258,7 @@ class Menu:
     
     def run_command(self, command: str,path: str = None,logname: str = "command"):
         """运行命令并实时输出日志"""
+        logname = self.log.create_log_file(logname)
         if path is None:
             print(f"执行命令: {command}")
             
@@ -267,7 +266,7 @@ class Menu:
             print(f"执行命令: {path}/{command}")
             command = f"{path}/{command}"
         try:
-            self.log.create_log_file(logname)
+            
             self.log.msg(f"执行命令: {command}",logger_name=logname)
             print("执行开始")
             process = subprocess.Popen(

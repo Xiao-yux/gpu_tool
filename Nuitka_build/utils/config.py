@@ -29,10 +29,10 @@ class Config:
             print(e)
     def sys_save(self):
         """收集系统信息"""
-        self.log.create_log_file("system_info.log")
-        self.log.msg(self.tool.get_sys_info(), logger_name="system_info.log")
-        self.log.msg(self.tool.get_eth_info(), logger_name="system_info.log")
-        self.log.msg(self.tool.get_gpu_info(), logger_name="system_info.log")
+        a = self.log.create_log_file("system_info.log")
+        self.log.msg(self.tool.get_sys_info(), logger_name=a)
+        self.log.msg(self.tool.get_eth_info(), logger_name=a)
+        self.log.msg(self.tool.get_gpu_info(), logger_name=a)
     def is_config(self)-> bool:
         """ 判断配置文件是否存在"""
         # print(self.tool.is_config_path())
