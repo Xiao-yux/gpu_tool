@@ -18,7 +18,7 @@ class Log():
         if not os.path.exists(self.config["log_path"]):
             os.makedirs(self.config["log_path"])
         # 创建带时间戳的日志目录
-        self.log_dir = os.path.join(self.config["log_path"], time.strftime("%Y-%m-%d-%H%M%S", time.localtime()))
+        self.log_dir = os.path.join(self.config["log_path"], time.strftime("%Y-%m-%d-%H", time.localtime()))
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
 

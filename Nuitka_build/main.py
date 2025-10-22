@@ -1,8 +1,8 @@
-import utils.config as config 
+from utils.config import Config
 import utils.menu as menu
 from art import tprint, text2art
 import argparse
-import utils.update as update
+from utils.update import Update
 def parse_arguments(ver=None):
     """
     解析命令行参数。
@@ -19,11 +19,12 @@ def parse_arguments(ver=None):
     parser.add_argument('--get_gpu_info', action='store_true', help='获取GPU信息')
     parser.add_argument('--get_sys_info', action='store_true', help='获取CPU和内存信息')
     parser.add_argument('--get_eth_info', action='store_true', help='获取网卡和硬盘信息')
+    parser.add_argument('--version', action='version', version=f'{ver}', help='显示版本信息')
     
     return parser.parse_args()
 
 def main():
-    cfg = config.Config()
+    cfg = Config()
     args = parse_arguments(cfg.get_config_value('CONFIG')['version'])
 
     if args.get_gpu_info:

@@ -28,7 +28,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install noneprompt toml Nuitka
+        pip install noneprompt toml Nuitka text2art art
         
     - name: Build with Nuitka
       run: |

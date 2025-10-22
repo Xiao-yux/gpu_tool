@@ -1,0 +1,85 @@
+#!ipxe
+set boot-url http://192.168.10.20        # 改成你的 HTTP 地址
+set menu-timeout 10000                   # 10 秒自动默认
+
+# 自己的pxe菜单
+
+:start
+menu Aisuan Menu
+item --gap -- --------- System Main ---------
+item main Aisuan Ubuntu
+item --gap -- --------- System Install ---------
+item ubuntu22   Ubuntu 22.04 Live Server
+item ubuntu24   Ubuntu 24.04 Live Server
+item archlinux   archlinux-2025.10.01-x86_64
+item win10   Windows 10
+item --gap -- --------- Utilities ---------
+item memtest Memtest86+
+item FirPE   FirPE
+item WePE    WePE
+item --gap -- -----------------------------
+item local      Boot local disk
+item reboot     Reboot
+item shell      iPXE shell
+choose --default main --timeout ${menu-timeout} target && goto ${target}
+
+
+#############  Main  ################
+:main
+# 加载内核
+kernel ${boot-url}/main/boot/vmlinuz-6.7.3-dark495-cjktty+ \
+  root=/dev/nfs nfsroot=192.168.10.20:/pxe/www/html/main rw ip=dhcp
+# 加载 initrd
+initrd ${boot-url}/main/boot/initrd.img-6.7.3-dark495-cjktty+
+# 启动
+boot || goto failed
+
+##############  Linux Live / Install  ################
+:ubuntu22
+kernel ${boot-url}/ubuntu22/vmlinuz ip=dhcp url=${boot-url}/iso/ubuntu-22.04.5-live-server-amd64.iso initrd=initrd
+initrd ${boot-url}/ubuntu22/initrd
+boot || goto failed
+
+
+
+:ubuntu24
+kernel ${boot-url}/ubuntu24/vmlinuz ip=dhcp url=${boot-url}/iso/ubuntu-24.04.3-live-server-amd64.iso initrd=initrd
+initrd ${boot-url}/ubuntu24/initrd
+boot || goto failed
+
+:archlinux
+set extrabootoptions ip=dhcp net.ifnames=0
+kernel ${boot-url}/archlinux/vmlinuz-linux
+initrd ${boot-url}/archlinux/initramfs-linux.img
+imgargs vmlinuz-linux initrd=initramfs-linux.img archiso_http_srv=${boot-url}/iso/archlinux-2025.10.01-x86_64.iso archisobasedir=arch ${extrabootoptions}
+boot || goto failed
+
+:win10
+sanboot --no-describe --keep ${boot-url}/iso/Windows10.iso || goto failed
+
+##############  Utilities  ###########################
+
+:memtest
+sanboot --no-describe --keep ${boot-url}/iso/memtest86-usb.img || goto failed
+:FirPE
+sanboot --no-describe --keep ${boot-url}/iso/FirPE-V1.9.1.iso || goto failed
+:WePE
+sanboot --no-describe --keep ${boot-url}/iso/WePE_64_V2.3.iso || goto failed
+
+##############  Control  #############################
+:local
+localboot 0 || goto failed
+
+
+:reboot
+reboot
+
+:shell
+shell
+set menu-timeout 0
+goto start
+
+:failed
+echo Boot failed, return to menu in 5 s...
+sleep 5
+goto start

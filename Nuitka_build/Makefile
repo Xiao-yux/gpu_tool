@@ -12,7 +12,7 @@ nuitka:
 clean:
 	rm -rf dist main.build main.dist
 
-.PHONY: nuitka upx clean
+.PHONY: nuitka clean
 
 
 

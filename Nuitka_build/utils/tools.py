@@ -59,11 +59,32 @@ class Tools:
         return os.popen('dmidecode -s system-serial-number').read()
     def rest_gpu_server(self):
         # 重启GPU服务
-        os.system('systemctl restart nvidia-powerd')
-        os.system('systemctl restart dcgm')
-        os.system('systemctl restart nvidia-fabricmanager')
-        os.system('systemctl restart nvidia-persistenced')
+        os.popen('systemctl restart nvidia-powerd')
+        os.popen('systemctl restart dcgm')
+        os.popen('systemctl restart nvidia-fabricmanager')
+        os.popen('systemctl restart nvidia-persistenced')
         return True
+
+class checksystem():
+    """系统检测"""
+    def __init__(self, arg):
+       pass
+
+class ipmitools():
+    """ ipmi相关工具"""
+    
+    def sdr():
+        '''传感器数据'''
+        return os.popen('ipmitool sdr').read()
+    def fru():
+        '''电源信息'''
+        return os.popen('ipmitool fru').read()
+    def lan():
+        '''lan信息'''
+        return os.popen('ipmitool lan print').read()
+    def user():
+        '''用户信息'''
+        return os.popen('ipmitool user list 1').read()
 if __name__ == '__main__':
     tools = Tools()
     print(tools.get_tmp_path())
