@@ -3,7 +3,7 @@ import time
 import subprocess
 from utils.putlin import SingleLineDisplay
 import os
-
+from utils.menuarg import MenuChess
 
 
 class Menu:
@@ -13,6 +13,7 @@ class Menu:
         self.log = config.log
         self.tool = config.tool
         self.log.msg("初始化 CLI 菜单")
+        self.MenuChess = MenuChess()  #初始化菜单选项
         self.disp = SingleLineDisplay("欢迎使用菜单...\n", show=True)
         self.disp.update(f"当前版本: {self.path['version']}\n", show=True)
         self.tobak = self.main_menu  #上一级菜单
@@ -20,14 +21,7 @@ class Menu:
         self.boxtxt = "空格键选择, 回车键确认, Ctrl+C 退出程序"
         self.is_gpu_available() #检查系统
     def main_menu(self):
-        choices: list[Choice] = []
-        choices.append(Choice("系统信息", "1"))
-        choices.append(Choice("FD压测", "2"))
-        choices.append(Choice("GPUburn压测", "3"))
-        choices.append(Choice("Dcgmi测试", "4"))
-        choices.append(Choice("Nccl测试", "5"))
-        choices.append(Choice("关机", "6"))
-        choices.append(Choice("退出", "7"))
+        choices: list[Choice] = self.MenuChess.main_menu
         prompt = ListPrompt("请选择:",choices).prompt()
 
         if prompt.data == "1":
@@ -44,16 +38,12 @@ class Menu:
             subprocess.run(['poweroff'])
         elif prompt.data == "7":
             os._exit(0)
+        elif prompt.data == "8":
+            self.torun = self.nvband_test
         self.torun()
     def system_info(self):
         self.tobak = self.main_menu
-        choices: list[Choice] = []
-        choices.append(Choice("查看CPU 内存信息", "1"))
-        choices.append(Choice("查看GPU信息", "2"))
-        choices.append(Choice("查看硬盘网卡信息", "3"))
-        choices.append(Choice("查看nvlink拓扑", "5"))
-        choices.append(Choice("查看impi ip设置信息", "6"))
-        choices.append(Choice("返回", "4"))
+        choices: list[Choice] = self.MenuChess.system_menu
         prompt = ListPrompt("请选择:",choices).prompt()
         if prompt.data == "1":
             a = self.tool.get_sys_info()
@@ -77,11 +67,7 @@ class Menu:
         fdpath = self.path["fd_path"]
         defarg = f"--no_bmc --log {self.log.get_log_file()}/fd"
         arg =f"{self.path['fd_exe']}"
-        choices: list[Choice] = []
-        choices.append(Choice("运行Level1 测试", "1"))
-        choices.append(Choice("运行Level2 测试", "2"))
-        choices.append(Choice("自定义参数测试", "3"))
-        choices.append(Choice("返回", "4"))
+        choices: list[Choice] = self.MenuChess.fd_menu
         prompt = ListPrompt("请选择:",choices).prompt()
         if prompt.data == "1":
             cmd = f"{arg} --level1 {defarg}"
@@ -96,32 +82,8 @@ class Menu:
         self.run_command(cmd,fdpath,logname)
     def fd_test_arg(self):
         self.tobak = self.fd_test
-        arg = {
-    "运行系统集成测试(--sit)": "--sit",
-    "不运行任何BMC相关任务(--no_bmc)": "--no_bmc",
-    "跳过运行测试前的操作系统检查(--skip_os_check)": "--skip_os_check",
-    "遇到第一个错误时失败(--fail_on_first_error)": "--fail_on_first_error",
-    "使用系统中预装的驱动(--skip_driver_load)": "--skip_driver_load",
-    "通知diag内核处于锁定状态(--lockdown)": "--lockdown",
-    "将--log文件夹打包为tgz(--tar_custom_log_dir)": "--tar_custom_log_dir",
-    "仅在指定的NVSwitch设备上运行测试(--only_nvswitch_devs=<b:d.f>[,<b:d.f>...])": "--only_nvswitch_devs=",
-    "仅在指定的GPU设备上运行测试(--only_gpu_devs=<b:d.f>[,<b:d.f>...])": "--only_gpu_devs=",
-    "运行IST测试(--ist)": "--ist",
-    "运行GPU现场诊断测试(--gpufielddiag)": "--gpufielddiag",
-    "GPU现场诊断参数(--gpu_fd_args <args>)": "--gpu_fd_args",
-    "禁用Pex检查(--disable_pex_checks)": "--disable_pex_checks",
-    "启用DRA分析(--enable_dra)": "--enable_dra",
-    "skucheck JSON文件的绝对路径(--sku_json <path>)": "--sku_json",
-    "运行1级测试(--level1)": "--level1",
-    "运行2级测试(--level2)": "--level2",
-    "运行指定虚拟ID的测试(--test <vID>[,<vID>...])": "--test",
-    "跳过指定虚拟ID的测试(--skip_tests <vID>[,<vID>...])": "--skip_tests",
-    "返回" : "exit"
-}
-        choices: list[Choice] = []
+        choices: list[Choice] = self.MenuChess.fd_args_menu
         cmd=""
-        for k,v in arg.items():
-            choices.append(Choice(k,v))
         prompt = CheckboxPrompt("请选择自定义参数:",choices,default_select=[1,15],annotation=self.boxtxt).prompt()
         for i in prompt:
             self.log.msg(f"选择了参数: {i.name} {i.data}",logger_name="fieldiag")
@@ -151,16 +113,7 @@ class Menu:
         
     def gpu_burn_test(self):
         self.tobak = self.main_menu
-        choices: list[Choice] = []
-        choices.append(Choice("10分钟", "600"))
-        choices.append(Choice("30分钟", "1800"))
-        choices.append(Choice("1小时", "3600"))
-        choices.append(Choice("2小时", "7200"))
-        choices.append(Choice("4小时", "14400"))
-        choices.append(Choice("8小时", "28800"))
-        choices.append(Choice("16小时", "57600"))
-        choices.append(Choice("24小时", "86400"))
-        choices.append(Choice("返回", "exit"))
+        choices: list[Choice] = self.MenuChess.gpu_burn_menu
         prompt = ListPrompt("请选择运行时间:",choices).prompt()
         if prompt.data == "exit":
             self.tobak()
@@ -172,14 +125,8 @@ class Menu:
         self.run_command(arg,gpuburnpath,logname)
     def dcgmi_test(self):
         self.tobak = self.main_menu
-        choices: list[Choice] = []
-        choices.append(Choice("DCGMI 1级测试(系统验证，约几秒钟)", "diag -r 1"))
-        choices.append(Choice("DCGMI 2级测试(扩展系统验证，约 2 分钟)", "diag -r 2"))
-        choices.append(Choice("DCGMI 3级测试(系统硬件诊断，约 15 分钟)", "diag -r 3"))
-        choices.append(Choice("DCGMI 4级测试(更长时间的系统硬件诊断)", "diag -r 4"))
-        choices.append(Choice("DCGMI discovery", "discovery -l"))
-        choices.append(Choice("自定义测试", "6"))
-        choices.append(Choice("返回", "exit"))
+        choices: list[Choice] = self.MenuChess.dcgmi_menu
+
         prompt = ListPrompt("请选择:",choices).prompt()
         if prompt.data == "6":
             print('''
@@ -207,6 +154,20 @@ class Menu:
             arg = f"dcgmi {prompt.data}"
 
         self.run_command(arg,logname="dcgmi")
+    def nvband_test(self):
+        self.tobak = self.main_menu
+        choices: list[Choice] = self.MenuChess.nvband_menu
+        prompt = ListPrompt("请选择测试项目:",choices,max_height=8).prompt()
+        if prompt.data == "exit":
+            self.tobak()
+            return
+        logname = "nvband"
+        nvbandpath = self.tool.get_tmp_path() + "bash/nvbandwidth"
+        if prompt.data == "-1":
+            arg = f"{nvbandpath}"
+        if prompt.data != "-1":
+            arg = f"{nvbandpath} -t {prompt.data}"
+        self.run_command(command=arg,logname=logname)
     def is_gpu_available(self):
         """检查系统"""
         

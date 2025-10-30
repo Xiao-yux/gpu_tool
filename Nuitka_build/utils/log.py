@@ -67,6 +67,7 @@ class Log():
         
         if logger_name not in self.loggers:
             self.main_logger.warning(f"Logger {logger_name} not found, using main logger")
+            self.create_log_file(logger_name)
             logger_name = "main"
 
         logger = self.loggers[logger_name]
@@ -85,7 +86,9 @@ class Log():
             logger.info(message)
 
     def create_log_file(self, log_file) -> str:
-        # 创建新的logger
+        '''# 创建新的logger 返回log名称'''
+        if log_file.split('.')[-1] != 'log':
+            log_file = log_file + '.log'
         logger_name = os.path.splitext(log_file)[0]  # 去掉文件扩展名作为logger名称
         if logger_name not in self.loggers:
             self.loggers[logger_name] = self._create_logger(logger_name, log_file)

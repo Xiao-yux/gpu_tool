@@ -1,9 +1,9 @@
-
+from typing import Callable, Any
 import os
 import pathlib
 import sys
 import subprocess
-
+import threading
 class Tools:
     def __init__(self):
         ...
@@ -35,6 +35,23 @@ class Tools:
         else:
             return 0
 
+    def async_run(self, func, *args,daemon: bool = False, **kwargs) -> threading.Thread:
+        """
+    异步运行函数
+    
+    Args:
+        func: 要异步执行的函数
+        *args: 函数的位置参数
+        daemon: 是否设置为守护线程
+        **kwargs: 函数的关键字参数
+        
+    Returns:
+        threading.Thread: 创建的线程对象
+    """
+        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+        thread.daemon = daemon
+        thread.start()
+        return thread
 
 
     def copy_file(self, src, dst)-> None:
@@ -49,7 +66,7 @@ class Tools:
         return os.popen(f'bash {self.get_tmp_path()}bash/sys_info.sh').read()
     def get_eth_info(self) -> str:
         '''# 网卡硬盘信息'''
-        return os.popen(f'bash {self.get_tmp_path()}bash/CX_DISK_INFO.sh').read()
+        return os.popen(f'{self.get_tmp_path()}bash/nic_info && bash {self.get_tmp_path()}bash/CX_DISK_INFO.sh').read()
     
     def get_pwd(self)-> str:
         '''返回用户当前目录'''
@@ -60,7 +77,7 @@ class Tools:
     def rest_gpu_server(self):
         # 重启GPU服务
         os.popen('systemctl restart nvidia-powerd')
-        os.popen('systemctl restart dcgm')
+        os.popen('systemctl restart nvidia-dcgm')
         os.popen('systemctl restart nvidia-fabricmanager')
         os.popen('systemctl restart nvidia-persistenced')
         return True
