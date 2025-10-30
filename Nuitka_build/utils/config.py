@@ -33,12 +33,14 @@ class Config:
         self.log.msg(self.tool.get_sys_info(), logger_name=a)
         self.log.msg(self.tool.get_eth_info(), logger_name=a)
         self.log.msg(self.tool.get_gpu_info(), logger_name=a)
+        self.log.msg(os.popen(f"{self.tool.get_tmp_path()}bash/nic_info").read(), logger_name=self.log.create_log_file("nic.log"))
         self.log.msg(os.popen("lspci -vvv").read(), logger_name=self.log.create_log_file("lspci"))
         self.log.msg(os.popen("lscpu").read(), logger_name=self.log.create_log_file("lscpu"))
         self.log.msg(os.popen("lsusb").read(), logger_name=self.log.create_log_file("lsusb"))
         self.log.msg(os.popen("dmidecode").read(), logger_name=self.log.create_log_file("dmidecode"))
         self.log.msg(os.popen("lshw").read(), logger_name=self.log.create_log_file("lshw"))
         self.log.msg(os.popen("nvidia-smi -q").read(), logger_name=self.log.create_log_file("nvidia_smi"))
+        
     def is_config(self)-> bool:
         """ 判断配置文件是否存在"""
         # print(self.tool.is_config_path())

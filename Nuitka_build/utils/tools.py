@@ -66,7 +66,7 @@ class Tools:
         return os.popen(f'bash {self.get_tmp_path()}bash/sys_info.sh').read()
     def get_eth_info(self) -> str:
         '''# 网卡硬盘信息'''
-        return os.popen(f'{self.get_tmp_path()}bash/nic_info && bash {self.get_tmp_path()}bash/CX_DISK_INFO.sh').read()
+        return os.popen(f'bash {self.get_tmp_path()}bash/CX_DISK_INFO.sh').read()
     
     def get_pwd(self)-> str:
         '''返回用户当前目录'''
@@ -76,10 +76,10 @@ class Tools:
         return os.popen('dmidecode -s system-serial-number').read()
     def rest_gpu_server(self):
         # 重启GPU服务
-        os.popen('systemctl restart nvidia-powerd')
-        os.popen('systemctl restart nvidia-dcgm')
-        os.popen('systemctl restart nvidia-fabricmanager')
-        os.popen('systemctl restart nvidia-persistenced')
+        os.system('systemctl restart nvidia-powerd')
+        os.system('systemctl restart nvidia-dcgm')
+        os.system('systemctl restart nvidia-fabricmanager')
+        os.system('systemctl restart nvidia-persistenced')
         return True
 
 class checksystem():
@@ -87,6 +87,24 @@ class checksystem():
     def __init__(self, arg):
        pass
 
+    def check_ipmi(self) -> bool:
+        '''检查ipmi是否安装'''
+        if os.path.exists('/usr/bin/ipmitool'):
+            return True
+        else:
+            return False
+    def check_gpu(self) -> bool:
+        '''检查gpu驱动是否安装'''
+        if os.path.exists('/usr/bin/nvidia-smi'):
+            return True
+        else:
+            return False
+    def check_nvswitch(self) -> bool:
+        '''检查nvswitch是否安装'''
+        if os.path.exists('/usr/bin/nvidia-smi nvlink --status'):
+            return True
+        else:
+            return False
 class ipmitools():
     """ ipmi相关工具"""
     

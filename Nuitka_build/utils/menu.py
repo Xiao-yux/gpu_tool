@@ -36,7 +36,7 @@ class Menu:
             self.torun = self.nccl_test
         elif prompt.data == "6":
             subprocess.run(['poweroff'])
-        elif prompt.data == "7":
+        elif prompt.data == "exit":
             os._exit(0)
         elif prompt.data == "8":
             self.torun = self.nvband_test
@@ -51,7 +51,7 @@ class Menu:
             a = self.tool.get_gpu_info()
         elif prompt.data == "3":
             a = self.tool.get_eth_info()
-        elif prompt.data == "4":
+        elif prompt.data == "exit":
             self.tobak()
         elif prompt.data == "5":
             a = os.popen("nvidia-smi topo -m").read()
@@ -77,7 +77,7 @@ class Menu:
             a = self.fd_test_arg()
             self.log.msg(f"选择的自定义参数: {a}",logger_name="fieldiag")
             cmd = f"{arg} {a} --log {self.log.get_log_file()}/fd"
-        elif prompt.data == "4":
+        elif prompt.data == "exit":
             self.tobak()
         self.run_command(cmd,fdpath,logname)
     def fd_test_arg(self):
@@ -100,11 +100,11 @@ class Menu:
                 a = InputPrompt("请输入skucheck JSON文件的绝对路径:").prompt()
                 i.data += f" {a}"
             if i.data == "--test":
-                a = InputPrompt("请输入要运行的虚拟ID (格式:vID,vID...):").prompt()
-                i.data += f" {a}"
+                a = InputPrompt("请输入要运行的虚拟ID (格式: id1,id2...):").prompt()
+                i.data += f"='{a}'"
             if i.data == "--skip_tests":
                 a = InputPrompt("请输入要跳过的虚拟ID (格式:vID,vID...):").prompt()
-                i.data += f" {a}"
+                i.data += f"='{a}'"
             if i.data == "exit":
                 self.tobak()
                 return
@@ -179,6 +179,8 @@ class Menu:
         if not os.path.exists("/usr/bin/nvidia-smi"):
             print("未检测到 nvidia-smi，请确保已正确安装 NVIDIA 驱动，部分功能将不可用")
             self.log.msg("未检测到 nvidia-smi，请确保已正确安装 NVIDIA 驱动，部分功能将不可用")
+        else:
+            os.system(f"nvidia-smi -pm 1")
         #检测gpuburn
         
         if not os.path.exists(f"{self.path['gpu_burn_path']}/{self.path['gpu_burn_exe']}"):

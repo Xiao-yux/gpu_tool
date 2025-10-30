@@ -31,7 +31,7 @@ class MenuChess:
         choices.append(Choice("Nvband测试", "8"))
         choices.append(Choice("Nccl测试", "5"))
         choices.append(Choice("关机", "6"))
-        choices.append(Choice("退出", "7"))
+        choices.append(Choice("退出", "exit"))
         self.main_menu = choices
     
     def _system_info(self):
@@ -42,7 +42,7 @@ class MenuChess:
         choices.append(Choice("查看硬盘网卡信息", "3"))
         choices.append(Choice("查看nvlink拓扑", "5"))
         choices.append(Choice("查看impi ip设置信息", "6"))
-        choices.append(Choice("返回", "4"))
+        choices.append(Choice("返回", "exit"))
         self.system_menu = choices
     
     def _fd(self):
@@ -51,7 +51,7 @@ class MenuChess:
         choices.append(Choice("运行Level1 测试", "1"))
         choices.append(Choice("运行Level2 测试", "2"))
         choices.append(Choice("自定义参数测试", "3"))
-        choices.append(Choice("返回", "4"))
+        choices.append(Choice("返回", "exit"))
         self.fd_menu = choices
     
     def _fd_arg_menu(self):
