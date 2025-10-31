@@ -39,9 +39,8 @@ def main():
         
     print(text2art("Aisuan", chr_ignore=True))
     cfg.log.msg('运行菜单')
-    
-    
     Update(cfg)
+    
     men = menu.Menu(cfg)
     men.run()
 

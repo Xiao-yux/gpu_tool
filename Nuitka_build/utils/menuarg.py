@@ -10,6 +10,7 @@ class MenuChess:
     gpu_burn_menu : list[Choice] = []
     dcgm_menu : list[Choice] = []
     nvband_menu : list[Choice] = []
+    setsystem_menu : list[Choice] = []
     def main(self):
         '''初始化菜单 '''
 
@@ -20,6 +21,7 @@ class MenuChess:
         self._gpu_burn()
         self._dcgm()
         self._nvband()
+        self._setsystem()
         
     def _main_info(self):
         ''' 创建主菜单'''
@@ -30,6 +32,7 @@ class MenuChess:
         choices.append(Choice("Dcgmi测试", "4"))
         choices.append(Choice("Nvband测试", "8"))
         choices.append(Choice("Nccl测试", "5"))
+        choices.append(Choice("设置", "11"))
         choices.append(Choice("关机", "6"))
         choices.append(Choice("退出", "exit"))
         self.main_menu = choices
@@ -45,6 +48,13 @@ class MenuChess:
         choices.append(Choice("返回", "exit"))
         self.system_menu = choices
     
+    def _setsystem(self):
+        ''' 创建系统设置菜单'''
+        choices: list[Choice] = []
+        choices.append(Choice("设置BMC为DHCP获取", "1"))
+        choices.append(Choice("设置BMC用户密码", "2"))
+        choices.append(Choice("返回", "exit"))
+        self.setsystem_menu = choices
     def _fd(self):
         '''创建FD压测菜单'''
         choices: list[Choice] = []

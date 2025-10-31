@@ -144,3 +144,9 @@ class SingleLineDisplay:
     def __del__(self):
         """析构函数：确保在对象销毁时清除显示"""
         self._clear()
+
+if __name__ == "__main__":
+    # 示例用法
+    print("测试")
+    time.sleep(1)
+    print("\b\b\a测试\b\b")

@@ -3,7 +3,7 @@ import toml
 import os
 import utils.tools as tools
 import utils.log as log
-
+from utils.putlin import SingleLineDisplay,Colors
 
 config_file= "/etc/aisuan/config.toml" #配置文件
 main_file = "/usr/local/bin/aisuan"  #主程序
@@ -14,6 +14,7 @@ class Config:
         self.__config = {}
         self.tmpconfig = self.tool.get_tmp_path() + '/config.toml'
         self.config = config_file
+        self.display = SingleLineDisplay("\n", show=True, color=Colors.YELLOW)
         self.load_config() 
         self.log = log.Log(self.__config.get('LOG'))
         self.log.msg('配置文件加载完成')
@@ -33,13 +34,13 @@ class Config:
         self.log.msg(self.tool.get_sys_info(), logger_name=a)
         self.log.msg(self.tool.get_eth_info(), logger_name=a)
         self.log.msg(self.tool.get_gpu_info(), logger_name=a)
-        self.log.msg(os.popen(f"{self.tool.get_tmp_path()}bash/nic_info").read(), logger_name=self.log.create_log_file("nic.log"))
-        self.log.msg(os.popen("lspci -vvv").read(), logger_name=self.log.create_log_file("lspci"))
-        self.log.msg(os.popen("lscpu").read(), logger_name=self.log.create_log_file("lscpu"))
-        self.log.msg(os.popen("lsusb").read(), logger_name=self.log.create_log_file("lsusb"))
-        self.log.msg(os.popen("dmidecode").read(), logger_name=self.log.create_log_file("dmidecode"))
-        self.log.msg(os.popen("lshw").read(), logger_name=self.log.create_log_file("lshw"))
-        self.log.msg(os.popen("nvidia-smi -q").read(), logger_name=self.log.create_log_file("nvidia_smi"))
+        self.log.msg(self.tool.run_command("lspci -vvv"), logger_name=self.log.create_log_file("lspci"))
+        self.log.msg(self.tool.run_command("lscpu"), logger_name=self.log.create_log_file("lscpu"))
+        self.log.msg(self.tool.run_command("lsusb"), logger_name=self.log.create_log_file("lsusb"))
+        self.log.msg(self.tool.run_command("dmidecode"), logger_name=self.log.create_log_file("dmidecode"))
+        self.log.msg(self.tool.run_command("lshw"), logger_name=self.log.create_log_file("lshw"))
+
+
         
     def is_config(self)-> bool:
         """ 判断配置文件是否存在"""

@@ -1,7 +1,6 @@
 from noneprompt import CancelledError, ListPrompt, Choice, InputPrompt,CheckboxPrompt
 import time
 import subprocess
-from utils.putlin import SingleLineDisplay
 import os
 from utils.menuarg import MenuChess
 
@@ -14,7 +13,8 @@ class Menu:
         self.tool = config.tool
         self.log.msg("初始化 CLI 菜单")
         self.MenuChess = MenuChess()  #初始化菜单选项
-        self.disp = SingleLineDisplay("欢迎使用菜单...\n", show=True)
+        self.disp = config.display
+        self.disp.update("欢迎使用 CLI 菜单\n")
         self.disp.update(f"当前版本: {self.path['version']}\n", show=True)
         self.tobak = self.main_menu  #上一级菜单
         self.torun = self.main_menu   #下一级菜单
@@ -40,6 +40,8 @@ class Menu:
             os._exit(0)
         elif prompt.data == "8":
             self.torun = self.nvband_test
+        elif prompt.data == "11":
+            self.torun = self.set_system
         self.torun()
     def system_info(self):
         self.tobak = self.main_menu
@@ -168,6 +170,28 @@ class Menu:
         if prompt.data != "-1":
             arg = f"{nvbandpath} -t {prompt.data}"
         self.run_command(command=arg,logname=logname)
+    def set_system(self):
+        self.tobak = self.main_menu
+
+        self.log.msg("进入系统设置菜单")
+        print("系统设置菜单")
+        choices: list[Choice] = self.MenuChess.setsystem_menu
+
+        prompt = ListPrompt("请选择:",choices=choices,validator=lambda x: x != choices[1],error_message="暂不可用").prompt()
+
+        if prompt.data == "1":
+            self.tool.set_bmc_dhcp()
+            self.log.msg("已设置BMC为DHCP获取IP地址")
+            input("按回车键返回菜单...")
+            self.tobak()
+        elif prompt.data == "2":
+            user = InputPrompt("请选择BMC用户名:").prompt()
+            password = InputPrompt("请输入BMC新密码:").prompt()
+            self.tool.set_bmc_password(user,password)
+            input("按回车键返回菜单...")
+            self.tobak()
+        elif prompt.data == "exit":
+            self.tobak()
     def is_gpu_available(self):
         """检查系统"""
         

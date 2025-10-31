@@ -67,7 +67,18 @@ class Tools:
     def get_eth_info(self) -> str:
         '''# 网卡硬盘信息'''
         return os.popen(f'bash {self.get_tmp_path()}bash/CX_DISK_INFO.sh').read()
-    
+    def run_command(self, command: str) -> str:
+        '''执行命令并返回输出'''
+        try:
+            result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            return result.stdout.strip()
+        except subprocess.CalledProcessError as e:
+            return f"Error: {e.stderr.strip()}"
+    def set_bmc_dhcp(self)-> bool:
+        '''设置BMC为DHCP获取IP'''
+        os.popen('ipmitool lan set 1 ipsrc dhcp').read()
+        os.popen('ipmitool lan set 0 ipsrc dhcp').read()
+        return True
     def get_pwd(self)-> str:
         '''返回用户当前目录'''
         return os.popen('pwd').read().split('\n')[0]

@@ -5,11 +5,11 @@ export LC_ALL=C.UTF-8
 dmidecode -t system | awk '
 /Manufacturer:/ {
     sub(/Manufacturer: /, "")
-    print "Manufacturer:" $0
+    print "制造商:" $0
 }
 /Product Name:/ {
     sub(/Product Name: /, "")
-    print "Product Name:" $0
+    print "产品名称:" $0
 }
 /Serial Number:/ {
     sub(/Serial Number: /, "")
@@ -29,7 +29,7 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-printf "%-25s %-20s %-25s %-10s %-10s %-15s %-10s\n" "Slot" "Manufacturer" "Part Number" "Size" "Speed" "Memory Speed" "SN"
+printf "%-25s %-20s %-25s %-10s %-10s %-15s %-10s\n" "Slot" "制造商" "产品名称" "容量" "支持的最大速度" "系统内实际速度" "SN"
 
 dmidecode -t memory | awk '
 BEGIN {

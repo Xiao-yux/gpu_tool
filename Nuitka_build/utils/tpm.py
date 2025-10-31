@@ -8,10 +8,12 @@ async def tpm():
     choices.append(Choice("GPUburn压测", "3"))
     choices.append(Choice("Dcgmi测试", "4"))
     
+    print(choices[0])
     while True:
-        choice = await ListPrompt("请选择要进行的操作：",choices ).prompt_async()
+        choice = await ListPrompt("请选择要进行的操作：",choices,validator=lambda choice: choice != choices[0] ).prompt_async()
         print (choice)
 if __name__ == '__main__':
+    
     try:
         asyncio.run(tpm())
         print("操作完成")

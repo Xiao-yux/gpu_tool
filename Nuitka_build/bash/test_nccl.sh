@@ -1,4 +1,6 @@
 #!/bin/bash
+# NCCL测试脚本
+# 使用方法：./test_nccl.sh <devices>
 if [ $# -eq 0 ]; then
     echo "Usage: $0 <devices>"
     echo "Example: $0 3,4,5"
