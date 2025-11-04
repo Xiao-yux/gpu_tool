@@ -11,7 +11,10 @@ class CheckSystem:
     def check_system(self):
         '''检查系统环境'''
         self.is_gpu_available()
-        self.sys_save()
+        g=0
+        if self.check_gpu():
+            g=1
+        self.tool.async_run(self.sys_save(GPU=g))
         return True
     def check_ipmi(self) -> bool:
         '''检查ipmi是否安装'''
@@ -20,11 +23,11 @@ class CheckSystem:
         else:
             return False
     def check_gpu(self) -> bool:
-        '''检查gpu驱动是否安装'''
-        if os.path.exists('/usr/bin/nvidia-smi'):
-            return True
-        else:
+        '''检查gpu是否安装'''
+        if not os.popen("lspci | grep -i nvidia").read():
             return False
+        else:
+            return True
     def check_nvswitch(self) -> bool:
         '''检查nvswitch是否安装'''
         if os.path.exists('/usr/bin/nvidia-smi nvlink --status'):
@@ -47,6 +50,7 @@ class CheckSystem:
         elif g==1:
             self.printlog("检测到 NVIDIA 驱动，开启持久化模式")
             self.tool.run_command("nvidia-smi -pm 1")
+            
         
         #检测gpuburn
         
@@ -67,12 +71,15 @@ class CheckSystem:
         if not os.popen("dpkg -l | grep -i libnccl-dev").read():
             self.printlog("未检测到 libnccl-dev，请确保已正确安装 NCCLlib，NCCL 测试功能将不可用")
         
-    def sys_save(self):
+    def sys_save(self,GPU=0):
         """收集系统信息"""
         a = self.log.create_log_file("system_info.log")
         self.log.msg(self.tool.get_sys_info(), logger_name=a)
         self.log.msg(self.tool.get_eth_info(), logger_name=a)
-        self.log.msg(self.tool.get_gpu_info(), logger_name=a)
+        if GPU==1:
+            self.log.msg(self.tool.get_gpu_info(), logger_name=a)
+            self.log.msg(self.tool.run_command("nvidia-smi -q"), logger_name=self.log.create_log_file("nvidia-smi","system"))
+        
         self.log.msg(self.tool.run_command("lspci -vvv"), logger_name=self.log.create_log_file("lspci","system"))
         self.log.msg(self.tool.run_command("lscpu"), logger_name=self.log.create_log_file("lscpu","system"))
         self.log.msg(self.tool.run_command("lsusb"), logger_name=self.log.create_log_file("lsusb","system"))
