@@ -58,6 +58,35 @@ class Log():
         # logger.addHandler(console_handler)
 
         return logger
+
+    def _create_logger_with_path(self, name, filename, log_dir):
+        """在指定目录下创建logger"""
+        logger = logging.getLogger(name)
+        if self.config["log_level"] == "DEBUG":
+            logger.setLevel(logging.DEBUG)
+        elif self.config["log_level"] == "INFO":
+            logger.setLevel(logging.INFO)
+
+        # 创建文件处理器，使用指定的目录
+        log_file = os.path.join(log_dir, filename)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.INFO)
+
+        # 设置日志格式
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(formatter)
+
+        # 添加处理器到logger
+        logger.addHandler(file_handler)
+
+        # 添加控制台处理器
+        if self.config["console_output"] == True:  # 默认为True，保持原有行为
+            console_handler = logging.StreamHandler()
+            console_handler.setFormatter(formatter)
+            logger.addHandler(console_handler)
+
+        return logger
+
     def get_log_file(self):
        '''获取日志文件路径'''
        
@@ -85,13 +114,23 @@ class Log():
         else:
             logger.info(message)
 
-    def create_log_file(self, log_file) -> str:
+    def create_log_file(self, log_file, path='') -> str:
         '''# 创建新的logger 返回log名称'''
         if log_file.split('.')[-1] != 'log':
+            #使创建的文件名以.log结尾
             log_file = log_file + '.log'
         logger_name = os.path.splitext(log_file)[0]  # 去掉文件扩展名作为logger名称
         if logger_name not in self.loggers:
-            self.loggers[logger_name] = self._create_logger(logger_name, log_file)
+            # 如果提供了path参数，则在指定路径下创建日志文件
+            if path and isinstance(path, str):
+                # 创建指定路径的目录
+                target_dir = os.path.join(self.log_dir, path)
+                if not os.path.exists(target_dir):
+                    os.makedirs(target_dir)
+                # 修改_create_logger方法以支持自定义路径
+                self.loggers[logger_name] = self._create_logger_with_path(logger_name, log_file, target_dir)
+            else:
+                self.loggers[logger_name] = self._create_logger(logger_name, log_file)
             self.main_logger.info(f"创建日志文件: {logger_name}")
         return logger_name
 

@@ -19,7 +19,6 @@ class Menu:
         self.tobak = self.main_menu  #上一级菜单
         self.torun = self.main_menu   #下一级菜单
         self.boxtxt = "空格键选择, 回车键确认, Ctrl+C 退出程序"
-        self.is_gpu_available() #检查系统
     def main_menu(self):
         choices: list[Choice] = self.MenuChess.main_menu
         prompt = ListPrompt("请选择:",choices).prompt()
@@ -59,6 +58,7 @@ class Menu:
             a = os.popen("nvidia-smi topo -m").read()
         elif prompt.data == "6":
             a = os.popen("ipmitool lan print").read()
+        self.log.msg(f"运行时系统信息:\n{a}",logger_name="run_system_info")
         print(a)
         input("按回车键返回菜单...")
         self.tobak()
@@ -79,6 +79,17 @@ class Menu:
             a = self.fd_test_arg()
             self.log.msg(f"选择的自定义参数: {a}",logger_name="fieldiag")
             cmd = f"{arg} {a} --log {self.log.get_log_file()}/fd"
+        elif prompt.data == "4":
+            a = CheckboxPrompt("请选择单项测试:",self.MenuChess.fd_test_arg_menu,annotation=self.boxtxt).prompt()
+            cmd = f"{arg} --test="
+            for i in a:
+                if i.data == "exit":
+                    self.tobak()
+                    return
+                self.log.msg(f"选择了参数: {i.name} {i.data}",logger_name="fieldiag")
+                cmd += i.data +","
+            cmd = cmd[:-1]  # 去除最后一个逗号
+            cmd += f" --log {self.log.get_log_file()}/fd"
         elif prompt.data == "exit":
             self.tobak()
         self.run_command(cmd,fdpath,logname)
@@ -127,7 +138,7 @@ class Menu:
         self.run_command(arg,gpuburnpath,logname)
     def dcgmi_test(self):
         self.tobak = self.main_menu
-        choices: list[Choice] = self.MenuChess.dcgmi_menu
+        choices: list[Choice] = self.MenuChess.dcgm_menu
 
         prompt = ListPrompt("请选择:",choices).prompt()
         if prompt.data == "6":
@@ -192,43 +203,7 @@ class Menu:
             self.tobak()
         elif prompt.data == "exit":
             self.tobak()
-    def is_gpu_available(self):
-        """检查系统"""
-        
-       
-        if not os.popen("lspci | grep -i nvidia").read():
-            print("未检测到 GPU，部分功能将不可用")
-            self.log.msg("未检测到 GPU，部分功能将不可用")
-            
-        if not os.path.exists("/usr/bin/nvidia-smi"):
-            print("未检测到 nvidia-smi，请确保已正确安装 NVIDIA 驱动，部分功能将不可用")
-            self.log.msg("未检测到 nvidia-smi，请确保已正确安装 NVIDIA 驱动，部分功能将不可用")
-        else:
-            os.system(f"nvidia-smi -pm 1")
-        #检测gpuburn
-        
-        if not os.path.exists(f"{self.path['gpu_burn_path']}/{self.path['gpu_burn_exe']}"):
-            print(f"未检测到 {self.path['gpu_burn_path']}/{self.path['gpu_burn_exe']}，请确保已正确安装 gpu-burn，GPUburn 功能将不可用")
-            self.log.msg(f"未检测到 {self.path['gpu_burn_exe']}，请确保已正确安装 gpu-burn，GPUburn 功能将不可用")
-        #检测nccl
-        if not os.path.exists(f"{self.path['nccl_path']}/{self.path['nccl_exe']}"):
-            print(f"未检测到 {self.path['nccl_path']}/{self.path['nccl_exe']}，请确保已正确安装 NCCL，NCCL 测试功能将不可用")
-            self.log.msg(f"未检测到 {self.path['nccl_exe']}，请确保已正确安装 NCCL，NCCL 测试功能将不可用")
-        #检测fieldiag
-        if not os.path.exists(f"{self.path['fd_path']}/{self.path['fd_exe']}"):
-            print(f"未检测到 {self.path['fd_path']}/{self.path['fd_exe']}，请确保已正确安装 Fielddiag，FD 测试功能将不可用")
-            self.log.msg(f"未检测到 {self.path['fd_exe']}，请确保已正确安装 Fielddiag，FD 测试功能将不可用")
-        #检测dcgmi
-        if not os.path.exists("/usr/bin/dcgmi"):
-            print("未检测到 dcgmi，请确保已正确安装 DCGM，DCGMI 测试功能将不可用")
-            self.log.msg("未检测到 dcgmi，请确保已正确安装 DCGM，DCGMI 测试功能将不可用")
-        #检测nccllib
-        if not os.popen("dpkg -l | grep -i libnccl2").read():
-            print("未检测到 libnccl2，请确保已正确安装 NCCLlib，NCCL 测试功能将不可用")
-            self.log.msg("未检测到 libnccl2，请确保已正确安装 NCCL，NCCL 测试功能将不可用")
-        if not os.popen("dpkg -l | grep -i libnccl-dev").read():
-            print("未检测到 libnccl-dev，请确保已正确安装 NCCLlib，NCCL 测试功能将不可用")
-            self.log.msg("未检测到 libnccl-dev，请确保已正确安装 NCCL，NCCL 测试功能将不可用")
+    
     def nccl_test(self):
         gpu_count = self.tool.get_gpu_count()
         arg = f"{self.path['nccl_exe']} -b 256M -e 20G -f 2 -g {gpu_count}"

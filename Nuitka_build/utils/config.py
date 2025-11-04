@@ -16,9 +16,9 @@ class Config:
         self.config = config_file
         self.display = SingleLineDisplay("\n", show=True, color=Colors.YELLOW)
         self.load_config() 
+        self.check_version()
         self.log = log.Log(self.__config.get('LOG'))
         self.log.msg('配置文件加载完成')
-        self.tool.async_run(self.sys_save) #收集系统信息
     def load_config(self):
         """ 加载配置文件"""
         self.is_config()
@@ -28,20 +28,25 @@ class Config:
                 self.debug()
         except Exception as e:
             print(e)
-    def sys_save(self):
-        """收集系统信息"""
-        a = self.log.create_log_file("system_info.log")
-        self.log.msg(self.tool.get_sys_info(), logger_name=a)
-        self.log.msg(self.tool.get_eth_info(), logger_name=a)
-        self.log.msg(self.tool.get_gpu_info(), logger_name=a)
-        self.log.msg(self.tool.run_command("lspci -vvv"), logger_name=self.log.create_log_file("lspci"))
-        self.log.msg(self.tool.run_command("lscpu"), logger_name=self.log.create_log_file("lscpu"))
-        self.log.msg(self.tool.run_command("lsusb"), logger_name=self.log.create_log_file("lsusb"))
-        self.log.msg(self.tool.run_command("dmidecode"), logger_name=self.log.create_log_file("dmidecode"))
-        self.log.msg(self.tool.run_command("lshw"), logger_name=self.log.create_log_file("lshw"))
-
-
+    def load_tmp_config(self):
+        """ 加载临时配置文件"""
+        try:
+            with open(self.tmpconfig, 'r', encoding='utf-8') as f:
+                self.__oldconfig = toml.load(f)
+        except Exception as e:
+            print(e)
+    def check_version(self)-> str:
+        """ 检测系统下版本号是否最新"""
+        self.load_tmp_config()
+        a= self.__config.get('CONFIG')['version']
         
+        b = self.__oldconfig.get('CONFIG')['version']
+        
+        if a != b:
+            self.tool.copy_file(self.tmpconfig, config_file)
+            self.load_config() #重新加载配置文件
+            return '系统下不是最新版本'
+
     def is_config(self)-> bool:
         """ 判断配置文件是否存在"""
         # print(self.tool.is_config_path())

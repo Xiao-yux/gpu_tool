@@ -3,6 +3,7 @@ import utils.menu as menu
 from art import tprint, text2art
 import argparse
 from utils.update import Update
+from utils.syscheck import CheckSystem
 def parse_arguments(ver=None):
     """
     解析命令行参数。
@@ -16,6 +17,7 @@ def parse_arguments(ver=None):
     )
     
     # 添加参数
+    parser.add_argument('--no_log', action='store_true', help='不显示log')
     parser.add_argument('--get_gpu_info', action='store_true', help='获取GPU信息')
     parser.add_argument('--get_sys_info', action='store_true', help='获取CPU和内存信息')
     parser.add_argument('--get_eth_info', action='store_true', help='获取网卡和硬盘信息')
@@ -36,11 +38,18 @@ def main():
     if args.get_eth_info:
         print(cfg.tool.get_eth_info())
         return
+    if args.no_log:
+        cfg.log.msg('运行菜单')
+        Update(cfg)
+        CheckSystem(cfg)
+        men = menu.Menu(cfg)
+        men.run()
         
+    
     print(text2art("Aisuan", chr_ignore=True))
     cfg.log.msg('运行菜单')
+    CheckSystem(cfg)
     Update(cfg)
-    
     men = menu.Menu(cfg)
     men.run()
 

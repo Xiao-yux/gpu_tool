@@ -16,7 +16,7 @@ class Tools:
 
     def get_dist_path(self) -> str:
         '''获取程序所在目录'''
-        return str(pathlib.Path(sys.argv[0]).parent.resolve()) + '/aisuan'
+        return str(pathlib.Path(sys.argv[0]).parent.resolve()) + '/' 
     
     def is_config_path(self) -> bool:
         '''判断配置文件是否存在'''
@@ -76,8 +76,8 @@ class Tools:
             return f"Error: {e.stderr.strip()}"
     def set_bmc_dhcp(self)-> bool:
         '''设置BMC为DHCP获取IP'''
-        os.popen('ipmitool lan set 1 ipsrc dhcp').read()
-        os.popen('ipmitool lan set 0 ipsrc dhcp').read()
+        self.run_command('ipmitool lan set 1 ipsrc dhcp')
+        
         return True
     def get_pwd(self)-> str:
         '''返回用户当前目录'''
@@ -87,35 +87,13 @@ class Tools:
         return os.popen('dmidecode -s system-serial-number').read()
     def rest_gpu_server(self):
         # 重启GPU服务
-        os.system('systemctl restart nvidia-powerd')
-        os.system('systemctl restart nvidia-dcgm')
-        os.system('systemctl restart nvidia-fabricmanager')
-        os.system('systemctl restart nvidia-persistenced')
+        subprocess.run('systemctl restart nvidia-powerd', shell=True, check=True)
+        subprocess.run('systemctl restart nvidia-dcgm', shell=True, check=True)
+        subprocess.run('systemctl restart nvidia-fabricmanager', shell=True, check=True)
+        subprocess.run('systemctl restart nvidia-persistenced', shell=True, check=True)
         return True
 
-class checksystem():
-    """系统检测"""
-    def __init__(self, arg):
-       pass
 
-    def check_ipmi(self) -> bool:
-        '''检查ipmi是否安装'''
-        if os.path.exists('/usr/bin/ipmitool'):
-            return True
-        else:
-            return False
-    def check_gpu(self) -> bool:
-        '''检查gpu驱动是否安装'''
-        if os.path.exists('/usr/bin/nvidia-smi'):
-            return True
-        else:
-            return False
-    def check_nvswitch(self) -> bool:
-        '''检查nvswitch是否安装'''
-        if os.path.exists('/usr/bin/nvidia-smi nvlink --status'):
-            return True
-        else:
-            return False
 class ipmitools():
     """ ipmi相关工具"""
     
@@ -128,6 +106,9 @@ class ipmitools():
     def lan():
         '''lan信息'''
         return os.popen('ipmitool lan print').read()
+    def syslogtotty():
+        '''重定向系统日志到tty9'''
+        subprocess.run('', shell=True, check=True)
     def user():
         '''用户信息'''
         return os.popen('ipmitool user list 1').read()

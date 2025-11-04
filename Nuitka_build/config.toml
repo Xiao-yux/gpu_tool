@@ -1,5 +1,5 @@
 [CONFIG]
-version = "1.0.5"  #版本号
+version = "1.0.6"  #版本号
 config_file= "/etc/aisuan/config.toml" #配置文件
 main_file = "/usr/local/bin/aisuan"  #主程序
 DEBUG = false  #调试模式

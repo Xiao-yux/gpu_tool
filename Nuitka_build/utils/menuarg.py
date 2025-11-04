@@ -11,6 +11,7 @@ class MenuChess:
     dcgm_menu : list[Choice] = []
     nvband_menu : list[Choice] = []
     setsystem_menu : list[Choice] = []
+    fd_test_arg_menu : list[Choice] = []
     def main(self):
         '''初始化菜单 '''
 
@@ -22,7 +23,7 @@ class MenuChess:
         self._dcgm()
         self._nvband()
         self._setsystem()
-        
+        self._fd_test_arg()
     def _main_info(self):
         ''' 创建主菜单'''
         choices: list[Choice] = []
@@ -60,6 +61,7 @@ class MenuChess:
         choices: list[Choice] = []
         choices.append(Choice("运行Level1 测试", "1"))
         choices.append(Choice("运行Level2 测试", "2"))
+        choices.append(Choice("单项测试", "4"))
         choices.append(Choice("自定义参数测试", "3"))
         choices.append(Choice("返回", "exit"))
         self.fd_menu = choices
@@ -92,6 +94,25 @@ class MenuChess:
         for k,v in arg.items():
             choices.append(Choice(k,v))
         self.fd_args_menu = choices
+    
+    def _fd_test_arg(self):
+        ''' 创建fd自定义测试参数菜单 '''
+        arg = {
+    "checkinforom(验证 InfoROM 数据的完整性和正确性。)": "checkinforom",
+    "inventory   (清点系统中所有 GPU 设备及其基本信息。)": "inventory",
+    "connectivity(检查 GPU 与主板、电源、NVLink 等物理连接是否正常。)":"connectivity",
+    "gpumem      (测试 GPU 显存及其接口（FBIO）功能。)":"gpumem",
+    "gpustress   (对 GPU 核心进行高负载压力测试。)":"gpustress",
+    "pcie        (测试 PCIe 带宽、速率协商及信号质量（含眼图测试）。)":"pcie",
+    "nvlink      (测试 GPU 之间 NVLink 链路的带宽与信号质量。)":"nvlink",
+    "nvswitch    (针对 NVSwitch 芯片进行 NVLink 带宽与信号测试。)":"nvswitch",
+    "power       (对 GPU 及 NVSwitch 进行供电压力测试。)":"power",
+    "返回" : "exit"
+        }
+        choices: list[Choice] = []
+        for k,v in arg.items():
+            choices.append(Choice(k,v))
+        self.fd_test_arg_menu = choices
     
     def _gpu_burn(self):
         """ 创建GPU burn参数菜单 """
