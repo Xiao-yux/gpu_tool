@@ -1,4 +1,4 @@
-apt install -y gcc g++ clang lld make patchelf python3-dev ccache python3
+apt install -y gcc g++ clang lld make patchelf python3-dev ccache python3 python3-pip
 pip install noneprompt toml Nuitka text2art art
 
 	python -m nuitka --onefile --standalone --lto=yes \
