@@ -7,7 +7,7 @@ nuitka:
 	    --clang --include-package=utils \
 		--include-data-dir=bash=bash --show-progress\
 	    --include-data-file=config.toml=config.toml \
-	    --output-dir=dist --output-filename=main --remove-output $(SOURCE)
+	    --output-dir=dist --output-filename=gpu_tool --remove-output $(SOURCE)
 
 clean:
 	rm -rf dist main.build main.dist

@@ -10,7 +10,7 @@ async def tpm():
     
     print(choices[0])
     while True:
-        choice = await ListPrompt("请选择要进行的操作：",choices,validator=lambda choice: choice != choices[0] ).prompt_async()
+        choice = await ListPrompt("请选择要进行的操作：",choices,validator=lambda choice: choice == choices[6] ).prompt_async()
         print (choice)
 if __name__ == '__main__':
     

@@ -20,7 +20,7 @@ class Tools:
     
     def is_config_path(self) -> bool:
         '''判断配置文件是否存在'''
-        config_file= "/etc/aisuan/config.toml" #配置文件
+        config_file= "/etc/gpu_tool/config.toml" #配置文件
         return os.path.exists(config_file)
     
     def get_gpu_count(self):

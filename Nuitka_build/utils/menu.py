@@ -22,17 +22,16 @@ class Menu:
     def main_menu(self):
         choices: list[Choice] = self.MenuChess.main_menu
         prompt = ListPrompt("请选择:",choices).prompt()
-
         if prompt.data == "1":
-            self.torun = self.system_info
+            self.torun = self.aotu_test
         elif prompt.data == "2":
-            self.torun = self.fd_test
+            self.torun = self.system_info
         elif prompt.data == "3":
-            self.torun = self.gpu_burn_test
+            self.torun = self.gpu_test
         elif prompt.data == "4":
-            self.torun = self.dcgmi_test
+            self.torun = self.sys_test
         elif prompt.data == "5":
-            self.torun = self.nccl_test
+            self.torun = self.set_system
         elif prompt.data == "6":
             subprocess.run(['poweroff'])
         elif prompt.data == "exit":
@@ -58,9 +57,50 @@ class Menu:
             a = os.popen("nvidia-smi topo -m").read()
         elif prompt.data == "6":
             a = os.popen("ipmitool lan print").read()
-        self.log.msg(f"运行时系统信息:\n{a}",logger_name="run_system_info")
+        self.log.msg(f"运行时系统信息:\n{a}",logger_name=self.log.create_log_file("run_info"))
         print(a)
         input("按回车键返回菜单...")
+        self.tobak()
+    def gpu_test(self):
+        self.tobak = self.main_menu
+        choices: list[Choice] = self.MenuChess.gpu_test_menu
+        prompt = ListPrompt("请选择:",choices).prompt()
+        if prompt.data == "1":
+            self.torun = self.fd_test
+        elif prompt.data == "2":
+            self.torun = self.gpu_burn_test
+        elif prompt.data == "3":
+            self.torun = self.dcgmi_test
+        elif prompt.data == "4":
+            self.torun = self.nvband_test
+        elif prompt.data == "5":
+            self.torun = self.nccl_test
+        elif prompt.data == "6":
+            self.torun = self.p2pBand_test
+        elif prompt.data == "exit":
+            self.tobak()
+        self.torun()
+    def aotu_test(self):
+        self.tobak = self.main_menu
+        choices: list[Choice] = self.MenuChess.aotu_test_menu
+        prompt = ListPrompt("请选择:",choices,validator=lambda x: x == choices[3],error_message="暂不可用").prompt()
+        if prompt.data == "1":
+            self.torun = self.fd_test
+        elif prompt.data == "2":
+            self.torun = self.gpu_burn_test
+        elif prompt.data == "exit":
+            self.tobak()
+        self.torun()
+    def sys_test(self):
+        self.tobak = self.main_menu
+        choices: list[Choice] = self.MenuChess.sys_test_menu
+        prompt = ListPrompt("请选择:",choices).prompt()
+        if prompt.data == "1":
+            os.system("s-tui")
+        elif prompt.data == "2":
+            a = self.tool.get_gpu_info()
+        elif prompt.data == "exit":
+            self.tobak()
         self.tobak()
     def fd_test(self):
         self.tobak = self.main_menu
@@ -203,7 +243,18 @@ class Menu:
             self.tobak()
         elif prompt.data == "exit":
             self.tobak()
-    
+    def p2pBand_test(self):
+
+        gpu_count = self.tool.get_gpu_count()
+        arg = f"{self.tool.get_tmp_path()}bash/p2pBandwidthLatencyTest"
+        print(f"检测到 GPU 数量: {gpu_count}")
+        self.log.msg(f"检测到 GPU 数量: {gpu_count}",logger_name="p2pband")
+        if int(gpu_count) < 2:
+            self.log.msg("未检测到足够的 GPU，无法运行 P2P 带宽测试",logger_name=self.log.create_log_file("p2pband"))
+            print("未检测到足够的 GPU，无法运行 P2P 带宽测试")
+            input("按回车键返回菜单...")
+            self.tobak()
+        self.run_command(arg,logname="p2pband")
     def nccl_test(self):
         gpu_count = self.tool.get_gpu_count()
         arg = f"{self.path['nccl_exe']} -b 256M -e 20G -f 2 -g {gpu_count}"

@@ -12,6 +12,9 @@ class MenuChess:
     nvband_menu : list[Choice] = []
     setsystem_menu : list[Choice] = []
     fd_test_arg_menu : list[Choice] = []
+    aotu_test_menu : list[Choice] = []
+    gpu_test_menu : list[Choice] = []
+    sys_test_menu : list[Choice] = []
     def main(self):
         '''初始化菜单 '''
 
@@ -24,20 +27,46 @@ class MenuChess:
         self._nvband()
         self._setsystem()
         self._fd_test_arg()
+        self._aotu_test()
+        self._gpu_test()
+        self._sys_test()
     def _main_info(self):
         ''' 创建主菜单'''
         choices: list[Choice] = []
-        choices.append(Choice("系统信息", "1"))
-        choices.append(Choice("FD压测", "2"))
-        choices.append(Choice("GPUburn压测", "3"))
-        choices.append(Choice("Dcgmi测试", "4"))
-        choices.append(Choice("Nvband测试", "8"))
-        choices.append(Choice("Nccl测试", "5"))
-        choices.append(Choice("设置", "11"))
+        choices.append(Choice("一键测试", "1"))
+        choices.append(Choice("系统信息", "2"))
+        choices.append(Choice("GPU测试", "3"))
+        choices.append(Choice("系统其他测试", "4"))
+        choices.append(Choice("设置", "5"))
         choices.append(Choice("关机", "6"))
         choices.append(Choice("退出", "exit"))
         self.main_menu = choices
-    
+    def _aotu_test(self):
+        '''创建自动测试菜单'''
+        choices: list[Choice] = []
+        choices.append(Choice("测试1", "1"))
+        choices.append(Choice("测试2", "2"))
+        choices.append(Choice("返回", "exit"))
+        self.aotu_test_menu = choices
+    def _gpu_test(self):
+        '''创建GPU测试菜单'''
+        choices: list[Choice] = []
+        choices.append(Choice("FD压测", "1"))
+        choices.append(Choice("GPUburn压测", "2"))
+        choices.append(Choice("Dcgmi测试", "3"))
+        choices.append(Choice("Nvband测试", "4"))
+        choices.append(Choice("Nccl测试", "5"))
+        choices.append(Choice("p2pBandwidthLatencyTest测试", "6"))
+        choices.append(Choice("返回", "exit"))
+        self.gpu_test_menu = choices
+    def _sys_test(self):
+        '''创建系统测试菜单'''
+        choices: list[Choice] = []
+        choices.append(Choice("cpu 压测", "1"))
+        choices.append(Choice("内存压测", "2"))
+        choices.append(Choice("硬盘速度测试", "3"))
+        choices.append(Choice("返回", "exit"))
+        self.sys_test_menu = choices
     def _system_info(self):
         '''创建系统信息菜单'''
         choices: list[Choice] = []
