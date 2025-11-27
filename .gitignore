@@ -3,6 +3,7 @@
 /log
 nuitka-crash-report.xml
 dist
+.idea
 __pycache__
 *.pyc
 *.pyo
