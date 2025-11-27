@@ -23,7 +23,7 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc g++ clang lld make patchelf python3-dev ccache python3
+        sudo apt install -y gcc g++ clang lld make patchelf python3-dev ccache python3 python3-pip
         
     - name: Install Python dependencies
       run: |
@@ -32,23 +32,17 @@ jobs:
         
     - name: Build with Nuitka
       run: |
-        cd Nuitka_build
         python -m nuitka --onefile --standalone --lto=yes --assume-yes-for-downloads\
-          --clang --include-package=utils \
-          --include-data-dir=bash=bash\
-          --include-data-file=config.toml=config.toml --show-progress\
-          --output-dir=dist --output-filename=main --remove-output main.py
-    
-    - name: Rename binary
-      run: |
-        cd Nuitka_build/dist
-        mv main tools_linux
+          --clang --include-package=core --include-package=menu --include-package=utils \
+          --include-data-dir=bash=bash --show-progress\
+          --include-data-file=config.toml=config.toml \
+          --output-dir=dist --output-filename=gpu_tool --remove-output main.py
         
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: build-artifacts
-        path: Nuitka_build/dist/
+        path: dist/gpu_tool
         
     - name: Release
       uses: softprops/action-gh-release@v1
