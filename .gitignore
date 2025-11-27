@@ -1,8 +1,8 @@
 *.txt
 /.venv
 /log
-Nuitka_build/nuitka-crash-report.xml
-Nuitka_build/dist
+nuitka-crash-report.xml
+dist
 __pycache__
 *.pyc
 *.pyo

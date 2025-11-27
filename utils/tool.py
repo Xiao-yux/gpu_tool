@@ -4,8 +4,7 @@ import sys
 import subprocess
 import threading
 import time
-from noneprompt import Choice
-from core.log import Log
+
 
 class Tools:
     def __init__(self):
@@ -82,13 +81,21 @@ class Tools:
         input("按下回车键继续...")
         return
     @staticmethod
-    def run_command(command: str) -> str:
-        '''执行命令并返回输出'''
-        try:
-            result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            return result.stdout.strip()
-        except subprocess.CalledProcessError as e:
-            return f"Error: {e.stderr.strip()}"
+    def run_command(command: str, cmd = "1") -> int | None | str:
+        """执行命令并返回输出
+            1 : 使用subprocess.run
+            2 ： 使用 os.popen
+        """
+        if cmd == "1":
+            try:
+                result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                        text=True)
+                return result.stdout.strip()
+            except subprocess.CalledProcessError as e:
+                return f"Error: {e.stderr.strip()}"
+        elif cmd == "2":
+            return os.popen(command).read()
+        return os.popen(command).read()
 
     def set_bmc_dhcp(self)-> bool:
         '''设置BMC为DHCP获取IP'''

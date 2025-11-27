@@ -1,8 +1,9 @@
-OUTPUT = dist/main
+OUTPUT = dist/gpu_tool
 SOURCE = main.py
 CC     = clang
+PIP_DEPS = noneprompt toml Nuitka text2art art
 
-nuitka:
+build:
 	python -m nuitka --onefile --standalone --lto=yes --assume-yes-for-downloads\
 	    --clang --include-package=core --include-package=menu --include-package=utils \
 		--include-data-dir=bash=bash --show-progress\
@@ -12,7 +13,14 @@ nuitka:
 clean:
 	rm -rf dist main.build main.dist
 
-.PHONY: nuitka clean
+install:
+	apt update && apt install -y gcc g++ clang lld make patchelf python3-dev ccache python3 python3-pip
+	pip install --upgrade pip
+	pip install $(PIP_DEPS)
+
+run :
+	$(OUTPUT)
+.PHONY: build clean install
 
 
 

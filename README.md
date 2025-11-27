@@ -2,12 +2,6 @@
 
 一个工具菜单
 
-![工具界面](img/memu.png)
-![cpu](img/cpu.jpg)
-![gpu](img/gpu.jpg)
-![disk](img/disk.jpg)
-## 如何使用
-
 
 
 ### 1. 安装依赖 & 克隆仓库
@@ -35,5 +29,3 @@ make
 ## 有问题请提issue
 欢迎提出更多服务器测试项目
 
-#待更新
-!(box.md)

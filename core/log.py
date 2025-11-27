@@ -126,8 +126,10 @@ class Log:
 
         return wrapper
 
-    def msg(self, message, level="INFO", logger_name="gpu_tool_debug",outconsole=self.out):
+    def msg(self, message, level="INFO", logger_name="gpu_tool_debug",outconsole=False):
         """# 记录日志"""
+        if self.out:
+            outconsole = self.out
         if outconsole:
             print(f"{message}")
         if logger_name not in self.loggers:
