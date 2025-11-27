@@ -19,12 +19,9 @@ make
 
 1. 安装 nvidia驱动 ,cuda
 2. 安装 dcgmi
-3. 运行一遍程序，然后编辑 `/etc/aisuan/config.toml` 文件，填写相关信息
+3. 运行一遍程序，然后编辑 `/etc/gpu_tool/config.toml` 文件，填写工具路径
 
 
-### 其他
-我编译了ubuntu2204带cjktty补丁的内核，放在linux-kernel目录下
-一个代证书签名一个不带
 
 ## 有问题请提issue
 欢迎提出更多服务器测试项目

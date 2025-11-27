@@ -47,7 +47,7 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        files: Nuitka_build/dist/tools_linux
+        files: dist/gpu_tool
         draft: false
         prerelease: false
         generate_release_notes: true
