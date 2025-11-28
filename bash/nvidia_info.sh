@@ -148,7 +148,7 @@ while IFS= read -r line; do
         gpu_power_block=0
     fi
     # 只在GPU Power Readings块内匹配Max Power Limit
-    if [[ $gpu_power_block -eq 1 && $line =~ Max\ Power\ Limit ]]; then
+    if [[ $gpu_power_block -eq 1 && $line =~ Current\ Power\ Limit ]]; then
         val=$(echo "$line" | awk -F: '{print $2}' | awk '{print $1}' | awk -F. '{print $1}')
         [ "$val" != "" ] && current_gpu_power="$val"
         continue

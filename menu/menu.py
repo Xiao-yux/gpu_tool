@@ -1,10 +1,13 @@
+import signal
 import subprocess
+import sys
+import time
 from typing import Dict, List
 import json
 from noneprompt import ListPrompt, Choice, InputPrompt, CheckboxPrompt
 import os
 from menu.menuarg import MenuChess
-from utils.tool import Tools
+from utils.tool import Tools,exitfun
 from core.log import Log
 
 
@@ -144,7 +147,8 @@ class Menu:
         self.log.msg(f'用户选择Folding测试菜单: {pro}')
         self.main_menu()
 
-    def run_command(self, command: str, path: str = '/tmp', logname: str = "command"):
+    @exitfun
+    def run_command(self, command: str, path: str = '/tmp', logname: str = "command", _exit_flag=None):
         """运行命令并实时输出日志
         command : 执行的命令
         path : 执行命令时的目录
@@ -168,13 +172,25 @@ class Menu:
                 bufsize=1,  # 行缓冲
                 universal_newlines=True
             )
+            # 非阻塞读，避免 readline 卡死
+            os.set_blocking(process.stdout.fileno(), False)
             if process.stdout is None:
                 raise subprocess.SubprocessError("无法创建进程或获取输出流")
             while True:
+                if _exit_flag and _exit_flag.is_set():
+
+                    self.log.msg(f"\n[!] 用户按下 q/ESC，命令被终止。 PID:{process.pid}", outconsole=True)
+                    os.kill(process.pid+1, signal.SIGTERM)
+                    process.terminate()
+                    process.kill()
+                    if process.poll() is None:
+                        os.kill(process.pid+1, signal.SIGKILL)
+                    return
                 output = process.stdout.readline()
                 if output == '' and process.poll() is not None:
                     break
                 if output:
+                    time.sleep(0.1)
                     self.log.msg(output.strip(), logger_name=logname, outconsole=True)  # 同时记录到日志
             return_code = process.poll()
             self.log.msg(f"命令执行结束, 返回码: {return_code}")
@@ -201,12 +217,12 @@ class Menu:
             a = InputPrompt("输入测试时间(秒),默认300秒:").prompt()
             if not a:
                 a = "300"
-            cmd = f"stress-ng --cpu 0 --cpu-method all --cache 0 --matrix 0 --memcpy 0 --mq 0 --pipe 0 --fork 0 --switch 0 --vm 2 --vm-bytes 80% --iomix 4 --iomix-bytes 1g --timeout {a}s  --metrics-brief --tz --perf --verify --times --log-file '{self.log.get_log_file()}/stress_ng.log'"
+            cmd = f"stress-ng --cpu 0 --cpu-method all --cache 0 --matrix 0 --memcpy 0 --mq 0 --pipe 0 --fork 0 --switch 0 --vm 0 --vm-bytes 2G --iomix 4 --iomix-bytes 1g --timeout {a}s  --metrics-brief --tz --perf --verify --times --log-file '{self.log.get_log_file()}/stress_ng.log'"
             self.run_command(cmd, logname="system_stress_test")
         if pro.data == "2":
             a = int(os.popen("free -m | grep Mem | awk '{print ($2)}'").read())
             self.log.msg(a)
-            cmd = f"memtester {a - 4096}M"
+            cmd = f"memtester {a - 4096}M 1"
             self.log.msg(cmd)
             self.run_command(cmd, logname="memtester_test")
         if pro.data == "3":

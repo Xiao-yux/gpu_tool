@@ -1,9 +1,14 @@
+import glob
 import os
 import pathlib
 import sys
 import subprocess
 import threading
 import time
+import termios
+import tty
+import select
+from pip._internal.utils import temp_dir
 
 
 class Tools:
@@ -26,10 +31,73 @@ class Tools:
         return str(pathlib.Path(sys.argv[0]).parent.resolve()) + '/'
 
     @staticmethod
+    def check_fd_log(logpath:str):
+        """检查fd日志"""
+        log = {
+            'SN' : '',  # 机头SN
+            'Result' :'',
+            'GPU1' : ['SN',{'checkinforom':'','connectivity':'','gpumem':'','gpustress':'','inforom':'','pcie':''},'PASS'],
+            'GPU2' : ['SN',{'checkinforom':'','connectivity':'','gpumem':'','gpustress':'','inforom':'','pcie':''},'PASS'],
+            'GPU3' : ['SN',{'checkinforom':'','connectivity':'','gpumem':'','gpustress':'','inforom':'','pcie':''},'PASS'],
+            'GPU4' : ['SN',{'checkinforom':'','connectivity':'','gpumem':'','gpustress':'','inforom':'','pcie':''},'PASS'],
+            'GPU5' : ['SN',{'checkinforom':'','connectivity':'','gpumem':'','gpustress':'','inforom':'','pcie':''},'PASS'],
+            'GPU6' : ['SN',{'checkinforom':'','connectivity':'','gpumem':'','gpustress':'','inforom':'','pcie':''},'PASS'],
+            'GPU7' : ['SN',{'checkinforom':'','connectivity':'','gpumem':'','gpustress':'','inforom':'','pcie':''},'PASS'],
+            'GPU8' : ['SN',{'checkinforom':'','connectivity':'','gpumem':'','gpustress':'','inforom':'','pcie':''},'PASS'],
+            'fd':    {'inventory': '', 'nvlink': '', 'nvswitch': '', 'power': ''}
+        }
+        if not os.path.exists(logpath+'/run.log'):
+            return [f'路径不存在:{logpath+"/run.log"}',True]
+        import re
+        def find_value(path: str, pattern: str):
+            pat = rf"{re.escape(pattern)}\s*(.*?)\s*$"
+            with open(path, "r", encoding="utf-8") as f:
+                m = re.search(pat, f.read(), re.MULTILINE)
+                f.close()
+            return m.group(1) if m else None
+
+        log['SN'] = find_value(logpath+'/run.log','Serial Number')
+        log['Result'] = find_value(logpath+'/run.log', 'Final Result:')
+
+        #开始找单卡
+        gpupath = ['checkinforom','connectivity','gpumem','gpustress','inforom','pcie']
+        for a in gpupath:
+            tmppath = logpath + '/' + a
+            pattern = os.path.join(tmppath, 'SXM[1-8]*', 'output.log')
+            log_files = glob.glob(pattern, recursive=False)
+            for f in log_files:
+                s = f[len(tmppath):].strip('output.log')
+                ss = s.strip('/')
+                gp = ss[:4]
+                str1 = 'GPU' + gp.strip('SXM')
+                # print(f'1 {gp} 2 {str1} 3: {ss}')
+                log[str1][0] = ss
+                log[str1][1][a] = find_value(f,"Error Code =")
+                if log[str1][1][a] != '000000000000 (ok)':
+                    log[str1][2]='FAIL'
+        gpupath = ['inventory','nvlink','nvswitch','power']
+        for a in gpupath:
+            tmppath = logpath + '/' + a + "/output.log"
+            log['fd'][a] = find_value(tmppath,"Error Code =")
+        return log
+
+    def fd_log_print(self,path):
+        a = self.check_fd_log(path)
+        try:
+            if a[1]:
+                print(a[0])
+                return
+        except KeyError:
+            pass
+        self.print_report(a)
+
+
+    @staticmethod
     def is_config_path() -> bool:
         '''判断配置文件是否存在'''
         config_file= "/etc/gpu_tool/config.toml" #配置文件
         return os.path.exists(config_file)
+
     @staticmethod
     def get_gpu_count():
         '''返回GPU数量'''
@@ -42,6 +110,7 @@ class Tools:
             return os.popen('nvidia-smi --query-gpu=count --format=csv,noheader,nounits').read().split('\n')[0]
         else:
             return 0
+
     @staticmethod
     def async_run(func, *args,daemon: bool = False, **kwargs) -> threading.Thread:
         """
@@ -151,6 +220,63 @@ class Tools:
         """获取bash路径"""
         return f"{str(pathlib.Path(sys.argv[0]).parent.resolve())}"+ "/bash/"
 
+    @staticmethod
+    def print_report(s: dict) -> None:
+        header = (
+            "----------------------------------------------------------------------------------------------------\n"
+            "| 机头SN : {sn:<40}  ||  Result : {result:<40} |\n"
+            "|--------------------------------------------------------------------------------------------------\n"
+            "|       {check:<20} {conn:<20} {mem:<20} {stress:<18} {info:<18} {pcie:<17} | Result | SN\n"
+            "----------------------------------------------------------------------------------------------------"
+        ).format(
+            sn=s['SN'], result=s['Result'],
+            check='checkinforom', conn='connectivity',
+            mem='gpumem', stress='gpustress',
+            info='inforom', pcie='pcie'
+        )
+        print(header)
+        for i in range(1, 9):
+            gpu = s[f'GPU{i}']
+            vals = gpu[1]
+            print("| GPU{i} | {check:<12} | {conn:<12} | {mem:<12} | {stress:<12} | {info:<12} | {pcie:<12} | {res:<6} | {sn:<13}".format(
+                i=i,
+                check=vals['checkinforom'] or '',
+                conn=vals['connectivity'] or '',
+                mem=vals['gpumem'] or '',
+                stress=vals['gpustress'] or '',
+                info=vals['inforom'] or '',
+                pcie=vals['pcie'] or '',
+                res=gpu[2] or 'FAIL',
+                sn=gpu[0] or 'NA'
+            ))
+        print("----------------------------------------------------------------------------------------------------")
+        gpupath = ['inventory', 'nvlink', 'nvswitch', 'power']
+        for a in gpupath:
+            print(f"|{a:<10}  = {s['fd'][a]}|")
+def exitfun(func):
+    def _watcher(fd, ev: threading.Event):
+        while not ev.is_set():
+            if select.select([fd], [], [], 0.2)[0]:
+                if os.read(fd, 1) in (b'q', b'\x1b'):
+                    ev.set()
+
+    def wrapper(*args, **kwargs):
+        fd = sys.stdin.fileno()
+        old_attr = termios.tcgetattr(fd)
+        exit_ev = threading.Event()
+        try:
+            tty.setcbreak(fd)
+            th = threading.Thread(target=_watcher, args=(fd, exit_ev), daemon=True)
+            th.start()
+            kwargs['_exit_flag'] = exit_ev
+            return func(*args, **kwargs)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_attr)
+            sys.stdout.flush()
+
+    return wrapper
+
+
 class ipmitools():
     """ ipmi相关工具"""
 
@@ -173,6 +299,7 @@ class ipmitools():
 
 if __name__ == '__main__':
     tools = Tools()
-    print(tools.get_tmp_path())
-    print(tools.get_dist_path())
-    print(tools.is_config_path())
+    a = "/mnt/c/Users/Administrator/Documents/work/gpu_tool/tmp/2"
+    s = tools.check_fd_log(a)
+    print(s)
+    tools.print_report(s)
