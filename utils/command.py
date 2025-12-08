@@ -29,7 +29,6 @@ class GpuToolApi:
         if args.check_fd_log:
             self.tool.fd_log_print(args.check_fd_log)
             sys.exit(0)
-        print(args.check_fd_log)
         print(text2art(tx1, chr_ignore=True))
         return
     @staticmethod
@@ -51,7 +50,6 @@ class GpuToolApi:
         parser.add_argument('--get_eth_info', action='store_true', help='获取网卡和硬盘信息')
         parser.add_argument('--version', action='version', version=f'{ver}', help='显示版本信息')
         parser.add_argument('--disp_name', action='store', help='自定义颜文字')
-        parser.add_argument('--check_fd_log', metavar='FD_LOG_PATH',
-                            nargs='?', const=os.getcwd(),default=os.getcwd(), help='分析fd日志')
+        parser.add_argument('--check_fd_log', metavar='FD_LOG_PATH',help='分析fd日志')
 
         return parser.parse_args()

@@ -9,7 +9,7 @@ import os
 from menu.menuarg import MenuChess
 from utils.tool import Tools,exitfun
 from core.log import Log
-
+from testclass.testmanager import Manager
 
 class Menu:
     def __init__(self, path: Dict, log: Log):
@@ -18,13 +18,16 @@ class Menu:
         self.tool = Tools()
         self.log = log
         self.log.msg('Menu initialized.')
+        self.autotest = Manager(log,path)
 
     def main_menu(self):
         """主菜单"""
-        pro = ListPrompt("请选择操作:", choices=self.menu_chess.main_menu,
-                         validator=lambda x: x != self.menu_chess.main_menu[0], error_message="暂未完成").prompt()
+        pro = ListPrompt("请选择操作:", choices=self.menu_chess.main_menu,allow_filter=False,
+                          error_message="暂未完成").prompt()
         if pro.data == "exit":
             os._exit(0)
+        elif pro.data == "1":
+            self.autotest.runmenu()
         elif pro.data == "2":
             self.sys_info_menu()
         elif pro.data == "3":
@@ -37,7 +40,7 @@ class Menu:
             self.tool.run_command("poweroff")
 
         self.log.msg(f'用户选择: {pro}')
-
+        self.main_menu()
     def system_set_menu(self):
         """BMC用户设置菜单"""
         pro = ListPrompt("请选择BMC用户设置项:", choices=self.menu_chess.setsystem_menu,

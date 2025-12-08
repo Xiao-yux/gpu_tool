@@ -1,4 +1,5 @@
 import glob
+import inspect
 import os
 import pathlib
 import sys
@@ -8,7 +9,7 @@ import time
 import termios
 import tty
 import select
-from pip._internal.utils import temp_dir
+import re
 
 
 class Tools:
@@ -31,8 +32,17 @@ class Tools:
         return str(pathlib.Path(sys.argv[0]).parent.resolve()) + '/'
 
     @staticmethod
+    def poweoff():
+        """关机"""
+        os.system('sudo poweroff')
+
+    @staticmethod
     def check_fd_log(logpath:str):
-        """检查fd日志"""
+        """检查fd日志,并格式化输出
+        logpath : fd 日志路径。
+        """
+        if logpath is None:
+            logpath = os.getcwd()
         log = {
             'SN' : '',  # 机头SN
             'Result' :'',
@@ -46,9 +56,9 @@ class Tools:
             'GPU8' : ['SN',{'checkinforom':'','connectivity':'','gpumem':'','gpustress':'','inforom':'','pcie':''},'PASS'],
             'fd':    {'inventory': '', 'nvlink': '', 'nvswitch': '', 'power': ''}
         }
-        if not os.path.exists(logpath+'/run.log'):
-            return [f'路径不存在:{logpath+"/run.log"}',True]
-        import re
+        if not os.path.exists(os.path.join(logpath,"run.log")):
+            return [f'路径不存在:{os.path.join(logpath,"run.log")}',True]
+
         def find_value(path: str, pattern: str):
             pat = rf"{re.escape(pattern)}\s*(.*?)\s*$"
             with open(path, "r", encoding="utf-8") as f:
@@ -56,28 +66,27 @@ class Tools:
                 f.close()
             return m.group(1) if m else None
 
-        log['SN'] = find_value(logpath+'/run.log','Serial Number')
-        log['Result'] = find_value(logpath+'/run.log', 'Final Result:')
+        log['SN'] = find_value(os.path.join(logpath,"run.log"),'Serial Number')
+        log['Result'] = find_value(os.path.join(logpath,"run.log"), 'Final Result:')
 
         #开始找单卡
         gpupath = ['checkinforom','connectivity','gpumem','gpustress','inforom','pcie']
         for a in gpupath:
-            tmppath = logpath + '/' + a
+            tmppath = os.path.join(logpath, a)
             pattern = os.path.join(tmppath, 'SXM[1-8]*', 'output.log')
             log_files = glob.glob(pattern, recursive=False)
             for f in log_files:
                 s = f[len(tmppath):].strip('output.log')
                 ss = s.strip('/')
-                gp = ss[:4]
-                str1 = 'GPU' + gp.strip('SXM')
-                # print(f'1 {gp} 2 {str1} 3: {ss}')
+                gp = ss[:4]   #SXM2_SN_********  取前四位
+                str1 = 'GPU' + gp.strip('SXM')  #去除前3位
                 log[str1][0] = ss
                 log[str1][1][a] = find_value(f,"Error Code =")
                 if log[str1][1][a] != '000000000000 (ok)':
                     log[str1][2]='FAIL'
         gpupath = ['inventory','nvlink','nvswitch','power']
         for a in gpupath:
-            tmppath = logpath + '/' + a + "/output.log"
+            tmppath = os.path.join(logpath, a,"output.log")
             log['fd'][a] = find_value(tmppath,"Error Code =")
         return log
 
@@ -129,6 +138,35 @@ class Tools:
         thread.daemon = daemon
         thread.start()
         return thread
+
+    @staticmethod
+    def show_methods(cls):
+        """打印类中所有用户定义的实例方法及其 docstring"""
+        for name, method in inspect.getmembers(cls, predicate=inspect.isfunction):
+            # 只保留定义在【当前类】里的，过滤掉继承来的
+            if method.__qualname__.startswith(cls.__name__ + '.'):
+                print(f'{name}{inspect.signature(method)}')
+                print(method.__doc__ or '  # 无 docstring')
+                print('-' * 40)
+
+    @staticmethod
+    def find_fail(path: str) -> bool:
+        """
+        判断文本文件中是否出现 Fail / fail / FAIL 等大小写形式。
+        文件不存在直接返回 False。
+        """
+        if not os.path.isfile(path):
+            return False
+
+        # 预编译正则，忽略大小写
+        pattern = re.compile(r'\bfail\b', re.IGNORECASE)
+
+        # 逐行扫描，省内存
+        with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+            for line in f:
+                if pattern.search(line):
+                    return True
+        return False
 
     @staticmethod
     def copy_file( src, dst)-> None:

@@ -11,8 +11,11 @@ class Core:
         self.config = Config().config
         self.log = Log(self.config['LOG'])
         self.log.msg('Core initialized.')
+
         GpuToolApi(self.config['version'])
+
         CheckSystem(self.config['PATH'], self.log)
+
         self.menu = Menu(self.config['PATH'], self.log)
 
 
@@ -28,4 +31,3 @@ class Core:
 
 if __name__ == '__main__':
     c = Core()
-    print(c.config)

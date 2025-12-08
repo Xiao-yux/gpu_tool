@@ -48,6 +48,7 @@ class MenuChess:
     _AOTU_TEST: ClassVar[List[Choice]] = [
         Choice("测试1", "1"),
         Choice("测试2", "2"),
+        Choice("自定义", "3"),
         Choice("返回", "exit"),
     ]
 
