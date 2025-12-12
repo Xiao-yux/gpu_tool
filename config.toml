@@ -19,6 +19,6 @@ update_config = "/update.json"  #更新配置文件
 
 [LOG]
 log_path = "/home/houmao/log"  #日志路径
-log_file = "gpu_tool_debug.log"  #日志文件
+log_file = "gpu_tool_debug.log"  #调试日志文件名称
 log_level = "INFO"  #日志级别
 console_output = false
