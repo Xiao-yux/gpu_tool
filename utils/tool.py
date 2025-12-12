@@ -1,5 +1,6 @@
 import glob
 import inspect
+import json
 import os
 import pathlib
 import sys
@@ -10,7 +11,7 @@ import termios
 import tty
 import select
 import re
-
+from typing import Any, Dict, List, Union
 
 class Tools:
     def __init__(self):
@@ -188,20 +189,33 @@ class Tools:
         input("按下回车键继续...")
         return
     @staticmethod
-    def run_command(command: str, cmd = "1") -> int | None | str:
+    def run_command(command: str, cmd = "1", out = False) -> int | None | str:
         """执行命令并返回输出
             1 : 使用subprocess.run
             2 ： 使用 os.popen
         """
         if cmd == "1":
             try:
-                result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                        text=True)
-                return result.stdout.strip()
+                with subprocess.Popen(command,
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.STDOUT,  # 将错误输出合并到标准输出
+                                           text=True,
+                                           shell=True,
+                                           universal_newlines=True) as process:
+                    full_output =[ ]
+                    if out:
+                        for line in process.stdout:  # 逐行读，不会死锁
+                            line = line.rstrip()
+                            print(line)
+                            full_output.append(line)
+                        process.wait()  # 确保进程结束
+                    else:
+                        stdout, _ = process.communicate()
+                        full_output.append(stdout)
+                return "\n".join(full_output) if full_output else ""
             except subprocess.CalledProcessError as e:
                 return f"Error: {e.stderr.strip()}"
-        elif cmd == "2":
-            return os.popen(command).read()
+
         return os.popen(command).read()
 
     def set_bmc_dhcp(self)-> bool:
@@ -334,7 +348,77 @@ class ipmitools():
         '''用户信息'''
         return os.popen('ipmitool user list 1').read()
 
+class JsonDB:
+    def __init__(self, file_path: str, auto_save: bool = False):
+        self.file_path = os.path.abspath(file_path)
+        self.auto_save = auto_save
+        self._data: Dict[str, Any] = {}
+        self._load()
 
+    # ---------- 内部工具 ----------
+    def _load(self) -> None:
+        if os.path.getsize(self.file_path) == 0:  # 文件空
+            self._data = {}
+            return
+        if os.path.isfile(self.file_path):
+            with open(self.file_path, "r", encoding="utf-8") as f:
+                self._data = json.load(f)
+        else:
+            self._data = {}
+
+    def save(self) -> None:
+        os.makedirs(os.path.dirname(self.file_path), exist_ok=True)
+        with open(self.file_path, "w", encoding="utf-8") as f:
+            json.dump(self._data, f, ensure_ascii=False, indent=2)
+
+    def _maybe_save(self) -> None:
+        if self.auto_save:
+            self.save()
+
+    # ---------- 对外 API ----------
+    def add(self, key: str, value: Any) -> None:
+        """
+        多次 add 同一 key，自动升级为数组并追加：
+        第 1 次: add('user','alice')   -> {'user': 'alice'}
+        第 2 次: add('user','bob')     -> {'user': ['alice', 'bob']}
+        第 3 次: add('user','c')       -> {'user': ['alice', 'bob', 'c']}
+        """
+        if key not in self._data:
+            # 第一次：直接存
+            self._data[key] = value
+        else:
+            exist = self._data[key]
+            if isinstance(exist, list):
+                # 已经是数组，直接追加
+                exist.append(value)
+            else:
+                # 升级成数组
+                self._data[key] = [exist, value]
+        self._maybe_save()
+    def get(self,key):
+        try:
+            return self._data[key]
+        except KeyError:
+            return None
+
+    def edit(self, key: str, value: Any) -> None:
+        """整体覆盖，不做数组升级"""
+        self._data[key] = value
+        self._maybe_save()
+
+    # 让对象像 dict 一样使用
+    def __getitem__(self, key: str) -> Any:
+        return self._data[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        self._data[key] = value
+        self._maybe_save()
+
+    def __contains__(self, key: str) -> bool:
+        return key in self._data
+
+    def __repr__(self) -> str:
+        return f"JsonDB({self._data})"
 if __name__ == '__main__':
     tools = Tools()
     a = "/mnt/c/Users/Administrator/Documents/work/gpu_tool/tmp/2"

@@ -1,7 +1,7 @@
 import argparse
 import os
 import sys
-
+from colorama import init, Fore, Back, Style
 from art import text2art
 
 from utils.tool import Tools
@@ -29,7 +29,9 @@ class GpuToolApi:
         if args.check_fd_log:
             self.tool.fd_log_print(args.check_fd_log)
             sys.exit(0)
+        init(autoreset=True)
         print(text2art(tx1, chr_ignore=True))
+        print(f"{Fore.GREEN}v{self.version}")
         return
     @staticmethod
     def parse_arguments(ver=None):

@@ -40,11 +40,15 @@ class MenuChess:
     ]
 
     _SET_SYSTEM: ClassVar[List[Choice]] = [
+        Choice("安装依赖", "1"),
+        Choice("设置BMC", "2"),
+        Choice("返回", "exit"),
+    ]
+    _BMC_SET: ClassVar[List[Choice]] = [
         Choice("设置BMC为DHCP获取", "1"),
         Choice("设置BMC用户密码", "2"),
         Choice("返回", "exit"),
     ]
-
     _AOTU_TEST: ClassVar[List[Choice]] = [
         Choice("测试1", "1"),
         Choice("测试2", "2"),
@@ -104,6 +108,16 @@ class MenuChess:
         "运行指定虚拟ID的测试(--test <vID>[,<vID>...])": "--test",
         "跳过指定虚拟ID的测试(--skip_tests <vID>[,<vID>...])": "--skip_tests",
         "返回": "exit",
+    }
+
+    _APT_INSTALL_MENU_MAP: ClassVar[Dict[str, str]] = {
+        "安装cuda-keyring":"1",
+        "安装NVIDIA-580驱动和cuda13(如果没有软件源，请先执行1)": "2",
+        "安装MLNX驱动(网卡驱动)": "3",
+        "安装DOCA": "4",
+        "安装dcgmi": "5",
+        "安装libnccl": "6",
+        "返回": "exit"
     }
 
     _FD40212_TEST_ARG_MAP: ClassVar[Dict[str, str]] = {
@@ -173,7 +187,9 @@ class MenuChess:
             Choice(k, v) for k, v in self._NVBAND_MAP.items()
         ]
         self.setsystem_menu: List[Choice] = self._SET_SYSTEM
+        self.apt_menu: List[Choice] = [Choice(k,v) for k,v in self._APT_INSTALL_MENU_MAP.items()]
         self.fd_test_arg_menu: List[Choice] = [Choice(k, v) for k, v in self._FD40212_TEST_ARG_MAP.items()]
         self.aotu_test_menu: List[Choice] = self._AOTU_TEST
         self.gpu_test_menu: List[Choice] = self._GPU_TEST
         self.sys_test_menu: List[Choice] = self._SYS_TEST
+        self.bmc_set_menu: List[Choice] = self._BMC_SET

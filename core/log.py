@@ -90,10 +90,14 @@ class Log:
 
         return logger
 
-    def get_log_file(self):
-        '''获取日志文件路径'''
+    def get_log_file(self,pathtime=True):
+        """获取日志文件路径
+        time : 是否返回带日期的路径
+        """
+        if pathtime:
+            return self.log_dir
 
-        return self.log_dir
+        return self.config["log_path"]
 
     def log_execution(self,func):
         """

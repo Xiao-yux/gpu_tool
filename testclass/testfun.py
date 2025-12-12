@@ -38,7 +38,8 @@ class TestFun:
         return True
 
     def test1(self):
-        func = [self.dcgmi_3,self.nccl_test,self.p2pBandwidthLatencyTest,self.fieldiag_level2]
+        """测试1"""
+        func = [self.dcgmi_3,self.nccl_test,self.p2pBandwidthLatencyTest,self.nvbandwidth,self.fieldiag_level2]
         return func
 
     def test2(self):

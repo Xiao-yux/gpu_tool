@@ -7,6 +7,7 @@ import json
 from noneprompt import ListPrompt, Choice, InputPrompt, CheckboxPrompt
 import os
 from menu.menuarg import MenuChess
+from utils.installpack import InstallPack
 from utils.tool import Tools,exitfun
 from core.log import Log
 from testclass.testmanager import Manager
@@ -17,6 +18,7 @@ class Menu:
         self.path = path
         self.tool = Tools()
         self.log = log
+        self.install = InstallPack(log=self.log)
         self.log.msg('Menu initialized.')
         self.autotest = Manager(log,path)
 
@@ -43,8 +45,19 @@ class Menu:
         self.main_menu()
     def system_set_menu(self):
         """BMC用户设置菜单"""
-        pro = ListPrompt("请选择BMC用户设置项:", choices=self.menu_chess.setsystem_menu,
-                         validator=lambda x: x != self.menu_chess.setsystem_menu[1], error_message="暂未完成").prompt()
+        pro = ListPrompt("请选择设置项:", choices=self.menu_chess.setsystem_menu, error_message="暂未完成").prompt()
+        if pro.data == "exit":
+            self.main_menu()
+        elif pro.data == "1":
+            self.apt_install_menu()
+        elif pro.data == "2":
+            self.bmc_set_menu()
+        self.log.msg(f'用户选择BMC用户设置菜单: {pro}')
+        self.main_menu()
+
+    def bmc_set_menu(self):
+        pro = ListPrompt("请选择BMC设置项:", choices=self.menu_chess.bmc_set_menu,
+                         validator=lambda x: x != self.menu_chess.bmc_set_menu[1], error_message="暂未完成").prompt()
         if pro.data == "exit":
             self.main_menu()
         elif pro.data == "1":
@@ -52,7 +65,29 @@ class Menu:
         cmd = f"ipmitool user {pro.data}"
         self.log.msg(f'用户选择BMC用户设置菜单: {pro}')
         self.main_menu()
-
+    def apt_install_menu(self):
+        pro = ListPrompt("请选择：",choices=self.menu_chess.apt_menu).prompt()
+        if pro.data == "exit":
+            self.main_menu()
+        if pro.data == "1":
+            self.log.msg("安装cuda_keyring")
+            self.install.apt_install_cuda_keyring()
+        if pro.data == "2":
+            self.log.msg("安装nvidia驱动和cuda")
+            self.install.apt_install_nvidia_pack()
+        if pro.data == "3":
+            self.log.msg("安装mlnx 驱动")
+            self.install.apt_install_mlnx_ofed_linux()
+        if pro.data == "4":
+            self.log.msg("安装DOCA")
+            self.install.apt_install_doca()
+        if pro.data == "5":
+            self.log.msg("安装DCGMI")
+            self.install.apt_install_dcgm()
+        if pro.data == "6":
+            self.log.msg("安装libnccl")
+            self.install.apt_install_libnccl()
+        self.apt_install_menu()
     def gpu_test_menu(self):
         """GPU测试菜单"""
         pro = ListPrompt("请选择GPU测试项:", choices=self.menu_chess.gpu_test_menu).prompt()
