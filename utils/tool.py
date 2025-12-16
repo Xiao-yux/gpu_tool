@@ -11,8 +11,8 @@ import termios
 import tty
 import select
 import re
-from typing import Any, Dict, List, Union
-
+from typing import Any, Dict, List, Union, Optional
+from pathlib import Path
 class Tools:
     def __init__(self):
         ...
@@ -351,6 +351,7 @@ class ipmitools():
 class JsonDB:
     def __init__(self, file_path: str, auto_save: bool = False):
         self.file_path = os.path.abspath(file_path)
+        self.ensure_file(self.file_path)
         self.auto_save = auto_save
         self._data: Dict[str, Any] = {}
         self._load()
@@ -370,6 +371,55 @@ class JsonDB:
         os.makedirs(os.path.dirname(self.file_path), exist_ok=True)
         with open(self.file_path, "w", encoding="utf-8") as f:
             json.dump(self._data, f, ensure_ascii=False, indent=2)
+
+    PathLike = Union[str, bytes, os.PathLike]
+
+    @staticmethod
+    def ensure_file(path: PathLike,
+                    *,
+                    mkdir: bool = True,
+                    content: Optional[str] = None,
+                    encoding: str = "utf-8",
+                    mode: str = "w",  # "w" / "a" / "x"  或 None（只创建空文件）
+                    permissions: Optional[int] = None
+                    ) -> tuple[bool, str]:
+        """
+        创建文件并写入内容（可选）。
+        返回 (success, message)
+        """
+        try:
+            # 1. 统一转成 Path 对象，并展开 ~ 和环境变量
+            p = Path(path).expanduser().expanduser().resolve()
+
+            # 2. 若目录不存在，按需创建
+            if mkdir:
+                parent = p.parent
+                if not parent.exists():
+                    parent.mkdir(parents=True, exist_ok=True)
+
+            # 3. 若仅想创建空文件且已存在，直接返回
+            if mode is None and p.exists():
+                return True, f"文件已存在: {p}"
+
+            # 4. 写入/追加内容
+            if mode in {"w", "a", "x"}:
+                with p.open(mode, encoding=encoding) as f:
+                    if content is not None:
+                        f.write(content)
+            elif mode is None:
+                # 只创建空文件
+                p.touch(exist_ok=True)
+            else:
+                return False, f"不支持的 mode: {mode}"
+
+            # 5. 设置权限（可选）
+            if permissions is not None:
+                os.chmod(p, permissions)
+
+            return True, f"文件已创建: {p}"
+
+        except Exception as e:
+            return False, f"创建文件失败: {e}"
 
     def _maybe_save(self) -> None:
         if self.auto_save:

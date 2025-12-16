@@ -82,7 +82,6 @@ class CheckSystem:
             self.printlog("未检测到 libnccl2，请确保已正确安装 NCCLlib，NCCL 测试功能将不可用")
         if not os.popen("dpkg -l | grep -i libnccl-dev").read():
             self.printlog("未检测到 libnccl-dev，请确保已正确安装 NCCLlib，NCCL 测试功能将不可用")
-        self.check_dcgmi()
 
     def sys_save(self, GPU=0):
         """收集系统信息"""

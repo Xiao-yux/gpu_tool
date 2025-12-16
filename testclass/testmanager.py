@@ -97,7 +97,6 @@ class Manager:
     def _prepare_resume_file(self)->str:
         log_path = self.log.get_log_file(pathtime=False)          # 用户给的日志文件路径
         self._resume_file = log_path + '/resume.json'   # 断点文件
-        os.system(f"touch {self._resume_file}")
         return log_path + '/resume.json'
 
     def _clean_checkpoint(self):

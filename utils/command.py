@@ -16,7 +16,7 @@ class GpuToolApi:
         tx1 = "GPU Tool"
         args = self.parse_arguments(self.version)
         if args.disp_name:
-            tx1 = args.dispname
+            tx1 = args.disp_name
         if args.get_gpu_info:
             print(self.tool.get_gpu_info())
             sys.exit(0)

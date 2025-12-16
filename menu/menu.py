@@ -291,10 +291,18 @@ class Menu:
                 path = dev.get("path")
                 sn = dev.get("serial")
                 model = dev.get("model")
+                print(f"diskdata:{name}-{model}-{sn}-{tran}-{size}")
                 self.log.msg(f"diskdata:{name}-{model}-{sn}-{tran}-{size}")
                 choices.append(Choice(f"{name}-{model}-{sn}-{tran}-{size}", [path, sn, tran, size]))
                 self.log.msg(f"choicesdata:{choices}")
+
+        if not choices:
+            print("无 nvme,sata,sas硬盘。(usb会被排除)")
+            return None
+
+
         pro_disk = CheckboxPrompt("请选择测试硬盘(不要选有分区的盘):", choices=choices).prompt()
+
         for disk in pro_disk:
             #1 顺序写大文件
             cmd = f"fio --name=seqwrite --filename={disk.data[0]} --size=5G --rw=write --bs=1M --ioengine=libaio --direct=1 --numjobs=1 --runtime=30 --time_based --group_reporting"
