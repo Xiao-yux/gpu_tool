@@ -117,6 +117,7 @@ class MenuChess:
         "安装DOCA": "4",
         "安装dcgmi": "5",
         "安装libnccl": "6",
+        "安装系统测试工具(fio,stress,memtester)":"7",
         "返回": "exit"
     }
 

@@ -1,5 +1,8 @@
 import logging
 import os
+import re
+import shutil
+import sys
 import time
 from functools import wraps
 
@@ -129,20 +132,51 @@ class Log:
                 raise e
 
         return wrapper
+    _tty_len: int = 0
+    @staticmethod
+    def tty_print(msg: str,
+                  newline: bool = True,
+                  flush: bool = True) -> None:
+        """
+        newline=False  -> 原地刷新（默认）
+        newline=True   -> 把内容写完后再换行，保证后续 print 不会覆盖它
+        """
+        if not sys.stdout.isatty():
+            print(msg, flush=flush)
+            return
+
+        width = shutil.get_terminal_size().columns
+        msg = msg[:width - 1]
+
+        if newline:
+            # 结束这一行，光标移到下一行
+            print(msg.ljust(Log._tty_len), end='\n', flush=flush)
+            Log._tty_len = 0          # 重置，下次再刷新就从 0 开始补空格
+        else:
+            print(msg.ljust(Log._tty_len), end='\r', flush=flush)
+            Log._tty_len = len(msg)
+
 
     def msg(self, message, level="INFO", logger_name="gpu_tool_debug",outconsole=False):
         """# 记录日志"""
         if self.out:
             outconsole = self.out
         if outconsole:
-            print(f"{message}")
+            print(f"{message}",end='')
         if logger_name not in self.loggers:
             self.main_logger.warning(f"Logger {logger_name} not found, using main logger")
             self.create_log_file(logger_name)
             logger_name = "gpu_tool_debug"
 
         logger = self.loggers[logger_name]
-        # logger.info(level)
+        message = self.clean(message)
+        if logger_name == "memtester_test":
+            a = ['\\','/','-','|','setting','testing']
+            p = re.compile(r'^(?:' + '|'.join(map(re.escape, a)) + ')')
+            if p.search(message):
+                return
+
+
         if level == "INFO":
             logger.info(message)
         elif level == "DEBUG":
@@ -154,7 +188,16 @@ class Log:
         elif level == "CRITICAL":
             logger.critical(message)
         else:
-            logger.info(message)
+            logger.info(message.rstrip('\n'))
+
+    @staticmethod
+    def clean(line:str)->str:
+        """清理特殊字符"""
+        _CLEAN = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+        line = _CLEAN.sub('', line)          # 去颜色
+        line = re.sub(r'\x08+', '', line)    # 去退格
+        return line.strip()
+
 
     def create_log_file(self, log_file, path='') -> str:
         """# 创建新的logger 返回log名称"""

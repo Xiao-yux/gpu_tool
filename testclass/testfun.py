@@ -33,7 +33,7 @@ class TestFun:
         cmd = f"{self.path['fd_exe']} --level2"
         if no_bmc:
             cmd += " --no_bmc"
-        cmd += f" --log {self.log.get_log_file()}/fd-{time.strftime('%Y%m%d-%H%M')}"
+        cmd += f" --log '{self.log.get_log_file()}/fd-{time.strftime('%Y%m%d-%H%M')}'"
         self.run_command(cmd,logname="auto_fd2")
         return True
 
@@ -43,6 +43,7 @@ class TestFun:
         return func
 
     def test2(self):
+        """测试2"""
         func = [self.dcgmi_3, self.p2pBandwidthLatencyTest, self.fieldiag_level2]
         return func
 
@@ -162,7 +163,6 @@ class TestFun:
         enve['LC_ALL'] = 'C.UTF-8'
         self.log.msg(f"执行命令{command}", outconsole=True)
         try:
-
             self.log.msg(f"执行命令: {command}", logger_name=logname)
             process = subprocess.Popen(
                 command,

@@ -3,6 +3,7 @@ import inspect
 import json
 import os
 import pathlib
+import signal
 import sys
 import subprocess
 import threading
@@ -11,6 +12,8 @@ import termios
 import tty
 import select
 import re
+import multiprocessing as mp
+import multiprocessing.synchronize
 from typing import Any, Dict, List, Union, Optional
 from pathlib import Path
 class Tools:
@@ -23,8 +26,8 @@ class Tools:
         return /usr/***/
         """
         temp_dir = os.path.join(os.path.dirname(__file__))
-        a = temp_dir.replace('utils','')
-        return a
+        _a = temp_dir.replace('utils','')
+        return _a
     @staticmethod
     def get_dist_path() -> str:
         """获取程序所在目录
@@ -104,13 +107,13 @@ class Tools:
 
     @staticmethod
     def is_config_path() -> bool:
-        '''判断配置文件是否存在'''
+        """判断配置文件是否存在"""
         config_file= "/etc/gpu_tool/config.toml" #配置文件
         return os.path.exists(config_file)
 
     @staticmethod
     def get_gpu_count():
-        '''返回GPU数量'''
+        """返回GPU数量"""
 
         if not os.path.exists('/usr/bin/nvidia-smi'):
             print("检测不到 nvidia-smi，无法获取 GPU 数量")
@@ -171,14 +174,14 @@ class Tools:
 
     @staticmethod
     def copy_file( src, dst)-> None:
-        '''复制文件'''
+        """复制文件"""
         os.system(f'cp {src} {dst}')
 
     def get_gpu_info(self)-> str:
-        '''返回GPU信息'''
+        """返回GPU信息"""
         return os.popen(f"bash {self.get_tmp_path()}bash/nvidia_info.sh").read()
     def get_sys_info(self) -> str:
-        '''# 返回系统信息'''
+        """# 返回系统信息"""
         return os.popen(f'bash {self.get_tmp_path()}bash/sys_info.sh').read()
     def get_eth_info(self) -> str:
         """# 网卡硬盘信息"""
@@ -219,13 +222,13 @@ class Tools:
         return os.popen(command).read()
 
     def set_bmc_dhcp(self)-> bool:
-        '''设置BMC为DHCP获取IP'''
+        """设置BMC为DHCP获取IP"""
         self.run_command('ipmitool lan set 1 ipsrc dhcp')
 
         return True
     @staticmethod
     def get_pwd()-> str:
-        '''返回用户当前目录'''
+        """返回用户当前目录"""
         return os.popen('pwd').read().split('\n')[0]
     @staticmethod
     def get_serial_number():
@@ -270,7 +273,11 @@ class Tools:
     @staticmethod
     def get_bash_path():
         """获取bash路径"""
-        return f"{str(pathlib.Path(sys.argv[0]).parent.resolve())}"+ "/bash/"
+        # temp_dir = Path(sys.path[1])
+        # temp_dir = Path(__file__).resolve().parent
+        temp_dir = os.path.join(os.path.dirname(__file__))
+        _a = temp_dir.replace('utils', '')
+        return f"{str(_a)}"+ "bash/"
 
     @staticmethod
     def print_report(s: dict) -> None:
@@ -305,47 +312,102 @@ class Tools:
         gpupath = ['inventory', 'nvlink', 'nvswitch', 'power']
         for a in gpupath:
             print(f"|{a:<10}  = {s['fd'][a]}|")
+
 def exitfun(func):
-    def _watcher(fd, ev: threading.Event):
-        while not ev.is_set():
+    """
+    装饰器：按 ESC 或 q 立即结束被装饰函数的执行。
+    """
+    def _watch_keyboard(fd: int,
+                        kill_evt: "mp.synchronize.Event") -> None:
+        """键盘监听：发现 ESC/q 就置位 kill_evt"""
+        while not kill_evt.is_set():
             if select.select([fd], [], [], 0.2)[0]:
-                if os.read(fd, 1) in (b'q', b'\x1b'):
-                    ev.set()
+                ch = os.read(fd, 1)
+                if ch in (b'q', b'\x1b'):      # \x1b 是 ESC
+                    kill_evt.set()
 
     def wrapper(*args, **kwargs):
         fd = sys.stdin.fileno()
         old_attr = termios.tcgetattr(fd)
-        exit_ev = threading.Event()
+
+        kill_evt: mp.synchronize.Event = mp.Event()
+        proc = mp.Process(
+            target=func,
+            args=args,
+            kwargs=kwargs,
+            daemon=False                    # 非 daemon，我们需要显式杀
+        )
+        def _wrap():
+            os.setsid()      # 新建会话+进程组
+            func(*args, **kwargs)
+        proc = mp.Process(target=_wrap, daemon=False)
+        proc.start()
         try:
             tty.setcbreak(fd)
-            th = threading.Thread(target=_watcher, args=(fd, exit_ev), daemon=True)
-            th.start()
-            kwargs['_exit_flag'] = exit_ev
-            return func(*args, **kwargs)
+            watch = mp.Process(target=_watch_keyboard,
+                               args=(fd, kill_evt),
+                               daemon=True)
+            watch.start()
+            print(watch.pid)
+            while not kill_evt.is_set() and proc.is_alive():
+                proc.join(0.2)
+
+            if proc.is_alive():
+                pgid = os.getpgid(proc.pid)      # 拿到刚才新建的组
+                # 保险：pgid 必须 > 1，且不等于当前进程组
+                if pgid > 1 and pgid != os.getpgrp():
+                    try:
+                        os.killpg(pgid, signal.SIGTERM)
+                        proc.join(timeout=3)
+                    except (ProcessLookupError, OSError):
+                        pass
+                    if proc.is_alive():
+                        try:
+                            os.killpg(pgid, signal.SIGKILL)
+                        except (ProcessLookupError, OSError):
+                            pass
+                else:
+                    # 退化到只杀单进程
+                    proc.terminate()
+                    proc.join(timeout=1)
+                    if proc.is_alive():
+                        os.kill(proc.pid, signal.SIGKILL)
+                print('\n[exitfun] 用户中断，子进程组已结束')
+
         finally:
             termios.tcsetattr(fd, termios.TCSADRAIN, old_attr)
             sys.stdout.flush()
+            kill_evt.set()
+
+            os.system("pkill -KILL -f memtester")
+            os.system("pkill -KILL -f fio")
+            os.system("pkill -KILL -f stress-ng")
+            watch.join(timeout=0.5)
 
     return wrapper
 
 
 class ipmitools():
     """ ipmi相关工具"""
-
+    @staticmethod
     def sdr():
-        '''传感器数据'''
+        """传感器数据"""
         return os.popen('ipmitool sdr').read()
+    @staticmethod
     def fru():
-        '''电源信息'''
+        """电源信息"""
         return os.popen('ipmitool fru').read()
+    @staticmethod
     def lan():
-        '''lan信息'''
+        """lan信息"""
         return os.popen('ipmitool lan print').read()
+    @staticmethod
     def syslogtotty():
-        '''重定向系统日志到tty9'''
+        """重定向系统日志到tty9"""
         subprocess.run('', shell=True, check=True)
+    @staticmethod
     def user():
-        '''用户信息'''
+        """用户信息"""
         return os.popen('ipmitool user list 1').read()
 
 class JsonDB:

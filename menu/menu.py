@@ -21,6 +21,7 @@ class Menu:
         self.install = InstallPack(log=self.log)
         self.log.msg('Menu initialized.')
         self.autotest = Manager(log,path)
+        self.defcheckmsg = "(按↑或↓移动，空格选择，回车确认)"
 
     def main_menu(self):
         """主菜单"""
@@ -66,7 +67,7 @@ class Menu:
         self.log.msg(f'用户选择BMC用户设置菜单: {pro}')
         self.main_menu()
     def apt_install_menu(self):
-        pro = ListPrompt("请选择：",choices=self.menu_chess.apt_menu).prompt()
+        pro = ListPrompt("请选择：",choices=self.menu_chess.apt_menu,allow_filter=False).prompt()
         if pro.data == "exit":
             self.main_menu()
         if pro.data == "1":
@@ -87,6 +88,8 @@ class Menu:
         if pro.data == "6":
             self.log.msg("安装libnccl")
             self.install.apt_install_libnccl()
+        if pro.data == "7":
+            self.install.apt_install_systest()
         self.apt_install_menu()
     def gpu_test_menu(self):
         """GPU测试菜单"""
@@ -120,7 +123,7 @@ class Menu:
 
     def sys_info_menu(self):
         """系统信息菜单"""
-        pro = ListPrompt("请选择系统信息查看项:", choices=self.menu_chess.system_menu).prompt()
+        pro = ListPrompt("请选择系统信息查看项:", choices=self.menu_chess.system_menu,allow_filter=False).prompt()
         if pro.data == "exit":
             self.main_menu()
         if pro.data == "1":
@@ -139,7 +142,7 @@ class Menu:
 
     def dcgmi_menu(self):
         """DCGMI测试菜单"""
-        pro = ListPrompt("请选择DCGMI测试项:", choices=self.menu_chess.dcgm_menu).prompt()
+        pro = ListPrompt("请选择DCGMI测试项:", choices=self.menu_chess.dcgm_menu,allow_filter=False).prompt()
         if pro.data == "exit":
             self.gpu_test_menu()
         cmd = f"dcgmi {pro.data}"
@@ -149,7 +152,7 @@ class Menu:
 
     def gpu_burn_menu(self):
         """GPU烧机测试菜单"""
-        pro = ListPrompt("请选择GPU烧机测试项:", choices=self.menu_chess.gpu_burn_menu).prompt()
+        pro = ListPrompt("请选择GPU烧机测试项:", choices=self.menu_chess.gpu_burn_menu,allow_filter=False).prompt()
         if pro.data == "exit":
             self.gpu_test_menu()
         cmd = f"./{self.path['gpu_burn_exe']} {pro.data}"
@@ -159,43 +162,43 @@ class Menu:
 
     def fd_menu(self):
         """Folding测试菜单"""
-        cmd = f"{self.path['fd_exe']} "
+        cmd = f"{self.path['fd_path']}/{self.path['fd_exe']} "
         path = f"{self.path['fd_path']}"
-        self.tool.check_fd_path(f"{self.log.get_log_file()}/fd")
+        self.tool.check_fd_path(f"\'{self.log.get_log_file()}/fd\'")
         logname = self.log.create_log_file("fd_test")
-        pro = ListPrompt("请选择Folding测试项:", choices=self.menu_chess.fd_menu).prompt()
-        print(pro)
+        pro = ListPrompt("请选择Folding测试项:", choices=self.menu_chess.fd_menu,allow_filter=False).prompt()
         if pro.data == "exit":
             self.gpu_test_menu()
         if pro.data == "1":
-            cmd += f"--no_bmc --level1 --log {self.log.get_log_file()}/fd"
+            cmd += f"--no_bmc --level1 --log '{self.log.get_log_file()}/fd'"
             self.run_command(cmd, path, logname)
         elif pro.data == "2":
-            cmd += f"--no_bmc --level2 --log {self.log.get_log_file()}/fd"
+            cmd += f"--no_bmc --level2 --log '{self.log.get_log_file()}/fd'"
             self.run_command(cmd, path, logname)
         elif pro.data == "3":
-            a = CheckboxPrompt("选择单项测试项目:", choices=self.menu_chess.fd_test_arg_menu).prompt()
+            a = CheckboxPrompt("选择单项测试项目:", choices=self.menu_chess.fd_test_arg_menu,annotation=self.defcheckmsg).prompt()
             cmd += f"{self.tool.fd_arg_chines(a)}"
             self.log.msg(cmd)
             self.run_command(cmd, path, logname)
         elif pro.data == "4":
             arg = InputPrompt(f"请输入自定义参数: {cmd} [input] --log {self.log.get_log_file()}/fd").prompt()
-            cmd += f"{arg} --log {self.log.get_log_file()}/fd"
+            cmd += f"{arg} --log '{self.log.get_log_file()}/fd'"
             self.run_command(cmd, path, logname)
         self.log.msg(f'用户选择Folding测试菜单: {pro}')
         self.main_menu()
 
     @exitfun
-    def run_command(self, command: str, path: str = '/tmp', logname: str = "command", _exit_flag=None):
+    def run_command(self, command: str, path: str = '/tmp', logname: str = "command",input_user = True):
         """运行命令并实时输出日志
         command : 执行的命令
         path : 执行命令时的目录
         logname : 日志名称
+        input_user: 按回车继续
         """
         logname = self.log.create_log_file(logname)
         enve = os.environ.copy()
         enve['LC_ALL'] = 'C.UTF-8'
-        self.log.msg(f"执行命令{command}", outconsole=True)
+        self.log.msg(f"执行命令: {command} \n", outconsole=True)
         try:
 
             self.log.msg(f"执行命令: {command}", logger_name=logname)
@@ -208,34 +211,23 @@ class Menu:
                 cwd=path,
                 env=enve,
                 bufsize=1,  # 行缓冲
-                universal_newlines=True
+                universal_newlines=True,
+                start_new_session=True
             )
             # 非阻塞读，避免 readline 卡死
             os.set_blocking(process.stdout.fileno(), False)
             if process.stdout is None:
                 raise subprocess.SubprocessError("无法创建进程或获取输出流")
             while True:
-                if _exit_flag and _exit_flag.is_set():
-
-                    self.log.msg(f"\n[!] 用户按下 q/ESC，命令被终止。 PID:{process.pid}", outconsole=True)
-                    os.kill(process.pid+1, signal.SIGTERM)
-                    process.terminate()
-                    process.kill()
-                    if process.poll() is None:
-                        os.kill(process.pid+1, signal.SIGKILL)
-                    return
                 output = process.stdout.readline()
                 if output == '' and process.poll() is not None:
                     break
                 if output:
-                    time.sleep(0.1)
-                    self.log.msg(output.strip(), logger_name=logname, outconsole=True)  # 同时记录到日志
+                    self.log.msg(output, logger_name=logname, outconsole=True)  # 同时记录到日志
             return_code = process.poll()
             self.log.msg(f"命令执行结束, 返回码: {return_code}")
             self.log.msg(f"日志路径: {self.log.get_log_file()}/{logname}", outconsole=True)
             self.log.msg(f"\n", outconsole=True)
-            # 按下回车继续
-            self.tool.input_chick()
         except Exception as e:
             self.log.msg(f"运行命令失败: {e}")
             print(f"执行失败: {e}")
@@ -248,7 +240,7 @@ class Menu:
         self.run_command(cmd, path, logname)
 
     def system_test_menu(self):
-        pro = ListPrompt("请选择系统其他测试项:", choices=self.menu_chess.sys_test_menu).prompt()
+        pro = ListPrompt("请选择系统其他测试项:", choices=self.menu_chess.sys_test_menu,allow_filter=False).prompt()
         if pro.data == "exit":
             self.main_menu()
         if pro.data == "1":
@@ -258,8 +250,8 @@ class Menu:
             cmd = f"stress-ng --cpu 0 --cpu-method all --cache 0 --matrix 0 --memcpy 0 --mq 0 --pipe 0 --fork 0 --switch 0 --vm 0 --vm-bytes 2G --iomix 4 --iomix-bytes 1g --timeout {a}s  --metrics-brief --tz --perf --verify --times --log-file '{self.log.get_log_file()}/stress_ng.log'"
             self.run_command(cmd, logname="system_stress_test")
         if pro.data == "2":
+
             a = int(os.popen("free -m | grep Mem | awk '{print ($2)}'").read())
-            self.log.msg(a)
             cmd = f"memtester {a - 4096}M 1"
             self.log.msg(cmd)
             self.run_command(cmd, logname="memtester_test")
@@ -291,7 +283,6 @@ class Menu:
                 path = dev.get("path")
                 sn = dev.get("serial")
                 model = dev.get("model")
-                print(f"diskdata:{name}-{model}-{sn}-{tran}-{size}")
                 self.log.msg(f"diskdata:{name}-{model}-{sn}-{tran}-{size}")
                 choices.append(Choice(f"{name}-{model}-{sn}-{tran}-{size}", [path, sn, tran, size]))
                 self.log.msg(f"choicesdata:{choices}")
@@ -301,7 +292,7 @@ class Menu:
             return None
 
 
-        pro_disk = CheckboxPrompt("请选择测试硬盘(不要选有分区的盘):", choices=choices).prompt()
+        pro_disk = CheckboxPrompt("请选择测试硬盘(不要选有分区的盘):", choices=choices,annotation=self.defcheckmsg).prompt()
 
         for disk in pro_disk:
             #1 顺序写大文件

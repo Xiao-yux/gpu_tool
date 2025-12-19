@@ -15,6 +15,14 @@ class InstallPack:
             self.log.msg(f"正在执行{cmd}",logger_name=self.logname,outconsole=True)
             self.log.msg(self.tool.run_command(cmd,out=True),logger_name=self.logname)
 
+    def apt_install_systest(self):
+        """安装系统测试工具(fio,stress,memtester)"""
+        pack = ['fio','stress','stress-ng','memtester']
+        for pack in tqdm.tqdm(pack):
+            cmd = f'sudo apt-get install -y {pack}'
+            self.log.msg(f"正在安装{cmd}",logger_name=self.logname,outconsole=True)
+            self.log.msg(self.tool.run_command(cmd,out=True),logger_name=self.logname)
+
     def apt_install_dcgm(self):
         self.apt_update_package()
         cmd = f"sudo apt-get install -y datacenter-gpu-manager-4-cuda-all"
