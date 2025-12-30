@@ -23,8 +23,8 @@ class Tools:
         return /usr/***/
         """
         temp_dir = os.path.join(os.path.dirname(__file__))
-        a = temp_dir.replace('utils','')
-        return a
+        _a = temp_dir.replace('utils','')
+        return _a
     @staticmethod
     def get_dist_path() -> str:
         """获取程序所在目录
@@ -270,7 +270,11 @@ class Tools:
     @staticmethod
     def get_bash_path():
         """获取bash路径"""
-        return f"{str(pathlib.Path(sys.argv[0]).parent.resolve())}"+ "/bash/"
+        # temp_dir = Path(sys.path[1])
+        # temp_dir = Path(__file__).resolve().parent
+        temp_dir = os.path.join(os.path.dirname(__file__))
+        _a = temp_dir.replace('utils', '')
+        return f"{str(_a)}"+ "bash/"
 
     @staticmethod
     def print_report(s: dict) -> None:

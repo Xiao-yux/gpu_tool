@@ -28,6 +28,8 @@ class Core:
         except KeyboardInterrupt:
             self.log.msg('程序被用户中断，退出。', outconsole=True)
             sys.exit(0)
+        finally:
+            sys.exit(0)
 
 if __name__ == '__main__':
     c = Core()

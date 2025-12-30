@@ -159,19 +159,18 @@ class Menu:
 
     def fd_menu(self):
         """Folding测试菜单"""
-        cmd = f"{self.path['fd_exe']} "
+        cmd = f"{self.path['fd_path']}/{self.path['fd_exe']} "
         path = f"{self.path['fd_path']}"
-        self.tool.check_fd_path(f"{self.log.get_log_file()}/fd")
+        self.tool.check_fd_path(f"\'{self.log.get_log_file()}/fd\'")
         logname = self.log.create_log_file("fd_test")
         pro = ListPrompt("请选择Folding测试项:", choices=self.menu_chess.fd_menu).prompt()
-        print(pro)
         if pro.data == "exit":
             self.gpu_test_menu()
         if pro.data == "1":
-            cmd += f"--no_bmc --level1 --log {self.log.get_log_file()}/fd"
+            cmd += f"--no_bmc --level1 --log '{self.log.get_log_file()}/fd'"
             self.run_command(cmd, path, logname)
         elif pro.data == "2":
-            cmd += f"--no_bmc --level2 --log {self.log.get_log_file()}/fd"
+            cmd += f"--no_bmc --level2 --log '{self.log.get_log_file()}/fd'"
             self.run_command(cmd, path, logname)
         elif pro.data == "3":
             a = CheckboxPrompt("选择单项测试项目:", choices=self.menu_chess.fd_test_arg_menu).prompt()
@@ -180,7 +179,7 @@ class Menu:
             self.run_command(cmd, path, logname)
         elif pro.data == "4":
             arg = InputPrompt(f"请输入自定义参数: {cmd} [input] --log {self.log.get_log_file()}/fd").prompt()
-            cmd += f"{arg} --log {self.log.get_log_file()}/fd"
+            cmd += f"{arg} --log '{self.log.get_log_file()}/fd'"
             self.run_command(cmd, path, logname)
         self.log.msg(f'用户选择Folding测试菜单: {pro}')
         self.main_menu()
