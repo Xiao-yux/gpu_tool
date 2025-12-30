@@ -155,6 +155,8 @@ class Menu:
         pro = ListPrompt("请选择GPU烧机测试项:", choices=self.menu_chess.gpu_burn_menu,allow_filter=False).prompt()
         if pro.data == "exit":
             self.gpu_test_menu()
+        if pro.data == "1":
+            pro.data = InputPrompt("请输入时间(单位秒):").prompt()
         cmd = f"./{self.path['gpu_burn_exe']} {pro.data}"
         self.run_command(cmd, path=self.path['gpu_burn_path'], logname="gpu_burn_test")
         self.log.msg(f'用户选择GPU烧机测试菜单: {pro}')
@@ -177,11 +179,15 @@ class Menu:
             self.run_command(cmd, path, logname)
         elif pro.data == "3":
             a = CheckboxPrompt("选择单项测试项目:", choices=self.menu_chess.fd_test_arg_menu,annotation=self.defcheckmsg).prompt()
+            if not a:
+                self.gpu_test_menu()
             cmd += f"{self.tool.fd_arg_chines(a)}"
             self.log.msg(cmd)
             self.run_command(cmd, path, logname)
         elif pro.data == "4":
             arg = InputPrompt(f"请输入自定义参数: {cmd} [input] --log {self.log.get_log_file()}/fd").prompt()
+            if not arg:
+                self.gpu_test_menu()
             cmd += f"{arg} --log '{self.log.get_log_file()}/fd'"
             self.run_command(cmd, path, logname)
         self.log.msg(f'用户选择Folding测试菜单: {pro}')
@@ -224,8 +230,14 @@ class Menu:
                     break
                 if output:
                     self.log.msg(output, logger_name=logname, outconsole=True)  # 同时记录到日志
+                if logname != "fd_test":
+                    if time.time() // 300 != globals().setdefault('_last_slot', -1):
+                        globals()['_last_slot'] = time.time() // 300
+                        self.job()
             return_code = process.poll()
             self.log.msg(f"命令执行结束, 返回码: {return_code}")
+
+
             self.log.msg(f"日志路径: {self.log.get_log_file()}/{logname}", outconsole=True)
             self.log.msg(f"\n", outconsole=True)
         except Exception as e:
@@ -251,7 +263,7 @@ class Menu:
             self.run_command(cmd, logname="system_stress_test")
         if pro.data == "2":
 
-            a = int(os.popen("free -m | grep Mem | awk '{print ($2)}'").read())
+            a = int(os.popen("export LC_ALL=C.UTF-8 && free -m | grep Mem | awk '{print ($2)}'").read())
             cmd = f"memtester {a - 4096}M 1"
             self.log.msg(cmd)
             self.run_command(cmd, logname="memtester_test")
@@ -304,13 +316,18 @@ class Menu:
             #4 混合读写
             cmd4 = f"fio --name=randrw --filename={disk.data[0]} --size=5G --rw=randrw --rwmixread=70 --bs=4k --ioengine=libaio --direct=1 --numjobs=8 --iodepth=32 --runtime=30 --time_based --group_reporting"
 
-            self.log.msg("正在测试 顺序写大文件", outconsole=True)
+            self.log.msg("正在测试 顺序写大文件\n", outconsole=True)
             self.run_command(cmd, logname=f"disk_speed_test_{disk.data[1]}")
-            self.log.msg("正在测试 顺序读大文件", outconsole=True)
+            self.log.msg("正在测试 顺序读大文件\n", outconsole=True)
             self.run_command(cmd2, logname=f"disk_speed_test_{disk.data[1]}")
-            self.log.msg("正在测试 随机读 4K", outconsole=True)
+            self.log.msg("正在测试 随机读 4K\n", outconsole=True)
             self.run_command(cmd3, logname=f"disk_speed_test_{disk.data[1]}")
-            self.log.msg("正在测试 混合读写", outconsole=True)
+            self.log.msg("正在测试 混合读写\n", outconsole=True)
             self.run_command(cmd4, logname=f"disk_speed_test_{disk.data[1]}")
         self.system_test_menu()
         return None
+
+    def job(self) -> None:
+        """每 5 分钟会被调用的任务函数"""
+
+        self.log.msg(self.tool.run_command("nvidia-smi"),logger_name="time_5_save_info")

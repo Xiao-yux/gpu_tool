@@ -1,3 +1,4 @@
+import datetime
 import glob
 import inspect
 import json
@@ -111,6 +112,12 @@ class Tools:
         config_file= "/etc/gpu_tool/config.toml" #配置文件
         return os.path.exists(config_file)
 
+
+    def run_nvidia_service(self):
+        ser = ['nvidia-fabricmanager.service','nvidia-imex.service','nvidia-persistenced.service','nvidia-dcgm.service','openibd.service']
+        for s in ser:
+            cmd = "systemctl start " + s
+            self.run_command(cmd)
     @staticmethod
     def get_gpu_count():
         """返回GPU数量"""
@@ -203,6 +210,7 @@ class Tools:
                                            stdout=subprocess.PIPE,
                                            stderr=subprocess.STDOUT,  # 将错误输出合并到标准输出
                                            text=True,
+
                                            shell=True,
                                            universal_newlines=True) as process:
                     full_output =[ ]
@@ -234,6 +242,11 @@ class Tools:
     def get_serial_number():
         # 返回主板序列号
         return os.popen('dmidecode -s system-serial-number').read()
+
+    @staticmethod
+    def get_nvidia_bug_report(paths):
+        cmd = f'nvidia-bug-report.sh --output-file {paths}'
+        subprocess.Popen(cmd,cwd=paths,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
 
     @staticmethod
     def rest_gpu_server():
@@ -348,7 +361,6 @@ def exitfun(func):
                                args=(fd, kill_evt),
                                daemon=True)
             watch.start()
-            print(watch.pid)
             while not kill_evt.is_set() and proc.is_alive():
                 proc.join(0.2)
 

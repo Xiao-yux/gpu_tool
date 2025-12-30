@@ -58,7 +58,8 @@ class CheckSystem:
             self.printlog("未检测到 NVIDIA 驱动，部分功能将不可用")
             g = 0
         elif g == 1:
-            self.printlog("检测到 NVIDIA 驱动，开启持久化模式")
+            self.printlog("检测到 NVIDIA 驱动，执行 nvidia-smi -pm 1")
+            self.tool.run_nvidia_service()
             self.tool.run_command("nvidia-smi -pm 1")
 
         # 检测gpuburn
@@ -93,12 +94,17 @@ class CheckSystem:
             self.log.msg(self.tool.get_gpu_info(), logger_name=a)
             self.log.msg(self.tool.run_command("nvidia-smi -q"),
                          logger_name=self.log.create_log_file("nvidia-smi", "system"))
+            self.log.msg(self.tool.run_command("nvidia-smi topo -m"),
+                         logger_name=self.log.create_log_file("nvidia-smi", "system"))
 
         self.log.msg(self.tool.run_command("lspci -vvv"), logger_name=self.log.create_log_file("lspci", "system"))
         self.log.msg(self.tool.run_command("lscpu"), logger_name=self.log.create_log_file("lscpu", "system"))
         self.log.msg(self.tool.run_command("lsusb"), logger_name=self.log.create_log_file("lsusb", "system"))
         self.log.msg(self.tool.run_command("dmidecode"), logger_name=self.log.create_log_file("dmidecode", "system"))
         self.log.msg(self.tool.run_command("lshw"), logger_name=self.log.create_log_file("lshw", "system"))
+        self.log.msg(self.tool.run_command("dmesg"), logger_name=self.log.create_log_file("dmesg", "system"))
+        self.log.msg(self.tool.get_nvidia_bug_report(self.log.log_dir), logger_name=self.log.create_log_file("nvidia_bug_report", "system"))
+        self.log.msg(self.tool.run_command(f"{self.tool.get_tmp_path()}bash/nic_info"),logger_name=self.log.create_log_file("nic_info", "system"))
 
     def printlog(self, message, logname="system_check", path="system", isprint=True):
         """打印日志,同时输出到控制台"""

@@ -39,7 +39,7 @@ class TestFun:
 
     def test1(self):
         """测试1"""
-        func = [self.dcgmi_3,self.nccl_test,self.p2pBandwidthLatencyTest,self.nvbandwidth,self.fieldiag_level2]
+        func = [self.dcgmi_4,self.nccl_test,self.p2pBandwidthLatencyTest,self.nvbandwidth,self.fieldiag_level2]
         return func
 
     def test2(self):
@@ -87,6 +87,11 @@ class TestFun:
         path = f"{self.tool.get_bash_path()}"
         self.run_command(cmd, path, logname="auto_nvbandwidth")
 
+    def nvbandwidth_test(self):
+        """带宽测试大全"""
+        func = [self.nvbandwidth, self.p2pBandwidthLatencyTest, self.nccl_test]
+        return func
+
     def dcgmi_1(self):
         """dcgmi 1级"""
         cmd = f"dcgmi diag -r 1"
@@ -106,7 +111,9 @@ class TestFun:
         """dcgmi 4级"""
         cmd = f"dcgmi diag -r 4"
         self.run_command(cmd, logname="auto_dcgmi_4")
-
+    def poweroff(self):
+        """添加重启"""
+        self.run_command("reboot")
     def cpu_test(self):
         """CPU 10分钟测试"""
         cmd = f"stress-ng --cpu 0 --cpu-method all --cache 0 --matrix 0 --memcpy 0 --mq 0 --pipe 0 --fork 0 --switch 0 --vm 0 --vm-bytes 2G --iomix 4 --iomix-bytes 1g --timeout 600s  --metrics-brief --tz --perf --verify --times"
@@ -152,7 +159,7 @@ class TestFun:
         return None
 
     @exitfun
-    def run_command(self, command: str, path: str = '/tmp', logname: str = "TestFun", _exit_flag=None):
+    def run_command(self, command: str, path: str = '/tmp', logname: str = "TestFun"):
         """运行命令并实时输出日志
         command : 执行的命令
         path : 执行命令时的目录
@@ -180,21 +187,16 @@ class TestFun:
             if process.stdout is None:
                 raise subprocess.SubprocessError("无法创建进程或获取输出流")
             while True:
-                if _exit_flag and _exit_flag.is_set():
-
-                    self.log.msg(f"\n[!] 用户按下 q/ESC，命令被终止。 PID:{process.pid}", outconsole=True)
-                    os.kill(process.pid+1, signal.SIGTERM)
-                    process.terminate()
-                    process.kill()
-                    if process.poll() is None:
-                        os.kill(process.pid+1, signal.SIGKILL)
-                    return
                 output = process.stdout.readline()
                 if output == '' and process.poll() is not None:
                     break
                 if output:
                     time.sleep(0.1)
                     self.log.msg(output.strip(), logger_name=logname, outconsole=True)  # 同时记录到日志
+                    if logname != "auto_fd2":
+                        if time.time() // 300 != globals().setdefault('_last_slot', -1):
+                            globals()['_last_slot'] = time.time() // 300
+                            self.log.msg(self.tool.run_command("nvidia-smi"),logger_name="time_5_save_info")
             return_code = process.poll()
             self.log.msg(f"命令执行结束, 返回码: {return_code}")
             self.log.msg(f"日志路径: {self.log.get_log_file()}/{logname}", outconsole=True)

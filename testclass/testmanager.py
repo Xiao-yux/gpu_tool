@@ -7,7 +7,6 @@ from menu.menuarg import MenuChess
 from utils.tool import Tools,JsonDB
 from core.log import Log
 from testclass.testfun import TestFun
-from testclass.testclass import Test
 
 class Manager:
     def __init__(self,log:Log,path):
@@ -29,7 +28,7 @@ class Manager:
             self.aotojson.add("todo",func.__name__)
             print(f"函数 {func.__name__} 已添加")
         else:
-            print("添加失败：参数必须是可调用的函数")
+            print("添加失败")
 
     def delete(self, func):
         """从管理列表中删除指定的函数"""
@@ -42,7 +41,7 @@ class Manager:
     def run(self):
         """按顺序运行所有添加的函数，并使用printf同时输出"""
         if self.functions is None or len(self.functions) == 0:
-            print("自动执行函数列表为空，无事可做。")
+            print("函数列表为空，无事可做。")
             return
         print("开始运行所有函数...")
         for func in self.functions:
@@ -67,8 +66,9 @@ class Manager:
             self.testarg()
         self.run()
     def testarg(self):
-        exclude = {'run_command', '__init__','test1','test2'}
+        exclude = {'run_command', '__init__','test1','test2','nvbandwidth_test'}
         choices : List[Choice] = []
+        a: int=0
         for name, method in inspect.getmembers(self.testfunc,
                                                predicate=inspect.ismethod):
             # 2. 通过 __func__ 取到原始函数对象
@@ -76,14 +76,25 @@ class Manager:
             if (func.__qualname__.startswith(type(self.testfunc).__name__ + '.')
                     and name not in exclude):
                 doc = inspect.getdoc(func) or name
-                choices.append(Choice(doc, method))  # 返回值用绑定方法，直接可调用
-
+                choices.append(Choice(doc, [method,a]))  # 返回值用绑定方法，直接可调用
+                a+=1
         if not choices:
             print('没有可调用的方法！')
             return
-        p = CheckboxPrompt("请选择:", choices).prompt()
-        for i in p:
-            self.add(i.data)
+        a: int =0
+        choices.append(Choice("退出","exit"))
+        choices.append(Choice("运行","run"))
+        while True:
+            p = ListPrompt("请选择:", choices,default_select=a).prompt()
+            if p.data == "exit":
+                self.functions=[]
+                return
+            if p.data == "run":
+                print(f"即将执行:{self.testfunc}")
+                break
+            self.add(p.data[0])
+            a = int(p.data[1])
+
 
         targets = {self.testfunc.fieldiag_level1, self.testfunc.fieldiag_level2}
 

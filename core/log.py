@@ -169,7 +169,6 @@ class Log:
             logger_name = "gpu_tool_debug"
 
         logger = self.loggers[logger_name]
-        message = self.clean(message)
         if logger_name == "memtester_test":
             a = ['\\','/','-','|','setting','testing']
             p = re.compile(r'^(?:' + '|'.join(map(re.escape, a)) + ')')
@@ -188,7 +187,7 @@ class Log:
         elif level == "CRITICAL":
             logger.critical(message)
         else:
-            logger.info(message.rstrip('\n'))
+            logger.info(message)
 
     @staticmethod
     def clean(line:str)->str:

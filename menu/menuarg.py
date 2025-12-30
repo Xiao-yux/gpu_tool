@@ -50,8 +50,9 @@ class MenuChess:
         Choice("返回", "exit"),
     ]
     _AOTU_TEST: ClassVar[List[Choice]] = [
-        Choice("测试1", "1"),
-        Choice("测试2", "2"),
+        Choice("测试1(dcgm4,nncl,p2p,nvbandwidth,fd2)", "1"),
+        Choice("测试2(dcgm3,p2p,fd2)", "2"),
+        Choice("全部带宽测试(nvbandwidth,nccl,p2p)", "4"),
         Choice("自定义", "3"),
         Choice("返回", "exit"),
     ]
@@ -73,6 +74,7 @@ class MenuChess:
         Choice("8小时", "28800"),
         Choice("16小时", "57600"),
         Choice("24小时", "86400"),
+        Choice("自定义", "1"),
         Choice("返回", "exit"),
     ]
 
