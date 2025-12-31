@@ -1,4 +1,6 @@
 import os
+import time
+
 from utils.tool import Tools
 from core.log import Log
 
@@ -103,7 +105,7 @@ class CheckSystem:
         self.log.msg(self.tool.run_command("dmidecode"), logger_name=self.log.create_log_file("dmidecode", "system"))
         self.log.msg(self.tool.run_command("lshw"), logger_name=self.log.create_log_file("lshw", "system"))
         self.log.msg(self.tool.run_command("dmesg"), logger_name=self.log.create_log_file("dmesg", "system"))
-        self.log.msg(self.tool.get_nvidia_bug_report(self.log.log_dir), logger_name=self.log.create_log_file("nvidia_bug_report", "system"))
+        self.log.msg(self.tool.get_nvidia_bug_report(f"{self.log.log_dir}",logname=f"nvidia-bug-report-{time.strftime('%Y-%m-%d-%H:%M:%S')}.log.gz"), logger_name=self.log.create_log_file(f"nvidia_bug_report", "system"))
         self.log.msg(self.tool.run_command(f"{self.tool.get_tmp_path()}bash/nic_info"),logger_name=self.log.create_log_file("nic_info", "system"))
 
     def printlog(self, message, logname="system_check", path="system", isprint=True):

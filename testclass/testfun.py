@@ -68,6 +68,9 @@ class TestFun:
         cmd = f"./{self.path['gpu_burn_exe']} 43200"
         self.run_command(cmd, path=self.path['gpu_burn_path'], logname="auto_gpu_burn")
 
+    def save_debug(self):
+        """触发nvidia_bug_report日志收集"""
+        self.log.msg(self.tool.get_nvidia_bug_report(f"{self.log.log_dir}",logname=f"nvidia-bug-report-{time.strftime('%Y-%m-%d-%H:%M:%S')}.log.gz"), logger_name=self.log.create_log_file(f"nvidia_bug_report", "system"))
     def nccl_test(self):
         """nccl test"""
         cmd = f"./{self.path['nccl_exe']} "
