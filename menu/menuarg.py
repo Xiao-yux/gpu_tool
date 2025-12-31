@@ -39,6 +39,15 @@ class MenuChess:
         Choice("返回", "exit"),
     ]
 
+        Choice("返回", "exit"),
+    ]
+    _GPU_DOWNLOAD: ClassVar[List[Choice]] = [
+        Choice("下载Gpu_burn", "1"),
+        Choice("下载nccl-tests", "2"),
+        Choice("下载nvbandwidth", "3"),
+        Choice("下载p2pBandwidthLatencyTest", "4"),
+        Choice("返回", "exit"),
+    ]
     _SET_SYSTEM: ClassVar[List[Choice]] = [
         Choice("安装依赖", "1"),
         Choice("设置BMC", "2"),
