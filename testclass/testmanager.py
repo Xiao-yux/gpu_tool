@@ -26,7 +26,6 @@ class Manager:
         if callable(func):
             self.functions.append(func)
             self.aotojson.add("todo",func.__name__)
-            print(f"函数 {func.__name__} 已添加")
         else:
             print("添加失败")
 
@@ -84,8 +83,10 @@ class Manager:
         a: int =0
         choices.append(Choice("退出","exit"))
         choices.append(Choice("运行","run"))
+        ma = []
         while True:
-            p = ListPrompt("请选择:", choices,default_select=a).prompt()
+            p = ListPrompt(f"请选择:           已选择:{ma}", choices,default_select=a).prompt()
+            print(end="\b")
             if p.data == "exit":
                 self.functions=[]
                 return
@@ -93,6 +94,7 @@ class Manager:
                 print(f"即将执行:{self.testfunc}")
                 break
             self.add(p.data[0])
+            ma.append(p.name)
             a = int(p.data[1])
 
 
