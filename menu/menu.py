@@ -53,7 +53,17 @@ class Menu:
             self.apt_install_menu()
         elif pro.data == "2":
             self.bmc_set_menu()
+        elif pro.data =="3":
+            self.download_gpu()
+        elif pro.data == "4":
+            self.rtt_memu()
         self.log.msg(f'用户选择BMC用户设置菜单: {pro}')
+        self.main_menu()
+    def rtt_memu(self):
+        fd = f"\'{self.log.get_log_file()}/fd\'"
+        p = ListPrompt("请选择:",choices=self.menu_chess.sys_tool_menu).prompt()
+        if p.data == "1":
+            self.tool.check_fd_log(fd)
         self.main_menu()
 
     def bmc_set_menu(self):
@@ -66,6 +76,22 @@ class Menu:
         cmd = f"ipmitool user {pro.data}"
         self.log.msg(f'用户选择BMC用户设置菜单: {pro}')
         self.main_menu()
+
+    def download_gpu(self):
+        pro = ListPrompt("请选择:",choices=self.menu_chess.download_gpu).prompt()
+        if pro.data == "exit":
+            self.main_menu()
+        if pro.data == "1":
+            self.install.download_gpu_burn(self.path["download"])
+        if pro.data == "2":
+            self.install.download_nccl_test(self.path["download"])
+        if pro.data == "3":
+            self.install.download_nvband(self.path["download"])
+        if pro.data == "4":
+            self.install.download_p2p(self.path["download"])
+        self.system_set_menu()
+
+
     def apt_install_menu(self):
         pro = ListPrompt("请选择：",choices=self.menu_chess.apt_menu,allow_filter=False).prompt()
         if pro.data == "exit":

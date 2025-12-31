@@ -23,6 +23,27 @@ class InstallPack:
             self.log.msg(f"正在安装{cmd}",logger_name=self.logname,outconsole=True)
             self.log.msg(self.tool.run_command(cmd,out=True),logger_name=self.logname)
 
+    def download_gpu_burn(self,path):
+        url = "https://github.com/wilicc/gpu-burn"
+        cmd = f"git clone {url}"
+        self.tool.run_command(cmd,out=True,path=path)
+
+    def download_nccl_test(self,path):
+        url = "https://github.com/NVIDIA/nccl-tests"
+        cmd = f"git clone {url}"
+        self.tool.run_command(cmd, out=True, path=path)
+
+    def download_nvband(self, path):
+        url = "https://github.com/NVIDIA/nvbandwidth"
+        cmd = f"git clone {url}"
+        self.tool.run_command(cmd, out=True, path=path)
+
+    def download_p2p(self, path):
+        url = "https://github.com/NVIDIA/cuda-samples"
+        cmd = f"git clone {url}"
+        self.tool.run_command(cmd, out=True, path=path)
+        print("需自行编译，编译后p2pBandwidthLatencyTest 程序位置在： cuda-samples/build/Samples/5_Domain_Specific/p2pBandwidthLatencyTest")
+
     def apt_install_dcgm(self):
         self.apt_update_package()
         cmd = f"sudo apt-get install -y datacenter-gpu-manager-4-cuda-all"

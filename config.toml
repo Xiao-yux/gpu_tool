@@ -1,4 +1,4 @@
-version = "2.0.5"
+version = "2.0.6"
 
 [PATH]
 config_file= "/etc/gpu_tool/config.toml" #配置文件
@@ -6,6 +6,7 @@ main_file = "/usr/local/bin/gpu_tool"  #主程序
 fd_path = "/home/houmao/fd"  #fieldiag路径
 gpu_burn_path = "/home/houmao/gpu-burn"  #gpu_burn路径
 nccl_path = "/home/houmao/nccl-tests/build"  #nccl测试路径
+download = "/home/houmao"
 fd_exe = "fieldiag.sh"  #fieldiag可执行文件
 gpu_burn_exe = "gpu_burn"  #gpu_burn可执行文件
 nccl_exe = "all_reduce_perf"  #nccl可执行文件

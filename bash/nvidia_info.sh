@@ -195,6 +195,7 @@ for gpu_info_str in "${GPU_DATA_ARRAY[@]}"; do
         printf "%-6s %-25s %-15s %-25s %-13s %-10s %-20s %-20s %-10s\n", "GPU " idx, slot, bus, model, memory_gb, power, sn, vbios ,"PCIE: " pcie
     }'
 done
+
 # 输出ECC信息
 echo "-------------------------------------ECC INFO---------------------------------------------------"
 printf "%-8s %-20s %-30s %-30s %-30s\n" "GPU ID" "ECC Mode Current" "ECC Errors Volatile" "ECC Errors Aggregate" "SRAM Sources"

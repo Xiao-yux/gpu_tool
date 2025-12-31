@@ -40,7 +40,7 @@ class Manager:
     def run(self):
         """按顺序运行所有添加的函数，并使用printf同时输出"""
         if self.functions is None or len(self.functions) == 0:
-            print("函数列表为空，无事可做。")
+            # print("函数列表为空，无事可做。")
             return
         print("开始运行所有函数...")
         for func in self.functions:

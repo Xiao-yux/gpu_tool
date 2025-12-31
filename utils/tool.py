@@ -199,7 +199,7 @@ class Tools:
         input("按下回车键继续...")
         return
     @staticmethod
-    def run_command(command: str, cmd = "1", out = False) -> int | None | str:
+    def run_command(command: str, cmd = "1", out = False,path="/tmp") -> int | None | str:
         """执行命令并返回输出
             1 : 使用subprocess.run
             2 ： 使用 os.popen
@@ -210,7 +210,7 @@ class Tools:
                                            stdout=subprocess.PIPE,
                                            stderr=subprocess.STDOUT,  # 将错误输出合并到标准输出
                                            text=True,
-
+                                           cwd=path,
                                            shell=True,
                                            universal_newlines=True) as process:
                     full_output =[ ]

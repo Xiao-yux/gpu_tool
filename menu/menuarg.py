@@ -26,7 +26,7 @@ class MenuChess:
         Choice("FD压测", "1"),
         Choice("GPUburn压测", "2"),
         Choice("Dcgmi测试", "3"),
-        Choice("Nvband测试", "4"),
+        Choice("Nvbandwidth测试", "4"),
         Choice("Nccl测试", "5"),
         Choice("p2pBandwidthLatencyTest测试", "6"),
         Choice("返回", "exit"),
@@ -38,6 +38,8 @@ class MenuChess:
         Choice("硬盘速度测试", "3"),
         Choice("返回", "exit"),
     ]
+    _SYS_TOOL: ClassVar[List[Choice]] = [
+        Choice("fd日志总结", "1"),
 
         Choice("返回", "exit"),
     ]
@@ -51,6 +53,8 @@ class MenuChess:
     _SET_SYSTEM: ClassVar[List[Choice]] = [
         Choice("安装依赖", "1"),
         Choice("设置BMC", "2"),
+        Choice("部分GPU测试工具下载", "3"),
+        Choice("其他功能", "4"),
         Choice("返回", "exit"),
     ]
     _BMC_SET: ClassVar[List[Choice]] = [
@@ -198,6 +202,7 @@ class MenuChess:
         self.nvband_menu: List[Choice] = [Choice("全部测试", "-1")] + [
             Choice(k, v) for k, v in self._NVBAND_MAP.items()
         ]
+        self.download_gpu:List[Choice] = self._GPU_DOWNLOAD
         self.setsystem_menu: List[Choice] = self._SET_SYSTEM
         self.apt_menu: List[Choice] = [Choice(k,v) for k,v in self._APT_INSTALL_MENU_MAP.items()]
         self.fd_test_arg_menu: List[Choice] = [Choice(k, v) for k, v in self._FD40212_TEST_ARG_MAP.items()]
@@ -205,3 +210,4 @@ class MenuChess:
         self.gpu_test_menu: List[Choice] = self._GPU_TEST
         self.sys_test_menu: List[Choice] = self._SYS_TEST
         self.bmc_set_menu: List[Choice] = self._BMC_SET
+        self.sys_tool_menu: List[Choice] = self._SYS_TOOL
