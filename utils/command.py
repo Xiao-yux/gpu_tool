@@ -32,6 +32,7 @@ class GpuToolApi:
         init(autoreset=True)
         print(text2art(tx1, chr_ignore=True))
         print(f"{Fore.GREEN}v{self.version}")
+
         return
     @staticmethod
     def parse_arguments(ver=None):

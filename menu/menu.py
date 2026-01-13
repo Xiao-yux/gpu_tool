@@ -63,7 +63,10 @@ class Menu:
         fd = f"\'{self.log.get_log_file()}/fd\'"
         p = ListPrompt("请选择:",choices=self.menu_chess.sys_tool_menu).prompt()
         if p.data == "1":
+            a = os.path.exists(fd)
+            self.log.msg(f"{fd} is exist {a} \n",outconsole=True)
             self.tool.check_fd_log(fd)
+
         self.main_menu()
 
     def bmc_set_menu(self):

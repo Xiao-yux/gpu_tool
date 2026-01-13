@@ -16,6 +16,7 @@ class Core:
         self.log.msg('Core initialized.')
 
         GpuToolApi(self.config['version'])
+        self.log.msg(f'日志路径：{self.log.get_log_file()}\n',outconsole=True)
         self.menu = None
         # 异步执行，优化加载速度
 

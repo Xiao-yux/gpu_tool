@@ -26,21 +26,27 @@ class InstallPack:
     def download_gpu_burn(self,path):
         url = "https://github.com/wilicc/gpu-burn"
         cmd = f"git clone {url}"
+        print(f"下载位置: {path}")
         self.tool.run_command(cmd,out=True,path=path)
 
     def download_nccl_test(self,path):
         url = "https://github.com/NVIDIA/nccl-tests"
         cmd = f"git clone {url}"
+        print(f"下载位置: {path}")
         self.tool.run_command(cmd, out=True, path=path)
 
     def download_nvband(self, path):
         url = "https://github.com/NVIDIA/nvbandwidth"
         cmd = f"git clone {url}"
+        print(f"下载位置: {path}")
         self.tool.run_command(cmd, out=True, path=path)
+
+
 
     def download_p2p(self, path):
         url = "https://github.com/NVIDIA/cuda-samples"
         cmd = f"git clone {url}"
+        print(f"下载位置: {path}")
         self.tool.run_command(cmd, out=True, path=path)
         print("需自行编译，编译后p2pBandwidthLatencyTest 程序位置在： cuda-samples/build/Samples/5_Domain_Specific/p2pBandwidthLatencyTest")
 
