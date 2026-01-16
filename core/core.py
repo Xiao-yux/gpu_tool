@@ -6,11 +6,22 @@ from utils.command import GpuToolApi
 from utils.check_and_save_system import CheckSystem
 from noneprompt import CancelledError
 import sys
+import os
 import concurrent.futures as futures
 from asyncio import CancelledError
 
+
+def is_root():
+    if os.popen("whoami").read().strip() == "root":
+        return True
+    else:
+        print("需要root执行")
+        sys.exit(0)
+
+
 class Core:
     def __init__(self):
+        is_root()
         self.config = Config().config
         self.log = Log(self.config['LOG'])
         self.log.msg('Core initialized.')
@@ -47,5 +58,3 @@ class Core:
         finally:
             sys.exit(0)
 
-if __name__ == '__main__':
-    c = Core()

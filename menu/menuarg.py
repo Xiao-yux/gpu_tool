@@ -92,10 +92,10 @@ class MenuChess:
     ]
 
     _DCGM: ClassVar[List[Choice]] = [
-        Choice("DCGMI 1级测试(系统验证，约几秒钟)", "diag -r 1"),
-        Choice("DCGMI 2级测试(扩展系统验证，约 2-8分钟)", "diag -r 2"),
-        Choice("DCGMI 3级测试(系统硬件诊断，约 15-30 分钟)", "diag -r 3"),
-        Choice("DCGMI 4级测试(更长时间的系统硬件诊断)", "diag -r 4"),
+        Choice("DCGMI 1级测试(系统验证，约几秒钟)", "diag -r 1 -v"),
+        Choice("DCGMI 2级测试(扩展系统验证，约 2-8分钟)", "diag -r 2 -v"),
+        Choice("DCGMI 3级测试(系统硬件诊断，约 15-30 分钟)", "diag -r 3 -v"),
+        Choice("DCGMI 4级测试(更长时间的系统硬件诊断)", "diag -r 4 -v"),
         Choice("DCGMI discovery", "discovery -l"),
         Choice("自定义测试", "6"),
         Choice("返回", "exit"),

@@ -1,5 +1,4 @@
 import argparse
-import os
 import sys
 from colorama import init, Fore, Back, Style
 from art import text2art

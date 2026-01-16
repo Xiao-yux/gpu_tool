@@ -1,5 +1,4 @@
 import inspect
-import json
 from typing import List
 from noneprompt import ListPrompt, Choice, InputPrompt, CheckboxPrompt
 import os

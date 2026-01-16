@@ -176,7 +176,7 @@ class Menu:
             self.gpu_test_menu()
         cmd = f"dcgmi {pro.data}"
         self.log.msg(f'用户选择DCGMI测试菜单: {pro}')
-        self.run_command(cmd, logname="dcgmi_test")
+        self.run_command(cmd, logname="dcgmi_test",path=self.log.get_log_file())
         self.main_menu()
 
     def gpu_burn_menu(self):

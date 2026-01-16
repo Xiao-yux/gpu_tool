@@ -89,7 +89,7 @@ class CheckSystem:
     def sys_save(self, GPU=0):
         """收集系统信息"""
         a = self.log.create_log_file("system_info.log")
-        self.log.msg(f"GPU数量:{GPU}\n",outconsole=True)
+        self.log.msg(f"GPU数量:{self.tool.get_gpu_count()}\n",outconsole=True)
         self.log.msg(self.tool.get_sys_info(), logger_name=a)
         self.log.msg(self.tool.get_eth_info(), logger_name=a)
         if GPU == 1:

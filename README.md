@@ -6,9 +6,8 @@
 ```bash
 git clone https://github.com/Xiao-yux/gpu_tool.git
 cd gpu_tool
-apt install -y gcc g++ clang lld make patchelf python3-dev ccache python3
-pip install noneprompt toml Nuitka tqdm
-make 
+make install 
+make build
 ```
 编译完成的可执行文件在 `dist` 目录下
 
