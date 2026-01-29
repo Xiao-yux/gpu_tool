@@ -2,6 +2,8 @@
 
 export LC_ALL=C.UTF-8
 
+
+main(){
 dmidecode -t system | awk '
 /Manufacturer:/ {
     sub(/Manufacturer: /, "")
@@ -21,9 +23,9 @@ dmidecode -t system | awk '
 lscpu | grep -iE "name|socket"
 
 printf "\n"
-lsmem
-
-
+lsmem -o RANGE,SIZE,STATE,REMOVABLE,BLOCK,NODE,ZONES
+}
+meminfo() {
 if [ "$EUID" -ne 0 ]; then
     echo "sudo su"
     exit 1
@@ -33,11 +35,11 @@ printf "%-25s %-20s %-25s %-10s %-10s %-15s %-10s\n" "Slot" "制造商" "产品�
 
 dmidecode -t memory | awk '
 BEGIN {
-    RS = ""  
-    FS = "\n"  
+    RS = ""
+    FS = "\n"
 }
 /Memory Device/ {
-  
+
     slot = "None"
     manufacturer = "None"
     part_number = "None"
@@ -46,8 +48,8 @@ BEGIN {
     configured_memory_speed = "None"
     sn = "None"
     installed = 0
-    
-  
+
+
     for (i = 1; i <= NF; i++) {
         if ($i ~ /^[[:space:]]*Locator:/) {
             split($i, arr, ":")
@@ -92,7 +94,7 @@ BEGIN {
             if (sn == "Unknown") sn = "None"
         }
     }
-    
+
     # 如果没有安装内存模块，则将所有字段设为None
     if (!installed) {
         manufacturer = "None"
@@ -102,9 +104,17 @@ BEGIN {
         configured_memory_speed = "None"
         sn = "None"
     }
-    
+
     # 打印结果
     printf "%-25s %-20s %-25s %-10s %-10s %-10s %-10s\n", slot, manufacturer, part_number, size, speed, configured_memory_speed, sn
 }'
 
 
+
+}
+if [ "$1" == "--meminfo" ]; then
+    meminfo;
+    exit 1
+fi
+main
+meminfo

@@ -38,7 +38,8 @@ class GpuToolApi:
         """
         解析命令行参数。
         """
-        s = f'''菜单v{ver}
+        # print("\033[1;m\033[05mT\033[25m\033[1;m")
+        s = f'''菜单v\033[1;m\033[05m{ver}\033[25m\033[1;m
     项目地址：https://github.com/Xiao-yux/gpu_tool'''
 
         parser = argparse.ArgumentParser(

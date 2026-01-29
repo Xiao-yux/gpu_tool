@@ -90,7 +90,7 @@ class Manager:
                 self.functions=[]
                 return
             if p.data == "run":
-                print(f"即将执行:{self.testfunc}")
+                print(f"即将执行:{self.testfunc.__name__}")
                 break
             self.add(p.data[0])
             ma.append(p.name)
@@ -106,6 +106,12 @@ class Manager:
             self.functions.append(func)  # 放到末尾
 
 # --------------- 内部工具 ---------------
+    def _get_fun_name(self,name):
+        """传入函数名称返回对应函数"""
+        if not hasattr(self.testfunc, name):
+            raise AttributeError(f'{self.testfunc.__class__.__name__} 没有方法 {name}')
+        return getattr(self.testfunc, name)
+
     def _prepare_resume_file(self)->str:
         log_path = self.log.get_log_file(pathtime=False)          # 用户给的日志文件路径
         self._resume_file = log_path + '/resume.json'   # 断点文件
@@ -124,9 +130,10 @@ class Manager:
         if len(a) == 0:
             self._clean_checkpoint()
     def _rrun(self):
-        a = self.aotojson.get("logpath")
-        if a is None:
-            self.aotojson.add("logpath",self.log.get_log_file())
+        self.log.set_log_path(self.aotojson.get("log_path"))
+        self.log.msg("测试log")
+        self.log.msg(self.log.get_log_file())
+        self._fun_func()
 
     def _fun_func(self):
         # 计算剩余任务

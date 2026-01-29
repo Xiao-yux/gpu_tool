@@ -14,7 +14,8 @@ nccl_exe = "all_reduce_perf"  #nccl可执行文件
 
 [UPDATE]
 #待实现，不用管
-url = "http://192.168.10.20"  #更新地址
+wsurl = "ws://127.0.0.1:8765"
+url = "http://192.168.1.61"  #更新地址
 update_file = "/gpu_tool"  #更新文件路径
 update_config = "/update.json"  #更新配置文件
 

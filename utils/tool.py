@@ -184,15 +184,15 @@ class Tools:
         """复制文件"""
         os.system(f'cp {src} {dst}')
 
-    def get_gpu_info(self)-> str:
+    def get_gpu_info(self,arg='')-> str:
         """返回GPU信息"""
-        return os.popen(f"bash {self.get_tmp_path()}bash/nvidia_info.sh").read()
-    def get_sys_info(self) -> str:
+        return os.popen(f"bash {self.get_tmp_path()}bash/nvidia_info.sh {arg}").read()
+    def get_sys_info(self,arg='') -> str:
         """# 返回系统信息"""
-        return os.popen(f'bash {self.get_tmp_path()}bash/sys_info.sh').read()
-    def get_eth_info(self) -> str:
+        return os.popen(f'bash {self.get_tmp_path()}bash/sys_info.sh {arg}').read()
+    def get_eth_info(self,arg='') -> str:
         """# 网卡硬盘信息"""
-        return os.popen(f'bash {self.get_tmp_path()}bash/CX_DISK_INFO.sh').read()
+        return os.popen(f'bash {self.get_tmp_path()}bash/CX_DISK_INFO.sh {arg}').read()
     @staticmethod
     def input_chick():
         """输入回车继续"""

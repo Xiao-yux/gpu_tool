@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 
 # 错误处理函数
 error_exit() {
-    echo -e "${RED}错误: $1${NC}" >&2
+    echo -e "${RED}错误: $1${NC}"
 }
 
 # 显示帮助信息
@@ -45,31 +45,7 @@ get_device_prefix() {
 # 1. 参数处理
 # ==============================================================================
 
-disk(){
-
-    echo "======================== 硬盘信息 ========================"
-lsblk -d -o NAME,SERIAL,MODEL,TYPE,SIZE,TRAN | grep -v loop
-
-
-
-echo "======================== 电源信息 ========================"
-dmidecode -t 39 2>/dev/null | awk -F': ' '
-BEGIN {count = 1}
-/Model Part Number:/ {model = $2}
-/Serial Number:/ {serial = $2}
-/Max Power Capacity:/ {
-    split($2, parts, " ");
-    power = parts[1]
-}
-/^$/ {
-    if (model) {
-        printf "PSU%d: %s | %s | %s W\n",
-               count, model, serial, power
-        count++
-        model = ""; serial = ""; power = ""
-    }
-}'
-}
+netinfo(){
 
 debug_mode=false
 lspci_vvv_file=""
@@ -102,6 +78,29 @@ elif [[ "$1" == "--debug" ]]; then
     echo ""
 fi
 
+info(){
+echo "======================== 硬盘信息 ========================"
+lsblk -d -o NAME,SERIAL,MODEL,TYPE,SIZE,TRAN | grep -v loop
+
+echo "======================== 电源信息 ========================"
+dmidecode -t 39 2>/dev/null | awk -F': ' '
+BEGIN {count = 1}
+/Model Part Number:/ {model = $2}
+/Serial Number:/ {serial = $2}
+/Max Power Capacity:/ {
+    split($2, parts, " ");
+    power = parts[1]
+}
+/^$/ {
+    if (model) {
+        printf "PSU%d: %s | %s | %s W\n",
+               count, model, serial, power
+        count++
+        model = ""; serial = ""; power = ""
+    }
+}'
+}
+
 # ==============================================================================
 # 2. 生成网卡过滤模式列表
 # ==============================================================================
@@ -120,7 +119,7 @@ fi
 
 if [[ ${#network_list[@]} -eq 0 ]]; then
     error_exit "未检测到任何网卡设备"
-    disk
+    info
     exit 1
 fi
 
@@ -186,10 +185,10 @@ print_device_info() {
         # 输出设备信息
         echo "$separator"
         printf "| %-*s |\n" "$((TTY_W-4))" "$current_device"
-        printf "| %-*s |\n" "$((TTY_W-4))" "描述: $device_info"
+        printf "| %-*s |\n" "$((TTY_W-2))" "描述: $device_info"
         
         # 格式化输出一行多个信息
-        printf "| 部件号(PN): %-20s 序列号(SN): %-20s NUMA节点: %-6s 链路状态: %s  PCI: %s|\n" "$pn" "$sn" "$numa_node" "$lnksta" "$v0"
+        printf "| 部件号(PN): %-20s 序列号(SN): %-20s NUMA节点: %-6s 链路状态: %s  PCI: %s       |\n" "$pn" "$sn" "$numa_node" "$lnksta" "$v0"
         echo "$separator"
         echo ""
     fi
@@ -301,16 +300,15 @@ while IFS= read -r line; do
         
     fi
 done <<< "$pci_txt"
-
-:disk
-
+}
 
 
+diskinfo(){
 echo "======================== 硬盘信息 ========================"
 lsblk -d -o NAME,SERIAL,MODEL,TYPE,SIZE,TRAN | grep -v loop
+}
 
-
-
+psuinfo(){
 echo "======================== 电源信息 ========================"
 dmidecode -t 39 2>/dev/null | awk -F': ' '
 BEGIN {count = 1}
@@ -328,3 +326,24 @@ BEGIN {count = 1}
         model = ""; serial = ""; power = ""
     }
 }'
+}
+if [ "$1" == "--netinfo" ]; then
+    netinfo $2
+    exit 1
+fi
+
+if [ "$1" == "--diskinfo" ]; then
+    diskinfo
+    exit 1
+fi
+
+if [ "$1" == "--psuinfo" ]; then
+    psuinfo
+    exit 1
+fi
+main () {
+  netinfo
+  diskinfo
+  psuinfo
+}
+main

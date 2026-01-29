@@ -65,6 +65,12 @@ class Log:
 
         return logger
 
+    def set_log_path(self,path):
+        """设置日志路径"""
+        if path is not None:
+            self.log_dir = path
+
+
     def _create_logger_with_path(self, name, filename, log_dir):
         """在指定目录下创建logger"""
         logger = logging.getLogger(name)

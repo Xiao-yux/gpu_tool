@@ -9,7 +9,7 @@ import sys
 import os
 import concurrent.futures as futures
 from asyncio import CancelledError
-
+from utils.wscline import Cline
 
 def is_root():
     if os.popen("whoami").read().strip() == "root":
@@ -24,8 +24,9 @@ class Core:
         is_root()
         self.config = Config().config
         self.log = Log(self.config['LOG'])
-        self.log.msg('Core initialized.')
-
+        self.log.msg('Core initialized.§§')
+        self.wscline = Cline(self.config['UPDATE']['wsurl'],self.log)
+        self.wscline.start()
         GpuToolApi(self.config['version'])
         self.log.msg(f'日志路径：{self.log.get_log_file()}\n',outconsole=True)
         self.menu = None
