@@ -4,7 +4,7 @@ from typing import Dict, Any
 
 import websockets
 from websockets.protocol import State  # 15.x 版本
-import json
+import json,aiofiles
 import time
 from utils.tool import Tools
 
@@ -47,13 +47,9 @@ class Cline:
                 async with websockets.connect(self.wsurl) as ws:
                     self.ws = ws
                     self.log.msg(f"[Cline] 已连接到服务器")
-
-                    # 首次发送
-                    await self._send_sys_info()
-
+                    self.log.msg(f"[Cline] {self.ws.response}")
                     # 启动定时发送任务
                     self._send_task = asyncio.create_task(self._send_loop())
-
                     # 接收消息循环
                     try:
                         async for message in ws:
@@ -73,6 +69,7 @@ class Cline:
                 self.log.msg(f"[Cline] 错误: {e}")
             finally:
                 self.ws = None
+                self.log.msg("关闭链接")
 
             if self._running:
                 await asyncio.sleep(5)
@@ -84,7 +81,8 @@ class Cline:
                 await asyncio.sleep(10)
                 # 检查状态：websockets 15.x 使用 State.OPEN
                 if self.ws and self.ws.state == State.OPEN:
-                    await self.ws.send("{'info':'在线维持','msg':'None'}")
+
+                    await self.ws.send("{'info':'ping','msg':'在线维持'}")
                 else:
                     break
             except Exception as e:
@@ -116,7 +114,7 @@ class Cline:
             loop.run_in_executor(None, self.Tools.get_gpu_info),
             loop.run_in_executor(None, self.Tools.run_command, "ip -br addr"),
             loop.run_in_executor(None, self.Tools.run_command, "date"),
-            loop.run_in_executor(None, self.Tools.get_serial_number(), "")
+            loop.run_in_executor(None, self.Tools.get_serial_number)
         )
 
         return {
@@ -131,13 +129,46 @@ class Cline:
             "gpuinfo": results[5]
         }
 
-    async def _handle_message(self, message: Dict[str, Any]):
+    async def _handle_message(self, message: str):
         """处理服务器消息"""
         self.log.msg(f"[Cline] 收到: {message}")
-        if message['info'] == "cmd":
-            if message['cmd'] == "sysinfo":
-                status = await self._gather_sys_info()
-                await self.ws.send(json.dumps(status, ensure_ascii=False))
+        try:
+            # 1. 只解析一次，别再覆盖同名变量
+            msg_dict = json.loads(message)
+
+            if msg_dict.get('info') == 'cmd':
+                cmd = msg_dict.get('cmd')
+
+                if cmd == 'sysinfo':
+                    status = await self._gather_sys_info()
+                    await self.ws.send(json.dumps(status, ensure_ascii=False))
+
+                elif cmd == 'ttyget':
+                    # 2. 确保类里定义了 ttyget 协程方法
+                    info = await self.ttyget()
+                    await self.ws.send(json.dumps(info, ensure_ascii=False))
+
+            elif msg_dict.get('info') == 'log':
+                self.log.msg(f"[Cline] 收到: {msg_dict.get('msg')}")
+
+        except Exception as e:
+            import traceback, sys
+            self.log.msg("hand错误: " + str(e))
+            self.log.msg("traceback:\n" + traceback.format_exc())  # ← 关键
+
+
+    async def ttyget(self):
+        TTY_DEV = "/dev/tty4"  # 按实际改
+        BAUD = 115200
+        try:
+            # aiofiles 支持异步 read
+            async with aiofiles.open(TTY_DEV, "rb", buffering=0) as tty:
+                # 简单设置 115200 8N1（ioctl 需要额外库，这里跳过）
+                data = await tty.read(4096)
+            return {"tty": TTY_DEV, "data": data.decode(errors="ignore")}
+        except Exception as exc:
+            return {"tty": TTY_DEV, "error": str(exc)}
+
 
 
     def is_connected(self):

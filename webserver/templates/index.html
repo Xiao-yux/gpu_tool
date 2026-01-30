@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>左右分栏布局模板</title>
+    <title>厚茂科技</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='js/main.js') }}">
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
 </head>
 <body>
 
@@ -66,17 +66,86 @@
             <div class="content-header">
                 <div class="breadcrumb">首页 / 仪表盘</div>
                 <h1 class="page-title">仪表盘概览</h1>
-                <a class="page-title">刷新</a>
             </div>
 
-            <!-- 空内容占位符 -->
-            <div class="placeholder-card">
-                <div class="placeholder-icon">📂</div>
-                <h3>内容区域</h3>
-                <p>这里可以放置表格、图表、表单或其他任何内容。</p>
+            <!-- 客户端列表 -->
+            <div class="clients-container" id="maininfo">
+                <div id="conn1">
+                    <div class="clients-header">
+                        <h2>已连接客户端</h2>
+                        <span class="clients-count">0 个客户端</span>
+                    </div>
+                    <div class="clients-list" id="clientsList">
+                        <!-- 客户端标签将通过 JavaScript 动态添加 -->
+                    </div>
+                </div>
+                    <!-- 客户端详情面板 -->
+                <div class="client-details-panel" id="clientDetailsPanel" style="display: none;">
+                    <div class="details-header">
+                        <h3>客户端详情</h3>
+                        <button class="close-btn" onclick="closeDetails()">×</button>
+                    </div>
+                    <div class="details-content">
+                        <div class="detail-tabs">
+                            <button class="tab-btn active" data-tab="cpuinfo">CPU信息</button>
+                            <button class="tab-btn" data-tab="meminfo">内存信息</button>
+                            <button class="tab-btn" data-tab="diskinfo">磁盘信息</button>
+                            <button class="tab-btn" data-tab="netinfo">网络信息</button>
+                            <button class="tab-btn" data-tab="psuinfo">电源信息</button>
+                            <button class="tab-btn" data-tab="gpuinfo">GPU信息</button>
+                        </div>
+                        <div id="cpuinfo">
+                        <div class="detail-info">
+                            <div class="info-item">
+                                <span class="info-label">IP地址:</span>
+                                <span class="info-value" id="detailIp">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">机器序列号:</span>
+                                <span class="info-value" id="detailSN">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">更新时间:</span>
+                                <span class="info-value" id="detailTime">-</span>
+                            </div>
+                        </div>
+                        <div class="tab-content" id="tabContent">
+                            <pre id="tabContentText">cpuinfo</pre>
+                        </div>
+                        </div>
+                        <div id="meminfo" style="display:none;">
+                            <div class="tab-content">
+                                <pre id="tabContentTextMem">meminfo</pre>
+                            </div>
+                        </div>
+                        <div id="diskinfo" style="display:none;">
+                            <div class="tab-content">
+                                <pre id="tabContentTextDisk">diskinfo</pre>
+                            </div>
+                        </div>
+                        <div id="netinfo" style="display:none;">
+                            <div class="tab-content">
+                                <pre id="tabContentTextNet">netinfo</pre>
+                            </div>
+                        </div>
+                        <div id="psuinfo" style="display:none;">
+                            <div class="tab-content">
+                                <pre id="tabContentTextPsu">psuinfo</pre>
+                            </div>
+                        </div>
+                        <div id="gpuinfo" style="display:none;">
+                            <div class="tab-content">
+                                <pre id="tabContentTextGpu">gpuinfo</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
-    </div>
+        </div>
+            </div>
+
+            
 
     <script>
         // 简单的脚本：处理菜单点击切换样式
