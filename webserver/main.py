@@ -35,4 +35,4 @@ if __name__ == "__main__":
     print("WebSocket服务器已启动在端口8765")
     
     # 启动Flask服务器（关闭debug模式以避免重启）
-    app.run(debug=False, host="0.0.0.0", port=5000)
+    app.run(debug=False, host="0.0.0.0", port=80)

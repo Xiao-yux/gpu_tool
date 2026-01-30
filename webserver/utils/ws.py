@@ -172,12 +172,13 @@ class WebSocketServer:
         """向指定客户端发送消息"""
         try:
             await websocket.send(message)
-            return await websocket.recv()
+            return True
         except websockets.ConnectionClosed:
             self.clients.discard(websocket)
             if websocket in self.client_info:
                 del self.client_info[websocket]
             await self.broadcast_client_list()
+            return False
 
 
     async def start(self):

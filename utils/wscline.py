@@ -1,7 +1,7 @@
 import asyncio
 import threading
 from typing import Dict, Any
-
+import websockets.asyncio
 import websockets
 from websockets.protocol import State  # 15.x 版本
 import json,aiofiles
@@ -105,20 +105,22 @@ class Cline:
 
         # 并发执行命令
         results = await asyncio.gather(
-            loop.run_in_executor(None, self.Tools.run_command, 'cat /proc/cpuinfo'),
+            loop.run_in_executor(None, self.Tools.run_command, 'lscpu'),
             loop.run_in_executor(None, self.Tools.get_sys_info, '--meminfo'),
             loop.run_in_executor(None, self.Tools.run_command,
                                  "lsblk -d -o NAME,SERIAL,MODEL,TYPE,SIZE,TRAN | grep -v loop"),
             loop.run_in_executor(None, self.Tools.get_eth_info, '--netinfo'),
             loop.run_in_executor(None, self.Tools.get_eth_info, '--psuinfo'),
             loop.run_in_executor(None, self.Tools.get_gpu_info),
-            loop.run_in_executor(None, self.Tools.run_command, "ip -br addr"),
+            loop.run_in_executor(None, self.Tools.run_command, "hostname -I | awk '{print $1}'"),
             loop.run_in_executor(None, self.Tools.run_command, "date"),
-            loop.run_in_executor(None, self.Tools.get_serial_number)
+            loop.run_in_executor(None, self.Tools.get_serial_number),
+            loop.run_in_executor(None, self.Tools.run_command, "ipmitool lan print")
         )
 
         return {
             "ip": results[6],
+            "bmcip" : results[9],
             "SN": results[8],
             "time": results[7],
             "cpuinfo": results[0],

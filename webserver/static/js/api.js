@@ -68,6 +68,7 @@ function updateClientList(clientsList) {
             </div>
             <div class="client-info">
                 <div class="client-ip">${client.ip}</div>
+                <div class="client-sn">${client.sn || "-"}</div>
                 <div class="client-status ${client.online ? 'online' : 'offline'}">${client.online ? '在线' : '离线'}</div>
             </div>
         `;
@@ -106,7 +107,7 @@ function updateClientInfo(clientId, info) {
     if (currentClient === clientId) {
         console.log(info);
         
-        document.getElementById('detailIp').textContent = info.ip || '-';
+        document.getElementById('detailIp').textContent = info.bmcip || '-';
         document.getElementById('detailSN').textContent = info.SN || '-';
         document.getElementById('detailTime').textContent = info.time || '-';
 
@@ -114,9 +115,57 @@ function updateClientInfo(clientId, info) {
         const activeTab = document.querySelector('.tab-btn.active');
         if (activeTab) {
             const tabName = activeTab.dataset.tab;
-            const content = document.getElementById('tabContentText');
-            content.textContent = clients[currentClient][tabName] || '暂无数据';
+            updateTabContent(tabName);
         }
+    }
+}
+
+// 更新选项卡内容
+function updateTabContent(tabName) {
+    if (!currentClient || !clients[currentClient]) {
+        return;
+    }
+
+    const clientData = clients[currentClient];
+
+    // 根据不同的选项卡更新对应的内容区域
+    switch(tabName) {
+        case 'cpuinfo':
+            const cpuContent = document.getElementById('tabContentText');
+            if (cpuContent) {
+                cpuContent.textContent = clientData.cpuinfo || '暂无CPU信息';
+            }
+            break;
+        case 'meminfo':
+            const memContent = document.getElementById('tabContentTextMem');
+            if (memContent) {
+                memContent.textContent = clientData.meminfo || '暂无内存信息';
+            }
+            break;
+        case 'diskinfo':
+            const diskContent = document.getElementById('tabContentTextDisk');
+            if (diskContent) {
+                diskContent.textContent = clientData.diskinfo || '暂无磁盘信息';
+            }
+            break;
+        case 'netinfo':
+            const netContent = document.getElementById('tabContentTextNet');
+            if (netContent) {
+                netContent.textContent = clientData.netinfo || '暂无网络信息';
+            }
+            break;
+        case 'psuinfo':
+            const psuContent = document.getElementById('tabContentTextPsu');
+            if (psuContent) {
+                psuContent.textContent = clientData.psuinfo || '暂无电源信息';
+            }
+            break;
+        case 'gpuinfo':
+            const gpuContent = document.getElementById('tabContentTextGpu');
+            if (gpuContent) {
+                gpuContent.textContent = clientData.gpuinfo || '暂无GPU信息';
+            }
+            break;
     }
 }
 
@@ -133,21 +182,35 @@ function closeDetails() {
 }
 
 // 选项卡切换
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
+document.addEventListener('DOMContentLoaded', () => {
 
-        const tabName = this.dataset.tab;
-        const content = document.getElementById('tabContentText');
+    // 选项卡切换
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // 移除所有选项卡按钮的active类
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            // 给当前点击的按钮添加active类
+            this.classList.add('active');
 
-        if (currentClient && clients[currentClient]) {
-            content.textContent = clients[currentClient][tabName] || '暂无数据';
-            // 切换选项卡时刷新客户端信息
-            refreshClientInfo(currentClient);
-        } else {
-            content.textContent = '请选择一个客户端';
-        }
+            const tabName = this.dataset.tab;
+
+            // 隐藏所有信息面板
+            document.getElementById('cpuinfo').style.display = 'none';
+            document.getElementById('meminfo').style.display = 'none';
+            document.getElementById('diskinfo').style.display = 'none';
+            document.getElementById('netinfo').style.display = 'none';
+            document.getElementById('psuinfo').style.display = 'none';
+            document.getElementById('gpuinfo').style.display = 'none';
+
+            // 显示选中的信息面板
+            const selectedPanel = document.getElementById(tabName);
+            if (selectedPanel) {
+                selectedPanel.style.display = 'block';
+            }
+
+            // 更新选项卡内容
+            updateTabContent(tabName);
+        });
     });
 });
 

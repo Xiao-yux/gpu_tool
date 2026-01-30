@@ -119,8 +119,8 @@ fi
 
 if [[ ${#network_list[@]} -eq 0 ]]; then
     error_exit "未检测到任何网卡设备"
-    info
-    exit 1
+    return 0
+
 fi
 
 # 构建模式列表（按设备ID前缀去重）
