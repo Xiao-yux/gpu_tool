@@ -1,6 +1,7 @@
 from utils.ws import WebSocketServer
 from flask import jsonify, request
 import asyncio
+from utils.db import Clineinfo, TaskList, db
 
 # 全局WebSocket服务器实例
 websocket_server = None
@@ -18,6 +19,14 @@ def register_routes(app):
         """获取所有连接的客户端列表"""
         if websocket_server:
             clients_list = websocket_server.get_client_list()
+            
+            # 为每个客户端添加SN信息
+            for client in clients_list:
+                for ws_client in websocket_server.clients:
+                    if ws_client in websocket_server.client_info and websocket_server.client_info[ws_client]["id"] == client["id"]:
+                        client["sn"] = websocket_server.client_info[ws_client].get("SN", "")
+                        break
+            
             return jsonify({
                 "success": True,
                 "clients": clients_list
@@ -31,11 +40,31 @@ def register_routes(app):
     def get_client_info(client_id):
         """获取指定客户端的详细信息"""
         if websocket_server:
+            # 首先尝试从数据库获取客户端信息
+            # 获取客户端的SN
+            client_sn = None
+            for client in websocket_server.clients:
+                if client in websocket_server.client_info and websocket_server.client_info[client]["id"] == client_id:
+                    client_sn = websocket_server.client_info[client].get("SN")
+                    break
+            
+            if client_sn:
+                # 从数据库获取客户端信息
+                cached_info = Clineinfo.get_by_sn(client_sn)
+                if cached_info:
+                    return jsonify({
+                        "success": True,
+                        "info": cached_info.to_dict(),
+                        "from_cache": True
+                    })
+            
+            # 数据库中没有缓存，尝试从WebSocket服务器获取
             client_info = websocket_server.get_client_info(client_id)
             if client_info:
                 return jsonify({
                     "success": True,
-                    "info": client_info
+                    "info": client_info,
+                    "from_cache": False
                 })
             return jsonify({
                 "success": False,
@@ -89,3 +118,115 @@ def register_routes(app):
             "success": False,
             "running": False
         })
+
+    @app.route("/api/ws/cached_clients")
+    def get_cached_clients():
+        """获取所有缓存的客户端信息"""
+        try:
+            clients = Clineinfo.get_all_clients()
+            clients_list = [client.to_dict() for client in clients]
+            return jsonify({
+                "success": True,
+                "clients": clients_list
+            })
+        except Exception as e:
+            return jsonify({
+                "success": False,
+                "message": f"获取缓存客户端信息失败: {str(e)}"
+            }), 500
+
+    @app.route("/api/tasks", methods=["GET"])
+    def get_tasks():
+        """获取所有任务"""
+        try:
+            tasks = TaskList.query.all()
+            tasks_list = []
+            for task in tasks:
+                tasks_list.append({
+                    "id": task.id,
+                    "name": task.name,
+                    "note": task.note,
+                    "time": task.time,
+                    "cmdlist": task.cmdlist
+                })
+            return jsonify({
+                "success": True,
+                "tasks": tasks_list
+            })
+        except Exception as e:
+            return jsonify({
+                "success": False,
+                "message": f"获取任务列表失败: {str(e)}"
+            }), 500
+
+    @app.route("/api/tasks", methods=["POST"])
+    def add_task():
+        """添加新任务"""
+        try:
+            data = request.get_json()
+            name = data.get("name")
+            note = data.get("note")
+            cmdlist = data.get("cmdlist")
+            
+            if not name or not cmdlist:
+                return jsonify({
+                    "success": False,
+                    "message": "任务名称和命令列表不能为空"
+                }), 400
+            
+            # 获取当前时间
+            from datetime import datetime
+            time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # 创建新任务
+            task = TaskList(
+                name=name,
+                note=note,
+                time=time_str,
+                cmdlist=cmdlist
+            )
+            db.session.add(task)
+            db.session.commit()
+            
+            return jsonify({
+                "success": True,
+                "message": "任务添加成功",
+                "task": {
+                    "id": task.id,
+                    "name": task.name,
+                    "note": task.note,
+                    "time": task.time,
+                    "cmdlist": task.cmdlist
+                }
+            })
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({
+                "success": False,
+                "message": f"添加任务失败: {str(e)}"
+            }), 500
+
+    @app.route("/api/tasks/<int:task_id>", methods=["DELETE"])
+    def delete_task(task_id):
+        """删除任务"""
+        try:
+            task = TaskList.query.get(task_id)
+            if not task:
+                return jsonify({
+                    "success": False,
+                    "message": "任务不存在"
+                }), 404
+            
+            db.session.delete(task)
+            db.session.commit()
+            
+            return jsonify({
+                "success": True,
+                "message": "任务删除成功"
+            })
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({
+                "success": False,
+                "message": f"删除任务失败: {str(e)}"
+            }), 500

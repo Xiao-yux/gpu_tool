@@ -115,7 +115,9 @@ class Cline:
             loop.run_in_executor(None, self.Tools.run_command, "hostname -I | awk '{print $1}'"),
             loop.run_in_executor(None, self.Tools.run_command, "date"),
             loop.run_in_executor(None, self.Tools.get_serial_number),
-            loop.run_in_executor(None, self.Tools.run_command, "ipmitool lan print")
+            loop.run_in_executor(None, self.Tools.run_command, "ipmitool lan print"),
+            loop.run_in_executor(None, self.Tools.run_command,"dmidecode -s system-manufacturer"),
+            loop.run_in_executor(None, self.Tools.run_command, "dmidecode -s system-product-name")
         )
 
         return {
@@ -128,7 +130,9 @@ class Cline:
             "diskinfo": results[2],
             "netinfo": results[3],
             "psuinfo": results[4],
-            "gpuinfo": results[5]
+            "gpuinfo": results[5],
+            "manufacturer": results[10],
+            "pn": results[11],
         }
 
     async def _handle_message(self, message: str):

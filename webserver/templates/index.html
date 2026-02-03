@@ -41,7 +41,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="setActive(this)">
+                    <a href="/tasks" class="nav-link">
                         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
                         指令表单
                     </a>
@@ -83,6 +83,10 @@
                 <div class="client-details-panel" id="clientDetailsPanel" style="display: none;">
                     <div class="details-header">
                         <h3>客户端详情</h3>
+                        <div class="details-title-info">
+                            <span id="detailManufacturer">-</span>
+                            <span id="detailPn">-</span>
+                        </div>
                         <button class="close-btn" onclick="closeDetails()">×</button>
                     </div>
                     <div class="details-content">
@@ -93,6 +97,14 @@
                             <button class="tab-btn" data-tab="netinfo">网络信息</button>
                             <button class="tab-btn" data-tab="psuinfo">电源信息</button>
                             <button class="tab-btn" data-tab="gpuinfo">GPU信息</button>
+                            <button class="refresh-btn" id="refreshBtn" onclick="refreshCurrentClient()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M23 4v6h-6"/>
+                                    <path d="M1 20v-6h6"/>
+                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                                </svg>
+                                刷新
+                            </button>
                         </div>
                         <div id="cpuinfo">
                         <div class="detail-info">

@@ -6,6 +6,7 @@ import websockets
 import asyncio
 
 from websockets.server import ServerConnection
+from utils.db import Clineinfo
 
 
 class WebSocketServer:
@@ -15,10 +16,15 @@ class WebSocketServer:
         self.clients = set()  # 存储所有连接的客户端
         self.client_info = {}  # 存储客户端信息，key为websocket对象，value为客户端信息字典
         self.loop = None  # 事件循环引用
+        self.app = None  # Flask应用上下文引用
 
     def set_event_loop(self, loop):
         """设置事件循环引用，用于同步调用异步方法"""
         self.loop = loop
+    
+    def set_app(self, app):
+        """设置Flask应用上下文引用"""
+        self.app = app
 
     async def handle_client(self, websocket: ServerConnection) -> None:
         path = websocket.request.path  # 想要 URI 从这里拿
@@ -40,6 +46,13 @@ class WebSocketServer:
         }
         # 广播客户端列表更新
         await self.broadcast_client_list()
+        
+        # 自动请求系统信息
+        sysinfo_request = json.dumps({
+            "info": "cmd",
+            "cmd": "sysinfo"
+        })
+        await self.send_to_client(websocket, sysinfo_request)
         try:
             async for msg in websocket:
                 print(f"收到消息: {msg}")
@@ -52,9 +65,30 @@ class WebSocketServer:
                         if data.get("type") == "get_info":
                             # 查找目标客户端
                             target_client_id = data.get("client_id")
+                            
+                            # 首先尝试从数据库获取客户端信息
+                            client_sn = None
                             for client in self.clients:
                                 if self.client_info[client]["id"] == target_client_id:
-                                    # 向目标客户端发送sysinfo请求
+                                    client_sn = self.client_info[client].get("SN")
+                                    break
+                            
+                            if client_sn and self.app:
+                                with self.app.app_context():
+                                    cached_info = Clineinfo.get_by_sn(client_sn)
+                                    if cached_info:
+                                        # 从数据库获取到缓存信息，直接返回
+                                        await self.send_to_client(websocket, json.dumps({
+                                            "type": "client_info",
+                                            "client_id": target_client_id,
+                                            "info": cached_info.to_dict(),
+                                            "from_cache": True
+                                        }))
+                                        return
+                            
+                            # 数据库中没有缓存，向目标客户端发送sysinfo请求
+                            for client in self.clients:
+                                if self.client_info[client]["id"] == target_client_id:
                                     sysinfo_request = json.dumps({
                                         "info": "cmd",
                                         "cmd": "sysinfo"
@@ -64,6 +98,15 @@ class WebSocketServer:
                         else:
                             # 更新客户端信息
                             self.client_info[websocket].update(data)
+                            
+                            # 如果包含SN信息，则更新到数据库
+                            if "SN" in data and data["SN"] and self.app:
+                                # 添加id到数据中
+                                data["id"] = self.client_info[websocket]["id"]
+                                # 更新或创建数据库记录
+                                with self.app.app_context():
+                                    Clineinfo.update_or_create(data)
+                            
                             # 广播更新后的客户端信息
                             await self.broadcast_client_info(websocket)
                 except json.JSONDecodeError:
@@ -113,6 +156,22 @@ class WebSocketServer:
         return False
 
     async def get_status(self):
+        """客户端会返回
+            {
+        "SN": "",
+        "bmcip":"",
+        "cpuinfo": "",
+        "diskinfo": "",
+        "gpuinfo": ",
+        "ip": "",
+        "meminfo": "",
+        "netinfo": "",
+        "psuinfo": "",
+        "manufacturer": "",
+        "pn": "",
+        "time": "2026年 01月 30日 星期五 12:05:47 CST\n"
+            }  -> json
+        """
         a= {
             "info": "cmd",
             "cmd": "sysinfo"

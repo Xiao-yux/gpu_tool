@@ -35,16 +35,42 @@ async function fetchClientInfo(clientId) {
 // 刷新客户端信息
 async function refreshClientInfo(clientId) {
     try {
+        // 添加加载状态
+        const refreshBtn = document.getElementById('refreshBtn');
+        if (refreshBtn) {
+            refreshBtn.classList.add('loading');
+            refreshBtn.disabled = true;
+        }
+        
         const response = await fetch(`/api/ws/client/${clientId}/refresh`, {
             method: 'POST'
         });
         const data = await response.json();
         if (data.success) {
             // 等待一小段时间后重新获取信息
-            setTimeout(() => fetchClientInfo(clientId), 500);
+            setTimeout(() => {
+                fetchClientInfo(clientId);
+                // 移除加载状态
+                if (refreshBtn) {
+                    refreshBtn.classList.remove('loading');
+                    refreshBtn.disabled = false;
+                }
+            }, 500);
+        } else {
+            // 移除加载状态
+            if (refreshBtn) {
+                refreshBtn.classList.remove('loading');
+                refreshBtn.disabled = false;
+            }
         }
     } catch (error) {
         console.error('刷新客户端信息失败:', error);
+        // 移除加载状态
+        const refreshBtn = document.getElementById('refreshBtn');
+        if (refreshBtn) {
+            refreshBtn.classList.remove('loading');
+            refreshBtn.disabled = false;
+        }
     }
 }
 
@@ -84,9 +110,10 @@ function showClientDetails(clientId) {
     const panel = document.getElementById('clientDetailsPanel');
     const tmp = document.getElementById('conn1');
     tmp.style.display = 'none';
-    // 立即刷新客户端信息
-    refreshClientInfo(clientId);
-
+    
+    // 先尝试获取缓存的客户端信息
+    fetchClientInfo(clientId);
+    
     panel.style.display = 'block';
 
     // 设置自动刷新
@@ -100,6 +127,13 @@ function showClientDetails(clientId) {
     // }, 5000); // 每5秒刷新一次
 }
 
+// 刷新当前客户端信息
+function refreshCurrentClient() {
+    if (currentClient) {
+        refreshClientInfo(currentClient);
+    }
+}
+
 // 更新客户端信息
 function updateClientInfo(clientId, info) {
     clients[clientId] = { ...clients[clientId], ...info };
@@ -108,8 +142,15 @@ function updateClientInfo(clientId, info) {
         console.log(info);
         
         document.getElementById('detailIp').textContent = info.bmcip || '-';
-        document.getElementById('detailSN').textContent = info.SN || '-';
-        document.getElementById('detailTime').textContent = info.time || '-';
+        document.getElementById('detailSN').textContent = info.sn || info.SN || '-';
+        document.getElementById('detailTime').textContent = info.last_update || info.time || '-';
+        document.getElementById('detailManufacturer').textContent = info.manufacturer || '-';
+        document.getElementById('detailPn').textContent = info.pn || '-';
+        
+        // 确保SN字段在客户端对象中正确设置
+        if (info.sn && !info.SN) {
+            clients[clientId].SN = info.sn;
+        }
 
         // 更新当前选项卡内容
         const activeTab = document.querySelector('.tab-btn.active');

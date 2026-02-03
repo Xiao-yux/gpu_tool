@@ -246,6 +246,16 @@ main {
     word-break: break-all;
 }
 
+.client-sn {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
 .client-status {
     font-size: 0.85rem;
     color: var(--text-secondary);
@@ -280,6 +290,20 @@ main {
 .details-header h3 {
     font-size: 1.2rem;
     color: var(--text-main);
+}
+
+.details-title-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.details-title-info span {
+    padding: 5px 10px;
+    background: #f0f4f8;
+    border-radius: 4px;
 }
 
 .close-btn {
@@ -336,6 +360,285 @@ main {
     background: var(--active-bg);
     color: var(--primary-color);
     font-weight: 500;
+}
+
+/* 刷新按钮样式 */
+.refresh-btn {
+    background: var(--primary-color);
+    border: none;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto;
+}
+
+.refresh-btn:hover {
+    background: #3a7bc8;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+}
+
+.refresh-btn:active {
+    transform: translateY(0);
+}
+
+.refresh-btn svg {
+    animation: none;
+}
+
+.refresh-btn.loading svg {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* 指令表单页面样式 */
+.tasks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.add-task-form {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.add-task-form h2 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: var(--text-main);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.submit-btn {
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.submit-btn:hover {
+    background: #3a7bc8;
+}
+
+.cancel-btn {
+    background: #f0f0f0;
+    color: var(--text-main);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.cancel-btn:hover {
+    background: #e0e0e0;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.tasks-list-container {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.tasks-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.tasks-list-header h2 {
+    font-size: 1.3rem;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.add-task-btn {
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.add-task-btn:hover {
+    background: #3a7bc8;
+}
+
+.tasks-table-container {
+    margin-bottom: 20px;
+    overflow-x: auto;
+}
+
+.tasks-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tasks-table thead {
+    background: #f5f7fa;
+}
+
+.tasks-table th {
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 500;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tasks-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tasks-table tbody tr:hover {
+    background: #f9f9f9;
+}
+
+.tasks-table td {
+    padding: 12px 15px;
+    color: var(--text-main);
+}
+
+.task-name {
+    font-weight: 500;
+}
+
+.task-note {
+    color: var(--text-secondary);
+}
+
+.task-cmdlist-content {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.task-time {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.task-actions {
+    text-align: center;
+}
+
+.delete-task-btn {
+    background: #ff4d4f;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.delete-task-btn:hover {
+    background: #d9363e;
+}
+
+.no-tasks {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.pagination-btn {
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: #3a7bc8;
+}
+
+.pagination-btn:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    color: var(--text-main);
+    font-size: 0.95rem;
 }
 
 /* 详情信息 */
