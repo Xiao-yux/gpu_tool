@@ -1,6 +1,7 @@
 import inspect
 import os
 import json
+from telnetlib import AYT
 
 import websockets
 import asyncio
@@ -27,8 +28,8 @@ class WebSocketServer:
         self.app = app
 
     async def handle_client(self, websocket: ServerConnection) -> None:
-        path = websocket.request.path  # 想要 URI 从这里拿
-        client_ip = websocket.remote_address[0] if websocket.remote_address else "unknown"
+        path = websocket.request.path  # 想要 URI 从这里拿  # pyright: ignore[reportAttributeAccessIssue]
+        client_ip = websocket.remote_address[0] if websocket.remote_address else "unknown"  # pyright: ignore[reportAttributeAccessIssue]
         self.clients.add(websocket)
         client_id = str(id(websocket))
         # 初始化客户端信息
@@ -54,7 +55,7 @@ class WebSocketServer:
         })
         await self.send_to_client(websocket, sysinfo_request)
         try:
-            async for msg in websocket:
+            async for msg in websocket:  # pyright: ignore[reportGeneralTypeIssues]
                 print(f"收到消息: {msg}")
                 print(f"当前连接的客户端数量: {len(self.clients)}")
                 # 解析客户端消息
@@ -121,6 +122,7 @@ class WebSocketServer:
             # 广播客户端列表更新
             await self.broadcast_client_list()
 
+
     def run_cmd(self,msg):
         return os.popen(msg).read()
 
@@ -132,6 +134,7 @@ class WebSocketServer:
                 clients_list.append({
                     "id": self.client_info[client]["id"],
                     "ip": self.client_info[client]["ip"],
+                    "sn": self.client_info[client].get("SN", ""),
                     "online": True
                 })
         return clients_list
@@ -242,7 +245,7 @@ class WebSocketServer:
 
     async def start(self):
         print(f"启动 WebSocket 服务器: ws://{self.host}:{self.port}")
-        async with websockets.serve(self.handle_client, self.host, self.port):
+        async with websockets.serve(self.handle_client, self.host, self.port):  # pyright: ignore[reportArgumentType]
             await asyncio.Future()  # 持续运行直到手动停止
 
 async def main():

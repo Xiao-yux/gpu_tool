@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>指令表单 - 厚茂科技</title>
+    <title>服务器列表 - 厚茂科技</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <script src="{{ url_for('static', filename='js/tasks.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/sweetalert.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/server.js') }}"></script>
 </head>
 <body>
 
@@ -35,13 +34,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/server" class="nav-link">
+                    <a href="/" class="nav-link active">
                         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                         服务器批量管理
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/tasks" class="nav-link active">
+                    <a href="/tasks" class="nav-link">
                         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
                         指令表单
                     </a>
@@ -64,8 +63,8 @@
         <!-- 右侧内容区 -->
         <main id="main-content">
             <div class="content-header">
-                <div class="breadcrumb">首页 / 指令表单</div>
-                <h1 class="page-title">指令表单</h1>
+                <div class="breadcrumb">首页 / 服务器列表</div>
+                <h1 class="page-title">服务器列表</h1>
             </div>
 
             <!-- 指令表单面板 -->
@@ -73,8 +72,8 @@
                 <!-- 任务列表 -->
                 <div class="tasks-list-container">
                     <div class="tasks-list-header">
-                        <h2>指令列表</h2>
-                        <button class="add-task-btn" onclick="toggleAddTaskForm()">添加新指令</button>
+                        <h2>服务器列表</h2>
+                        
                     </div>
                     
 
@@ -86,11 +85,10 @@
                         <table class="tasks-table">
                             <thead>
                                 <tr>
-                                    <th>任务名称</th>
-                                    <th>任务备注</th>
-                                    <th>命令列表</th>
-                                    <th>添加时间</th>
-                                    <th>操作</th>
+                                    <th>id</th>
+                                    <th>ip</th>
+                                    <th>sn</th>
+                                    <th>状态</th>
                                 </tr>
                             </thead>
                             <tbody id="tasksTableBody">
@@ -108,63 +106,6 @@
                 </div>
             </div>
         </main>
-    </div>
-
-    <!-- 添加任务表单（弹窗） -->
-    <div class="modal-overlay" id="addTaskForm" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>添加新指令</h2>
-                <button class="modal-close" onclick="toggleAddTaskForm()">×</button>
-            </div>
-            <form id="taskForm" onsubmit="event.preventDefault(); addTask();">
-                <div class="form-group">
-                    <label for="taskName">指令名称</label>
-                    <input type="text" id="taskName" placeholder="请输入指令名称" required>
-                </div>
-                <div class="form-group">
-                    <label for="taskNote">备注</label>
-                    <input type="text" id="taskNote" placeholder="请输入备注（可选）">
-                </div>
-                <div class="form-group">
-                    <label for="taskCmdlist">命令列表</label>
-                    <textarea id="taskCmdlist" placeholder="请输入Linux命令，多条命令请换行分隔" required></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="submit-btn">添加指令</button>
-                    <button type="button" class="cancel-btn" onclick="toggleAddTaskForm()">取消</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- 编辑任务表单（弹窗） -->
-    <div class="modal-overlay" id="editTaskForm" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>修改指令</h2>
-                <button class="modal-close" onclick="hideEditTaskForm()">×</button>
-            </div>
-            <form id="editTaskFormElement" onsubmit="event.preventDefault(); editTask();">
-                <input type="hidden" id="editTaskId">
-                <div class="form-group">
-                    <label for="editTaskName">指令名称</label>
-                    <input type="text" id="editTaskName" placeholder="请输入指令名称" required>
-                </div>
-                <div class="form-group">
-                    <label for="editTaskNote">备注</label>
-                    <input type="text" id="editTaskNote" placeholder="请输入备注（可选）">
-                </div>
-                <div class="form-group">
-                    <label for="editTaskCmdlist">命令列表</label>
-                    <textarea id="editTaskCmdlist" placeholder="请输入Linux命令，多条命令请换行分隔" required></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="submit-btn">保存修改</button>
-                    <button type="button" class="cancel-btn" onclick="hideEditTaskForm()">取消</button>
-                </div>
-            </form>
-        </div>
     </div>
 
     <script>

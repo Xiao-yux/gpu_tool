@@ -1,9 +1,12 @@
+
+
 // 任务管理功能
 let tasks = [];
 let currentPage = 1;
 let itemsPerPage = 10; // 每页显示的指令数量
 
 // 获取所有任务
+
 async function fetchTasks() {
     try {
         const response = await fetch('/api/tasks');
@@ -37,7 +40,7 @@ async function addTask() {
     const cmdlist = document.getElementById('taskCmdlist').value.trim();
 
     if (!name || !cmdlist) {
-        alert('任务名称和命令列表不能为空');
+        swal('', '任务名称和命令列表不能为空', 'error');
         return;
     }
 
@@ -65,14 +68,19 @@ async function addTask() {
 
             // 重新获取任务列表
             await fetchTasks();
-            alert('任务添加成功');
+            showmessg('任务添加成功', 'success');
         } else {
-            alert('添加任务失败: ' + data.message);
+            showmessg('添加任务失败: ' + data.message);
         }
     } catch (error) {
         console.error('添加任务失败:', error);
-        alert('添加任务失败');
+        showmessg('添加任务失败');
     }
+}
+
+//弹窗
+function showmessg(message, type = 'error') {
+    swal( "Ops" ,  message ,  type );
 }
 
 // 删除任务
@@ -89,13 +97,80 @@ async function deleteTask(taskId) {
         if (data.success) {
             // 重新获取任务列表
             await fetchTasks();
-            alert('任务删除成功');
+            showmessg('任务删除成功', 'success');
         } else {
-            alert('删除任务失败: ' + data.message);
+            showmessg('删除任务失败: ' + data.message);
         }
     } catch (error) {
         console.error('删除任务失败:', error);
-        alert('删除任务失败');
+        showmessg('删除任务失败');
+    }
+}
+
+// 显示编辑任务表单
+function showEditTaskForm(taskId) {
+    // 查找要编辑的任务
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) {
+        showmessg('找不到任务');
+        return;
+    }
+
+    // 隐藏添加任务表单
+    document.getElementById('addTaskForm').style.display = 'none';
+
+    // 填充编辑表单
+    document.getElementById('editTaskId').value = task.id;
+    document.getElementById('editTaskName').value = task.name;
+    document.getElementById('editTaskNote').value = task.note || '';
+    document.getElementById('editTaskCmdlist').value = task.cmdlist;
+
+    // 显示编辑表单
+    document.getElementById('editTaskForm').style.display = 'block';
+}
+
+// 隐藏编辑任务表单
+function hideEditTaskForm() {
+    document.getElementById('editTaskForm').style.display = 'none';
+}
+
+// 修改任务
+async function editTask() {
+    const taskId = document.getElementById('editTaskId').value;
+    const name = document.getElementById('editTaskName').value.trim();
+    const note = document.getElementById('editTaskNote').value.trim();
+    const cmdlist = document.getElementById('editTaskCmdlist').value.trim();
+
+    if (!name || !cmdlist) {
+        alert('任务名称和命令列表不能为空');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/tasks/${taskId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: name,
+                note: note,
+                cmdlist: cmdlist
+            })
+        });
+        const data = await response.json();
+        if (data.success) {
+            // 隐藏编辑表单
+            hideEditTaskForm();
+            // 重新获取任务列表
+            await fetchTasks();
+            showmessg('任务修改成功', 'success'); 
+        } else {
+            showmessg('修改任务失败: ' + data.message);
+        }
+    } catch (error) {
+        console.error('修改任务失败:', error);
+        showmessg('修改任务失败');
     }
 }
 
@@ -121,17 +196,65 @@ function renderTasks() {
     // 渲染当前页的任务
     currentTasks.forEach(task => {
         const row = document.createElement('tr');
+        
+        // 创建命令列表单元格
+        const cmdlistCell = document.createElement('td');
+        cmdlistCell.className = 'task-cmdlist';
+        
+        // 创建命令列表内容元素
+        const cmdlistContent = document.createElement('pre');
+        cmdlistContent.className = 'task-cmdlist-content';
+        cmdlistContent.textContent = task.cmdlist.replace(/\n/g, ' ');
+        
+        // 添加鼠标悬停事件
+        cmdlistContent.addEventListener('mouseenter', function(e) {
+            // 创建工具提示
+            const tooltip = document.createElement('div');
+            tooltip.className = 'task-cmdlist-tooltip';
+            tooltip.textContent = task.cmdlist;
+            
+            // 设置工具提示位置
+            const rect = this.getBoundingClientRect();
+            tooltip.style.left = (rect.left + rect.width / 2) + 'px';
+            tooltip.style.top = (rect.top - 10) + 'px';
+            
+            // 添加到文档
+            document.body.appendChild(tooltip);
+            
+            // 保存工具提示引用
+            this._tooltip = tooltip;
+        });
+        
+        // 添加鼠标离开事件
+        cmdlistContent.addEventListener('mouseleave', function() {
+            // 移除工具提示
+            if (this._tooltip) {
+                document.body.removeChild(this._tooltip);
+                this._tooltip = null;
+            }
+        });
+        
+        // 将命令列表内容添加到单元格
+        cmdlistCell.appendChild(cmdlistContent);
+        
+        // 设置其他单元格内容
         row.innerHTML = `
             <td class="task-name">${task.name}</td>
             <td class="task-note">${task.note || '无备注'}</td>
-            <td class="task-cmdlist">
-                <pre class="task-cmdlist-content">${task.cmdlist}</pre>
-            </td>
+        `;
+        
+        // 添加命令列表单元格
+        row.appendChild(cmdlistCell);
+        
+        // 添加时间和操作列
+        row.innerHTML += `
             <td class="task-time">${task.time}</td>
             <td class="task-actions">
+                <button class="edit-task-btn" onclick="showEditTaskForm(${task.id})">修改</button>
                 <button class="delete-task-btn" onclick="deleteTask(${task.id})">删除</button>
             </td>
         `;
+        
         tasksTableBody.appendChild(row);
     });
 }

@@ -1,6 +1,7 @@
 // API 客户端 - 使用 HTTP 请求获取客户端数据
 let clients = {};
 let currentClient = null;
+let currentOfflineClient = null;
 let refreshInterval = null;
 
 // 获取客户端列表
@@ -225,17 +226,17 @@ function closeDetails() {
 // 选项卡切换
 document.addEventListener('DOMContentLoaded', () => {
 
-    // 选项卡切换
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+    // 在线客户端选项卡切换
+    document.querySelectorAll('.tab-btn:not([data-tab^="offline"])').forEach(btn => {
         btn.addEventListener('click', function() {
             // 移除所有选项卡按钮的active类
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-btn:not([data-tab^="offline"])').forEach(b => b.classList.remove('active'));
             // 给当前点击的按钮添加active类
             this.classList.add('active');
 
             const tabName = this.dataset.tab;
 
-            // 隐藏所有信息面板
+            // 隐藏所有在线客户端信息面板
             document.getElementById('cpuinfo').style.display = 'none';
             document.getElementById('meminfo').style.display = 'none';
             document.getElementById('diskinfo').style.display = 'none';
@@ -253,12 +254,136 @@ document.addEventListener('DOMContentLoaded', () => {
             updateTabContent(tabName);
         });
     });
+
+    // 离线客户端选项卡切换
+    document.querySelectorAll('.tab-btn[data-tab^="offline"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // 移除所有离线选项卡按钮的active类
+            document.querySelectorAll('.tab-btn[data-tab^="offline"]').forEach(b => b.classList.remove('active'));
+            // 给当前点击的按钮添加active类
+            this.classList.add('active');
+
+            const tabName = this.dataset.tab;
+
+            // 隐藏所有离线客户端信息面板
+            document.getElementById('offlinecpuinfo').style.display = 'none';
+            document.getElementById('offlinememinfo').style.display = 'none';
+            document.getElementById('offlinediskinfo').style.display = 'none';
+            document.getElementById('offlinenetinfo').style.display = 'none';
+            document.getElementById('offlinepsuinfo').style.display = 'none';
+            document.getElementById('offlinegpuinfo').style.display = 'none';
+
+            // 显示选中的信息面板
+            const selectedPanel = document.getElementById(tabName);
+            if (selectedPanel) {
+                selectedPanel.style.display = 'block';
+            }
+        });
+    });
 });
+
+// 获取离线客户端列表
+async function fetchOfflineClients() {
+    try {
+        const response = await fetch('/api/ws/offline_clients');
+        const data = await response.json();
+        console.log("offline clients data:", data);
+
+        if (data.success) {
+            updateOfflineClientsList(data.clients);
+        }
+    } catch (error) {
+        console.error('获取离线客户端列表失败:', error);
+    }
+}
+
+// 更新离线客户端列表
+function updateOfflineClientsList(offlineClientsList) {
+    const offlineClientsListEl = document.getElementById('offlineClientsList');
+    const countEl = document.getElementById('offlineClientsCount');
+
+    if (!offlineClientsListEl || !countEl) {
+        return;
+    }
+
+    offlineClientsListEl.innerHTML = '';
+    countEl.textContent = offlineClientsList.length + ' 个客户端';
+
+    offlineClientsList.forEach(client => {
+        const clientEl = document.createElement('div');
+        clientEl.className = 'client-card';
+        clientEl.dataset.clientSn = client.sn;
+        clientEl.innerHTML = `
+            <div class="client-avatar">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <div class="client-info">
+                <div class="client-ip">${client.ip || "-"}</div>
+                <div class="client-sn">${client.sn || "-"}</div>
+                <div class="client-status offline">${"离线"}</div>
+            </div>
+        `;
+
+        clientEl.addEventListener('click', () => showOfflineClientDetails(client.sn));
+        offlineClientsListEl.appendChild(clientEl);
+    });
+}
+
+// 显示离线客户端详情
+function showOfflineClientDetails(clientSn) {
+    // 从数据库获取该客户端的详细信息
+    fetch(`/api/ws/cached_clients`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const client = data.clients.find(c => c.sn === clientSn);
+                if (client) {
+                    // 更新离线客户端详情面板的信息
+                    document.getElementById('offlineDetailIp').textContent = client.bmcip || '-';
+                    document.getElementById('offlineDetailSN').textContent = client.sn || '-';
+                    document.getElementById('offlineDetailTime').textContent = client.last_update || '-';
+                    document.getElementById('offlineDetailManufacturer').textContent = client.manufacturer || '-';
+                    document.getElementById('offlineDetailPn').textContent = client.pn || '-';
+                    
+                    // 更新各个选项卡的内容
+                    document.getElementById('offlineTabContentText').textContent = client.cpuinfo || '暂无CPU信息';
+                    document.getElementById('offlineTabContentTextMem').textContent = client.meminfo || '暂无内存信息';
+                    document.getElementById('offlineTabContentTextDisk').textContent = client.diskinfo || '暂无磁盘信息';
+                    document.getElementById('offlineTabContentTextNet').textContent = client.netinfo || '暂无网络信息';
+                    document.getElementById('offlineTabContentTextPsu').textContent = client.psuinfo || '暂无电源信息';
+                    document.getElementById('offlineTabContentTextGpu').textContent = client.gpuinfo || '暂无GPU信息';
+                    
+                    // 显示离线客户端详情面板
+                    const panel = document.getElementById('offlineClientDetailsPanel');
+                    const tmp = document.getElementById('conn2');
+                    tmp.style.display = 'none';
+                    panel.style.display = 'block';
+                    
+                    currentOfflineClient = clientSn;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('获取离线客户端详情失败:', error);
+        });
+}
+
+// 关闭离线客户端详情面板
+function closeOfflineDetails() {
+    document.getElementById('offlineClientDetailsPanel').style.display = 'none';
+    currentOfflineClient = null;
+    const tmp = document.getElementById('conn2');
+    tmp.style.display = '';
+}
 
 // 页面加载完成后，开始定期获取客户端列表
 document.addEventListener('DOMContentLoaded', () => {
     // 立即获取一次客户端列表
     fetchClientList();
+    fetchOfflineClients();
     // 每3秒获取一次客户端列表
     setInterval(fetchClientList, 3000);
+    setInterval(fetchOfflineClients, 3000);
 });

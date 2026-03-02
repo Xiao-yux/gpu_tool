@@ -29,6 +29,10 @@ def page_not_found(e):
 def tasks():
     return render_template("tasks.html")
 
+@app.route("/server")
+def server():
+    return render_template("server.html")
+
 def run_websocket_server():
     """在单独的线程中运行WebSocket服务器"""
     global websocket_server

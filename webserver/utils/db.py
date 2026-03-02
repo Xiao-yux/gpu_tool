@@ -118,11 +118,12 @@ class Clineinfo(db.Model):
 
 
 class TaskList(db.Model):
+    '''任务列表'''
     id = db.Column(db.Integer, primary_key=True)  # 任务ID
     name = db.Column(db.String(320), unique=True, nullable=False) #任务名称
-    note = db.Column(db.String(320), unique=True, nullable=False) #任务备注
-    time = db.Column(db.String(32), unique=True, nullable=False) #任务添加时间
-    cmdlist = db.Column(db.String(1024), unique=True, nullable=False) #任务命令列表
+    note = db.Column(db.String(320), nullable=True) #任务备注
+    time = db.Column(db.String(32), nullable=False) #任务添加时间
+    cmdlist = db.Column(db.String(1024), nullable=False) #任务命令列表
 
 
     def __repr__(self):

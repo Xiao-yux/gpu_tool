@@ -135,6 +135,47 @@ def register_routes(app):
                 "message": f"获取缓存客户端信息失败: {str(e)}"
             }), 500
 
+    @app.route("/api/ws/offline_clients")
+    def get_offline_clients():
+        """获取离线客户端列表（数据库中有记录但没有ws连接的客户端）"""
+        try:
+            # 获取所有缓存的客户端
+            all_clients = Clineinfo.get_all_clients()
+            
+            # 获取当前在线的客户端列表
+            online_clients = []
+            if websocket_server:
+                online_clients = websocket_server.get_client_list()
+            
+            # 提取在线客户端的SN列表
+            online_sns = set()
+            for client in online_clients:
+                if "sn" in client and client["sn"]:
+                    online_sns.add(client["sn"])
+            
+            # 筛选出离线客户端（数据库中有记录但不在在线列表中）
+            offline_clients = []
+            for client in all_clients:
+                if client.sn not in online_sns:
+                    offline_clients.append({
+                        "sn": client.sn,
+                        "ip": client.ip,
+                        "manufacturer": client.manufacturer,
+                        "pn": client.pn,
+                        "last_update": client.last_update.strftime("%Y-%m-%d %H:%M:%S") if client.last_update else None,
+                        "online": False
+                    })
+            
+            return jsonify({
+                "success": True,
+                "clients": offline_clients
+            })
+        except Exception as e:
+            return jsonify({
+                "success": False,
+                "message": f"获取离线客户端信息失败: {str(e)}"
+            }), 500
+
     @app.route("/api/tasks", methods=["GET"])
     def get_tasks():
         """获取所有任务"""
@@ -229,4 +270,54 @@ def register_routes(app):
             return jsonify({
                 "success": False,
                 "message": f"删除任务失败: {str(e)}"
+            }), 500
+
+    @app.route("/api/tasks/<int:task_id>", methods=["PUT"])
+    def update_task(task_id):
+        """修改任务"""
+        try:
+            task = TaskList.query.get(task_id)
+            if not task:
+                return jsonify({
+                    "success": False,
+                    "message": "任务不存在"
+                }), 404
+
+            data = request.get_json()
+            name = data.get("name")
+            note = data.get("note")
+            cmdlist = data.get("cmdlist")
+
+            if not name or not cmdlist:
+                return jsonify({
+                    "success": False,
+                    "message": "任务名称和命令列表不能为空"
+                }), 400
+
+            # 更新任务信息
+            task.name = name
+            task.note = note
+            task.cmdlist = cmdlist
+            # 更新时间
+            from datetime import datetime
+            task.time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+            db.session.commit()
+
+            return jsonify({
+                "success": True,
+                "message": "任务修改成功",
+                "task": {
+                    "id": task.id,
+                    "name": task.name,
+                    "note": task.note,
+                    "time": task.time,
+                    "cmdlist": task.cmdlist
+                }
+            })
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({
+                "success": False,
+                "message": f"修改任务失败: {str(e)}"
             }), 500
