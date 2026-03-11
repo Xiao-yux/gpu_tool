@@ -2,6 +2,7 @@ from utils.ws import WebSocketServer
 from flask import jsonify, request
 import asyncio
 from utils.db import Clineinfo, TaskList, db
+from utils.scanner import scanner
 
 # 全局WebSocket服务器实例
 websocket_server = None
@@ -14,6 +15,22 @@ def set_websocket_server(ws_server):
 def register_routes(app):
     """注册所有路由"""
     
+    @app.route("/api/scanner/results")
+    def get_scan_results():
+        """获取扫描结果"""
+        try:
+            results = scanner.get_results()
+            return jsonify({
+                "success": True,
+                "results": results,
+                "count": len(results)
+            })
+        except Exception as e:
+            return jsonify({
+                "success": False,
+                "message": f"获取扫描结果失败: {str(e)}"
+            }), 500
+
     @app.route("/api/ws/clients")
     def get_clients():
         """获取所有连接的客户端列表"""

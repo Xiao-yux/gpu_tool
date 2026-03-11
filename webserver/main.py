@@ -33,6 +33,10 @@ def tasks():
 def server():
     return render_template("server.html")
 
+@app.route("/scanner")
+def scanner_page():
+    return render_template("scanner.html")
+
 def run_websocket_server():
     """在单独的线程中运行WebSocket服务器"""
     global websocket_server
@@ -52,4 +56,4 @@ if __name__ == "__main__":
     print("WebSocket服务器已启动在端口8765")
     
     # 启动Flask服务器（关闭debug模式以避免重启）
-    app.run(debug=False, host="0.0.0.0", port=80)
+    app.run(debug=False, host="0.0.0.0", port=88)
