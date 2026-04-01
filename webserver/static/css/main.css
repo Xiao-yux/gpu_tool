@@ -654,6 +654,81 @@ main {
     bottom: 100%;
     left: 50%;
     transform: translateX(-50%);
+}
+
+/* IP扫描页面样式 */
+.ipscan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+
+/* 分页控件样式 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.pagination button {
+    background: #fff;
+    border: 1px solid var(--border-color);
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-main);
+}
+
+.pagination button:hover:not(:disabled) {
+    background: var(--hover-bg);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination .page-info {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.network-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.network-btn {
+    background: #fff;
+    border: 1px solid var(--border-color);
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-main);
+}
+
+.network-btn:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary-color);
+}
+
+.network-btn.active {
+    background: var(--active-bg);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    font-weight: 500;
+}
+.task-cmdlist-tooltip {
     background-color: #333;
     color: #fff;
     padding: 10px;

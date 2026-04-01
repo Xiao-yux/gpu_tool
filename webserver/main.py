@@ -37,6 +37,10 @@ def server():
 def scanner_page():
     return render_template("scanner.html")
 
+@app.route("/ipscan")
+def ipscan_page():
+    return render_template("ipscan.html")
+
 def run_websocket_server():
     """在单独的线程中运行WebSocket服务器"""
     global websocket_server

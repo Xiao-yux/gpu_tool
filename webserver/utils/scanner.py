@@ -149,9 +149,100 @@ class WebScanner:
         with self.lock:
             return self.results.copy()
 
+class IPPingScanner:
+    """IP Ping扫描器"""
+
+    def __init__(self):
+        self.scanning = False
+        self.results = {}  # 格式: {network: {ip: online_status}}
+        self.lock = threading.Lock()
+        self.scan_thread = None
+
+    def _ping_ip(self, ip: str, timeout: float = 1.0) -> bool:
+        """Ping单个IP地址"""
+        try:
+            # Windows系统使用-n参数，Linux/Unix使用-c参数
+            import platform
+            param = '-n' if platform.system().lower() == 'windows' else '-c'
+            command = ['ping', param, '1', '-w', str(int(timeout * 1000)), str(ip)]
+
+            import subprocess
+            result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            return result.returncode == 0
+        except Exception as e:
+            print(f"Ping {ip} 失败: {e}")
+            return False
+
+    def scan_network(self, network: str, max_workers: int = 50) -> Dict[str, bool]:
+        """扫描指定网段的所有IP"""
+        try:
+            network_obj = ipaddress.ip_network(network, strict=False)
+            ip_results = {}
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                # 提交所有IP的ping任务
+                future_to_ip = {
+                    executor.submit(self._ping_ip, str(ip)): str(ip)
+                    for ip in network_obj.hosts()
+                }
+
+                # 收集结果
+                for future in concurrent.futures.as_completed(future_to_ip):
+                    ip = future_to_ip[future]
+                    try:
+                        ip_results[ip] = future.result()
+                    except Exception as e:
+                        print(f"Ping {ip} 时出错: {e}")
+                        ip_results[ip] = False
+
+            return ip_results
+        except Exception as e:
+            print(f"扫描网段 {network} 时出错: {e}")
+            return {}
+
+    def start_continuous_scan(self):
+        """启动持续扫描"""
+        if self.scan_thread and self.scan_thread.is_alive():
+            return
+
+        self.scanning = True
+        self.scan_thread = threading.Thread(target=self._continuous_scan_loop, daemon=True)
+        self.scan_thread.start()
+
+    def _continuous_scan_loop(self):
+        """持续扫描循环"""
+        while self.scanning:
+            all_results = {}
+            for network in ip_config.ip:
+                print(f"开始Ping扫描网段: {network}")
+                results = self.scan_network(network)
+                all_results[network] = results
+
+            with self.lock:
+                self.results = all_results
+
+            time.sleep(ip_config.time)
+
+    def stop_scan(self):
+        """停止扫描"""
+        self.scanning = False
+        if self.scan_thread:
+            self.scan_thread.join(timeout=5)
+
+    def get_results(self) -> Dict[str, Dict[str, bool]]:
+        """获取扫描结果"""
+        with self.lock:
+            return self.results.copy()
+
 # 全局扫描器实例
 scanner = WebScanner()
 # 启动自动扫描
 scanner.start_continuous_scan()
 print("自动扫描已启动")
+
+# 全局IP扫描器实例
+ip_scanner = IPPingScanner()
+# 启动IP扫描
+ip_scanner.start_continuous_scan()
+print("IP扫描已启动")
 

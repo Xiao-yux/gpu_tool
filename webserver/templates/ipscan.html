@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>厚茂科技 - IP扫描</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <style>
+        /* IP网格容器样式 */
+        .ip-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 32px);
+            grid-auto-rows: 32px;
+            gap: 2px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .ip-cell {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 4px;
+            color: #fff;
+            user-select: none;
+        }
+
+        .ip-cell:hover {
+            transform: scale(1.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .ip-cell.online {
+            background: #52c41a;
+        }
+
+        .ip-cell.offline {
+            background: #ff4d4f;
+        }
+
+        .ip-cell.pending {
+            background: #d9d9d9;
+        }
+
+        .network-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-main);
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f5f7fa;
+            border-radius: 4px;
+        }
+
+        .ip-section {
+            margin-bottom: 30px;
+        }
+
+        .network-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .network-btn {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+        }
+
+        .network-btn:hover {
+            background: var(--hover-bg);
+            border-color: var(--primary-color);
+        }
+
+        .network-btn.active {
+            background: var(--active-bg);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* 右键菜单样式 */
+        .context-menu {
+            position: fixed;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            padding: 4px 0;
+            min-width: 150px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .context-menu-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-main);
+            transition: background 0.2s;
+        }
+
+        .context-menu-item:hover {
+            background: var(--hover-bg);
+        }
+
+        /* 二级菜单样式 */
+        .sub-menu {
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            padding: 12px;
+            min-width: 250px;
+            display: none;
+            margin-left: 4px;
+        }
+
+        .context-menu-item:hover .sub-menu {
+            display: block;
+        }
+
+        .sub-menu-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: var(--text-main);
+        }
+
+        .sub-menu-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .form-group input {
+            padding: 6px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-group input:disabled {
+            background: #f5f5f5;
+            color: #999;
+        }
+
+        .sub-menu-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .btn-cancel {
+            background: #f5f5f5;
+            color: var(--text-main);
+        }
+
+        .btn-cancel:hover {
+            background: #e8e8e8;
+        }
+
+        .btn-confirm {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .btn-confirm:hover {
+            background: var(--primary-hover);
+        }
+
+        /* 远程地址显示样式 */
+        .remote-address {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            padding: 24px;
+            min-width: 400px;
+            z-index: 2000;
+            display: none;
+        }
+
+        .remote-address-header {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: var(--text-main);
+        }
+
+        .remote-address-content {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+            margin-bottom: 16px;
+        }
+
+        .remote-address-close {
+            width: 100%;
+            padding: 8px;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .remote-address-close:hover {
+            background: var(--primary-hover);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1500;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部 Header -->
+    <header>
+        <div class="logo">
+            <!-- 简单的 SVG Logo -->
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            服务器管理后台
+        </div>
+    </header>
+
+    <!-- 主体布局 -->
+    <div class="layout-container">
+
+        <!-- 左侧侧边栏 -->
+        <aside>
+            <div class="menu-title">功能菜单</div>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="/" class="nav-link">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                        仪表盘
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/scanner" class="nav-link">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                        BMC扫描
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/ipscan" class="nav-link active">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                        IP扫描
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/server" class="nav-link">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        服务器批量管理
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/tasks" class="nav-link">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                        指令表单
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="setActive(this)">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L5.09 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.04.64.09.94l-2.03 1.58c-.18.14-.23-.41.12-.61l1.92 3.32c.12.22.37-.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                        系统设置
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="setActive(this)">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        帮助中心
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- 右键菜单 -->
+        <div class="context-menu" id="contextMenu">
+            <div class="context-menu-item">
+                开启远程访问
+                <div class="sub-menu" id="remoteAccessMenu">
+                    <div class="sub-menu-title">开启远程访问</div>
+                    <div class="sub-menu-form">
+                        <div class="form-group">
+                            <label>IP地址</label>
+                            <input type="text" id="remoteIp" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>端口</label>
+                            <input type="number" id="remotePort" value="443">
+                        </div>
+                        <div class="sub-menu-buttons">
+                            <button class="btn btn-cancel" onclick="closeContextMenu()">取消</button>
+                            <button class="btn btn-confirm" onclick="confirmRemoteAccess()">确认</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 远程地址显示弹窗 -->
+        <div class="overlay" id="overlay"></div>
+        <div class="remote-address" id="remoteAddressModal">
+            <div class="remote-address-header">远程访问地址</div>
+            <div class="remote-address-content" id="remoteAddressContent"></div>
+            <button class="remote-address-close" onclick="closeRemoteAddressModal()">关闭</button>
+        </div>
+
+        <!-- 右侧内容区 -->
+        <main id="main-content">
+            <div class="content-header">
+                <div class="breadcrumb">首页 / IP扫描</div>
+                <h1 class="page-title">IP扫描</h1>
+            </div>
+
+            <!-- 扫描结果容器 -->
+            <div class="clients-container">
+                <div class="clients-header">
+                    <h2>IP扫描结果</h2>
+                    <div class="clients-count" id="ipCount">0 个在线</div>
+                </div>
+
+                <!-- 网段选择器 -->
+                <div class="network-selector" id="networkSelector"></div>
+
+                <!-- IP表格容器 -->
+                <div id="ipTableContainer"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 全局变量
+        let ipScanResults = {};
+        let currentNetwork = '';
+        let refreshInterval = null;
+        let selectedIp = '';  // 当前选中的IP
+
+        // 加载IP扫描结果
+        async function loadScanResults() {
+            try {
+                const response = await fetch('/api/ipscan/results');
+                const data = await response.json();
+
+                if (data.success) {
+                    ipScanResults = data.results;
+                    updateNetworkSelector();
+                    if (currentNetwork && ipScanResults[currentNetwork]) {
+                        updateIPTable();
+                    } else if (Object.keys(ipScanResults).length > 0) {
+                        // 如果没有选中的网段，默认选择第一个
+                        currentNetwork = Object.keys(ipScanResults)[0];
+                        updateNetworkSelector();
+                        updateIPTable();
+                    }
+                }
+            } catch (error) {
+                console.error('获取IP扫描结果失败:', error);
+            }
+        }
+
+        // 更新网段选择器
+        function updateNetworkSelector() {
+            const selector = document.getElementById('networkSelector');
+            selector.innerHTML = '';
+
+            Object.keys(ipScanResults).forEach(network => {
+                const btn = document.createElement('button');
+                btn.className = 'network-btn';
+                btn.textContent = network;
+                if (network === currentNetwork) {
+                    btn.classList.add('active');
+                }
+                btn.onclick = () => {
+                    currentNetwork = network;
+                    updateNetworkSelector();
+                    updateIPTable();
+                };
+                selector.appendChild(btn);
+            });
+        }
+
+        // 更新IP表格
+        function updateIPTable() {
+            const container = document.getElementById('ipTableContainer');
+            const ipCount = document.getElementById('ipCount');
+
+            if (!currentNetwork || !ipScanResults[currentNetwork]) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">暂无数据</p>';
+                ipCount.textContent = '0 个在线';
+                return;
+            }
+
+            const ips = ipScanResults[currentNetwork];
+            const onlineCount = Object.values(ips).filter(status => status).length;
+            const ipListLength = Object.keys(ips).length;
+
+            ipCount.textContent = `${onlineCount}/${ipListLength} 个在线`;
+
+            // 提取网段前缀（如 192.168.9）
+            const networkPrefix = currentNetwork.split('.').slice(0, 3).join('.');
+
+            // 创建网格HTML
+            let gridHTML = '<div class="ip-grid-container">';
+
+            // 添加所有254个IP方块
+            for (let i = 1; i <= 254; i++) {
+                const ip = `${networkPrefix}.${i}`;
+                const status = ips[ip];
+                const statusClass = status === undefined ? 'pending' : (status ? 'online' : 'offline');
+                gridHTML += `
+                    <div class="ip-cell ${statusClass}"
+                         onclick="openIP('${ip}')"
+                         oncontextmenu="showContextMenu(event, '${ip}')"
+                         title="${ip} - ${status === undefined ? '等待扫描' : (status ? '在线' : '离线')}">
+                        ${i}
+                    </div>`;
+            }
+            gridHTML += '</div>';
+
+            let html = `
+                <div class="ip-section">
+                    <div class="network-title">
+                        ${networkPrefix}.x - 在线: ${onlineCount}/${ipListLength}
+                    </div>
+                    ${gridHTML}
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // 打开IP地址
+        function openIP(ip) {
+            // 在新标签页中打开IP地址
+            window.open(`http://${ip}`, '_blank');
+        }
+
+        // 右键菜单事件处理
+        function showContextMenu(event, ip) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            // 保存选中的IP
+            selectedIp = ip;
+            document.getElementById('remoteIp').value = ip;
+
+            // 显示右键菜单
+            const contextMenu = document.getElementById('contextMenu');
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = event.pageX + 'px';
+            contextMenu.style.top = event.pageY + 'px';
+        }
+
+        // 关闭右键菜单
+        function closeContextMenu() {
+            document.getElementById('contextMenu').style.display = 'none';
+        }
+
+        // 确认开启远程访问
+        async function confirmRemoteAccess() {
+            const ip = document.getElementById('remoteIp').value;
+            const port = document.getElementById('remotePort').value;
+
+            try {
+                const response = await fetch('/api/remote/access', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ip: ip,
+                        port: port
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // 显示远程地址
+                    showRemoteAddress(data.remote_address);
+                } else {
+                    alert('开启远程访问失败: ' + data.message);
+                }
+            } catch (error) {
+                console.error('开启远程访问失败:', error);
+                alert('开启远程访问失败: ' + error.message);
+            }
+
+            closeContextMenu();
+        }
+
+        // 显示远程地址
+        function showRemoteAddress(address) {
+            document.getElementById('remoteAddressContent').textContent = address;
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('remoteAddressModal').style.display = 'block';
+        }
+
+        // 关闭远程地址弹窗
+        function closeRemoteAddressModal() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('remoteAddressModal').style.display = 'none';
+        }
+
+        // 点击页面其他地方关闭右键菜单
+        document.addEventListener('click', function(event) {
+            const contextMenu = document.getElementById('contextMenu');
+            if (!contextMenu.contains(event.target)) {
+                closeContextMenu();
+            }
+        });
+
+        // 页面加载时启动
+        window.addEventListener('DOMContentLoaded', function() {
+            loadScanResults();
+            // 每30秒自动刷新一次
+            refreshInterval = setInterval(loadScanResults, 30000);
+        });
+
+        // 页面卸载时清除定时器
+        window.addEventListener('beforeunload', function() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
+    </script>
+</body>
+</html>
