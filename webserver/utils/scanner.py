@@ -245,4 +245,4 @@ ip_scanner = IPPingScanner()
 # 启动IP扫描
 ip_scanner.start_continuous_scan()
 print("IP扫描已启动")
-
+print("退出ip扫描")

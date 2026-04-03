@@ -5,7 +5,7 @@ import subprocess
 import time
 from typing import List
 from core.log import Log
-from utils.tool import Tools, exitfun
+from utils.tool import Tools
 
 
 class TestFun:
@@ -161,7 +161,6 @@ class TestFun:
             self.run_command(cmd4, logname=f"auto_disk_speed_test_{d}")
         return None
 
-    @exitfun
     def run_command(self, command: str, path: str = '/tmp', logname: str = "TestFun"):
         """运行命令并实时输出日志
         command : 执行的命令

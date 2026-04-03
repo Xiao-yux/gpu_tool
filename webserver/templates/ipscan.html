@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>厚茂科技 - IP扫描</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script src="{{ url_for('static', filename='js/sweetalert.min.js') }}"></script>
     <style>
         /* IP网格容器样式 */
         .ip-grid-container {
@@ -70,6 +71,32 @@
             gap: 10px;
             margin-bottom: 20px;
             flex-wrap: wrap;
+        }
+
+        .network-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .right-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .right-buttons .btn {
+            padding: 8px 16px;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .right-buttons .btn:hover {
+            background: var(--primary-hover);
         }
 
         .network-btn {
@@ -383,8 +410,13 @@
                     <div class="clients-count" id="ipCount">0 个在线</div>
                 </div>
 
-                <!-- 网段选择器 -->
-                <div class="network-selector" id="networkSelector"></div>
+                <!-- 网段选择器和操作按钮 -->
+                <div class="network-toolbar">
+                    <div class="network-selector" id="networkSelector"></div>
+                    <div class="right-buttons">
+                        <button class="btn btn-primary" onclick="stopRemoteAccess()">停止远程访问</button>
+                    </div>
+                </div>
 
                 <!-- IP表格容器 -->
                 <div id="ipTableContainer"></div>
@@ -543,14 +575,34 @@
                     // 显示远程地址
                     showRemoteAddress(data.remote_address);
                 } else {
-                    alert('开启远程访问失败: ' + data.message);
+                    swal('开启远程访问失败: ' + data.message);
                 }
             } catch (error) {
                 console.error('开启远程访问失败:', error);
-                alert('开启远程访问失败: ' + error.message);
+                swal('开启远程访问失败: ' + error.message);
             }
 
             closeContextMenu();
+        }
+
+        // 停止远程访问
+        async function stopRemoteAccess() {
+            try {
+                const response = await fetch('/api/remote/stop', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    swal('远程访问已停止');
+                } else {
+                    swal('停止远程访问失败: ' + data.message);
+                }
+            } catch (error) {
+                console.error('停止远程访问失败:', error);
+                swal('停止远程访问失败: ' + error.message);
+            }
         }
 
         // 显示远程地址
@@ -565,6 +617,7 @@
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('remoteAddressModal').style.display = 'none';
         }
+        
 
         // 点击页面其他地方关闭右键菜单
         document.addEventListener('click', function(event) {

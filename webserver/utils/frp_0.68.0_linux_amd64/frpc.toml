@@ -9,8 +9,9 @@ token = "1409109991"
 [log]
 level = "info"
 maxDays = 5
-to = ""
+to = "./log"
 
 [transport]
 protocol = "tcp"
 tcpMux = true
+

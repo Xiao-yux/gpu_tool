@@ -8,7 +8,7 @@ from noneprompt import ListPrompt, Choice, InputPrompt, CheckboxPrompt
 import os
 from menu.menuarg import MenuChess
 from utils.installpack import InstallPack
-from utils.tool import Tools,exitfun
+from utils.tool import Tools
 from core.log import Log
 from testclass.testmanager import Manager
 
@@ -222,7 +222,6 @@ class Menu:
         self.log.msg(f'用户选择Folding测试菜单: {pro}')
         self.main_menu()
 
-    @exitfun
     def run_command(self, command: str, path: str = '/tmp', logname: str = "command",input_user = True):
         """运行命令并实时输出日志
         command : 执行的命令

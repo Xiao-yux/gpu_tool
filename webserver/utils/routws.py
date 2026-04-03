@@ -3,10 +3,14 @@ from flask import jsonify, request
 import asyncio
 from utils.db import Clineinfo, TaskList, db
 from utils.scanner import scanner, ip_scanner
+from utils.frprun import FRPRun
+
+# 创建全局FRPRun实例
+frp_runner = FRPRun()
 
 # 全局WebSocket服务器实例
 websocket_server = None
-
+print("正在初始化WebSocket服务器实例...")
 def set_websocket_server(ws_server):
     """设置WebSocket服务器实例"""
     global websocket_server
@@ -44,6 +48,59 @@ def register_routes(app):
             return jsonify({
                 "success": False,
                 "message": f"获取IP扫描结果失败: {str(e)}"
+            }), 500
+
+    @app.route("/api/remote/access", methods=["POST"])
+    def enable_remote_access():
+        """开启远程访问"""
+        try:
+            data = request.get_json()
+            ip = data.get("ip")
+            port = data.get("port", 443)
+
+            if not ip:
+                return jsonify({
+                    "success": False,
+                    "message": "IP地址不能为空"
+                }), 400
+
+            # 使用FRPRun开启远程访问
+            remote_address = frp_runner.run(ip, port)
+
+            return jsonify({
+                "success": True,
+                "message": "远程访问已开启",
+                "remote_address": remote_address
+            })
+        except Exception as e:
+            return jsonify({
+                "success": False,
+                "message": f"开启远程访问失败: {str(e)}"
+            }), 500
+
+    @app.route("/api/remote/stop", methods=["POST"])
+    def stop_remote_access():
+        """停止远程访问"""
+        try:
+            # 使用FRPRun停止远程访问
+            result = frp_runner.stop()
+            # 清理配置文件，避免重复添加
+            frp_runner.clean_config()
+
+            if result:
+                return jsonify({
+                    "success": True,
+                    "message": "远程访问已停止"
+                })
+            else:
+                return jsonify({
+                    "success": False,
+                    "message": "停止远程访问失败"
+                }), 500
+        except Exception as e:
+            return jsonify({
+                "success": False,
+                "message": f"停止远程访问失败: {str(e)}"
             }), 500
 
     @app.route("/api/ws/clients")

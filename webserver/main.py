@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request
 import threading
 import asyncio
+
+from websockets import route
 from utils.ws import WebSocketServer
 from utils import routws
 from utils.db import init_db
@@ -60,4 +62,8 @@ if __name__ == "__main__":
     print("WebSocket服务器已启动在端口8765")
     
     # 启动Flask服务器（关闭debug模式以避免重启）
-    app.run(debug=False, host="0.0.0.0", port=88)
+    try:
+        app.run(debug=False, host="0.0.0.0", port=88)
+    except KeyboardInterrupt:
+        print("服务器已关闭")
+        pass
