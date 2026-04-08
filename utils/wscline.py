@@ -41,13 +41,27 @@ class Cline:
 
     async def _connection_manager(self):
         """连接管理器"""
+        # 初始化连接计数器
+        connection_attempts = 0
+        max_attempts = 10
+        
         while self._running:
+            # 检查连接次数是否超过最大限制
+            if connection_attempts >= max_attempts:
+                self.log.msg(f"[Cline] 连接尝试次数已达上限({max_attempts}次)，停止连接")
+                break
+                
             await asyncio.sleep(2)
+            connection_attempts += 1
+            self.log.msg(f"[Cline] 尝试连接... (第{connection_attempts}次)")
+            
             try:
                 async with websockets.connect(self.wsurl) as ws:
                     self.ws = ws
                     self.log.msg(f"[Cline] 已连接到服务器")
                     self.log.msg(f"[Cline] {self.ws.response}")
+                    # 连接成功，重置计数器
+                    connection_attempts = 0
                     # 启动定时发送任务
                     self._send_task = asyncio.create_task(self._send_loop())
                     # 接收消息循环
@@ -164,6 +178,7 @@ class Cline:
 
 
     async def ttyget(self):
+        "建立ssh连接"
         TTY_DEV = "/dev/tty4"  # 按实际改
         BAUD = 115200
         try:

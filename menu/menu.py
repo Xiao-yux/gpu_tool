@@ -230,7 +230,8 @@ class Menu:
         input_user: 按回车继续
         """
         logname = self.log.create_log_file(logname)
-        enve = os.environ.copy()
+        #enve =   os.environ.copy()
+        enve = {"PATH": os.environ.get("PATH", "")}  # 只传递必要的环境变量，避免潜在问题
         enve['LC_ALL'] = 'C.UTF-8'
         self.log.msg(f"执行命令: {command} \n", outconsole=True)
         try:
@@ -246,7 +247,7 @@ class Menu:
                 env=enve,
                 bufsize=1,  # 行缓冲
                 universal_newlines=True,
-                start_new_session=True
+                start_new_session=False
             )
             # 非阻塞读，避免 readline 卡死
             if process.stdout is None:
@@ -270,6 +271,8 @@ class Menu:
         except Exception as e:
             self.log.msg(f"运行命令失败: {e}")
             print(f"执行失败: {e}")
+        if input_user:
+            input("按回车继续...")
 
     def nccl_menu(self):
         cmd = f"./{self.path['nccl_exe']} "
