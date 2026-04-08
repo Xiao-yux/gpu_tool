@@ -249,7 +249,6 @@ class Menu:
                 start_new_session=True
             )
             # 非阻塞读，避免 readline 卡死
-            os.set_blocking(process.stdout.fileno(), False)
             if process.stdout is None:
                 raise subprocess.SubprocessError("无法创建进程或获取输出流")
             while True:

@@ -12,3 +12,5 @@ tmp
 .idea
 /venv
 /webserver/log
+webserver/utils/log
+webserver/utils/frp_0.68.0_linux_amd64/log
