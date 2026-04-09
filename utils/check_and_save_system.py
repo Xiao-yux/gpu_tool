@@ -19,6 +19,7 @@ class CheckSystem:
         if self.check_gpu():
             g = 1
         self.tool.async_run(self.sys_save(GPU=g))
+        
         return True
 
     def check_ipmi(self) -> bool:

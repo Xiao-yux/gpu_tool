@@ -1,6 +1,5 @@
-import signal
+import pexpect
 import subprocess
-import sys
 import time
 from typing import Dict, List
 import json
@@ -235,7 +234,6 @@ class Menu:
         enve['LC_ALL'] = 'C.UTF-8'
         self.log.msg(f"执行命令: {command} \n", outconsole=True)
         try:
-
             self.log.msg(f"执行命令: {command}", logger_name=logname)
             process = subprocess.Popen(
                 command,
@@ -244,12 +242,12 @@ class Menu:
                 stderr=subprocess.STDOUT,  # 将错误输出合并到标准输出
                 text=True,
                 cwd=path,
-                env=enve,
+                # env=enve,
                 bufsize=1,  # 行缓冲
-                universal_newlines=True,
                 start_new_session=False
             )
             # 非阻塞读，避免 readline 卡死
+            os.set_blocking(process.stdout.fileno(), False)
             if process.stdout is None:
                 raise subprocess.SubprocessError("无法创建进程或获取输出流")
             while True:
