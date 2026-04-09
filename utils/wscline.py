@@ -7,12 +7,13 @@ from websockets.protocol import State  # 15.x 版本
 import json,aiofiles
 import time
 from utils.tool import Tools
+from core.log import get_logger
 
 class Cline:
-    def __init__(self, wsurl: str,log):
+    def __init__(self, wsurl: str):
         self.wsurl = wsurl
         self.ws = None
-        self.log = log
+        self.log = get_logger()
         self.loop = None
         self.thread = None
         self._running = False

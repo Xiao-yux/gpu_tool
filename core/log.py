@@ -8,6 +8,98 @@ from functools import wraps
 
 import utils.tool as util
 
+# 全局日志实例
+_global_logger = None
+
+
+def init_logger(logconfig):
+    """初始化全局日志实例
+    
+    Args:
+        logconfig: 日志配置字典
+    
+    Returns:
+        Log: 全局日志实例
+    """
+    global _global_logger
+    _global_logger = Log(logconfig)
+    return _global_logger
+
+
+def get_logger():
+    """获取全局日志实例
+    
+    Returns:
+        Log: 全局日志实例
+    
+    Raises:
+        RuntimeError: 如果日志未初始化
+    """
+    if _global_logger is None:
+        raise RuntimeError("日志系统未初始化，请先调用 init_logger()")
+    return _global_logger
+
+
+def msg(message, level="INFO", logger_name="gpu_tool_debug", outconsole=False):
+    """记录日志的便捷函数
+    
+    Args:
+        message: 日志消息
+        level: 日志级别
+        logger_name: 日志器名称
+        outconsole: 是否输出到控制台
+    """
+    get_logger().msg(message, level, logger_name, outconsole)
+
+
+def create_log_file(log_file, path='') -> str:
+    """创建新的日志文件的便捷函数
+    
+    Args:
+        log_file: 日志文件名
+        path: 日志文件路径
+    
+    Returns:
+        str: 日志器名称
+    """
+    return get_logger().create_log_file(log_file, path)
+
+
+def get_log_file(pathtime=True):
+    """获取日志文件路径的便捷函数
+    
+    Args:
+        pathtime: 是否返回带日期的路径
+    
+    Returns:
+        str: 日志文件路径
+    """
+    return get_logger().get_log_file(pathtime)
+
+
+def tty_print(msg: str, newline: bool = True, flush: bool = True) -> None:
+    """TTY打印的便捷函数
+    
+    Args:
+        msg: 打印消息
+        newline: 是否换行
+        flush: 是否刷新缓冲区
+    """
+    Log.tty_print(msg, newline, flush)
+
+
+def log_execution(func):
+    """记录函数执行的装饰器
+    
+    Args:
+        func: 被装饰的函数
+    
+    Returns:
+        包装后的函数
+    """
+    return get_logger().log_execution(func)
+
+
 # 日志类 ， 传入config
 class Log:
     def __init__(self,logconfig=None):

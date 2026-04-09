@@ -1,4 +1,3 @@
-import pexpect
 import subprocess
 import time
 from typing import Dict, List
@@ -8,18 +7,18 @@ import os
 from menu.menuarg import MenuChess
 from utils.installpack import InstallPack
 from utils.tool import Tools
-from core.log import Log
+from core.log import get_logger
 from testclass.testmanager import Manager
 
 class Menu:
-    def __init__(self, path: Dict, log: Log):
+    def __init__(self, path: Dict):
         self.menu_chess = MenuChess()
         self.path = path
         self.tool = Tools()
-        self.log = log
-        self.install = InstallPack(log=self.log)
+        self.log = get_logger()
+        self.install = InstallPack()
         self.log.msg('Menu initialized.')
-        self.autotest = Manager(log,path)
+        self.autotest = Manager(path)
         self.defcheckmsg = "(按↑或↓移动，空格选择，回车确认)"
 
     def main_menu(self):

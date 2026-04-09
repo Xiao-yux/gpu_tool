@@ -7,7 +7,7 @@ import core.log as log
 
 class Config:
     def __init__(self):
-        self.config = None
+        self.config = {}
         self.load()
         self.check_version()
 

@@ -4,17 +4,17 @@ from noneprompt import ListPrompt, Choice, InputPrompt, CheckboxPrompt
 import os
 from menu.menuarg import MenuChess
 from utils.tool import Tools,JsonDB
-from core.log import Log
+from core.log import get_logger
 from testclass.testfun import TestFun
 
 class Manager:
-    def __init__(self,log:Log,path):
+    def __init__(self,path):
 
         self.menu = MenuChess()
         self.tool = Tools()
         self.path = path
-        self.testfunc = TestFun(path,log)
-        self.log = log
+        self.log = get_logger()
+        self.testfunc = TestFun(path)
         self.functions = []
         self._resume_file : str ='' # 断点文件路径
         self._prepare_resume_file()

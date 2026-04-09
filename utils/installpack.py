@@ -1,10 +1,12 @@
 
 import tqdm
 import utils.tool
+from core.log import get_logger
+
 class InstallPack:
-    def __init__(self,log):
+    def __init__(self):
         self.tool = utils.tool.Tools()
-        self.log = log
+        self.log = get_logger()
         self.logname = "install_pack"
     def apt_install_nvidia_pack(self):
         self.apt_update_package()

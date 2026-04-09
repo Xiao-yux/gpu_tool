@@ -2,11 +2,11 @@ import os
 import time
 
 from utils.tool import Tools
-from core.log import Log
+from core.log import get_logger
 
 class CheckSystem:
-    def __init__(self, config,log:Log):
-        self.log = log
+    def __init__(self, config):
+        self.log = get_logger()
         self.path = config
         self.tool = Tools()
         self.printlog("开始检查系统环境", "system_check")
@@ -61,7 +61,7 @@ class CheckSystem:
             self.printlog("未检测到 NVIDIA 驱动，部分功能将不可用")
             g = 0
         elif g == 1:
-            self.printlog("检测到 NVIDIA 驱动，执行 nvidia-smi -pm 1")
+            self.printlog("检测到 NVIDIA GPU和驱动，执行 nvidia-smi -pm 1")
             self.tool.run_nvidia_service()
             self.tool.run_command("nvidia-smi -pm 1")
 

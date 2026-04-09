@@ -4,15 +4,15 @@ import signal
 import subprocess
 import time
 from typing import List
-from core.log import Log
+from core.log import get_logger
 from utils.tool import Tools
 
 
 class TestFun:
 
-    def __init__(self,path,log:Log):
+    def __init__(self,path):
         self.path = path
-        self.log = log
+        self.log = get_logger()
         self.tool = Tools()
 
     def fieldiag_level1(self,no_bmc = True) -> bool:
