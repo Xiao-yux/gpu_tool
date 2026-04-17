@@ -1,9 +1,9 @@
-version = "2.1.2"
+version = "2.2.1"
 
 [LANGUAGE]
 # 语言设置: auto(自动检测), en(英语), zh-cn(中文简体)
 # auto会根据Linux环境变量LANG自动判断
-language = "en"
+language = "auto"
 
 [PATH]
 config_file= "/etc/gpu_tool/config.toml" #配置文件
