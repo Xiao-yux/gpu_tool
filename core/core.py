@@ -30,7 +30,7 @@ class Core:
         if self.config['UPDATE']['wsenable']:
             self.wscline.start()
         GpuToolApi(self.config['version'])
-        self.log.msg(f'日志路径：{self.log.get_log_file()}\n',outconsole=True)
+        self.log.msg(f'日志路径：{self.log.get_log_file()}',outconsole=True)
         self.menu = None
         # 优化加载速度
 

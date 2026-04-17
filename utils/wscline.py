@@ -68,7 +68,7 @@ class Cline:
                     # 接收消息循环
                     try:
                         async for message in ws:
-                            await self._handle_message(message)
+                            await self._handle_message(str(message))
                     except websockets.exceptions.ConnectionClosed:
                         pass
                     finally:
@@ -111,8 +111,11 @@ class Cline:
             self.status = status
 
         # 15.x 中使用 state 检查或直接发送
-        await self.ws.send(json.dumps(status, ensure_ascii=False))
-        self.log.msg(f"[Cline] 数据已发送: {status.get('time')}")
+        if self.ws is not None and self.ws.state == State.OPEN:
+            await self.ws.send(json.dumps(status, ensure_ascii=False))
+            self.log.msg(f"[Cline] 数据已发送: {status.get('time')}")
+        else:
+            self.log.msg("[Cline] ws 未连接，无法发送数据")
 
     async def _gather_sys_info(self):
         """收集系统信息"""
@@ -156,7 +159,9 @@ class Cline:
         try:
             # 1. 只解析一次，别再覆盖同名变量
             msg_dict = json.loads(message)
-
+            if self.ws is None:
+                self.log.msg("[Cline] ws 未连接，无法处理消息")
+                return
             if msg_dict.get('info') == 'cmd':
                 cmd = msg_dict.get('cmd')
 
