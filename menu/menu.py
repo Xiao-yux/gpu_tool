@@ -1,5 +1,9 @@
 import subprocess
 import time
+import pty
+import select
+import tty
+import termios
 from typing import Dict, List
 import json
 from noneprompt import ListPrompt, Choice, InputPrompt, CheckboxPrompt
@@ -9,6 +13,7 @@ from utils.installpack import InstallPack
 from utils.tool import Tools
 from core.log import get_logger
 from testclass.testmanager import Manager
+from core.terminal_manager import TerminalManager
 
 class Menu:
     def __init__(self, path: Dict):
@@ -20,6 +25,7 @@ class Menu:
         self.log.msg('Menu initialized.')
         self.autotest = Manager(path)
         self.defcheckmsg = "(按↑或↓移动，空格选择，回车确认)"
+        self.terminal_manager = TerminalManager() 
 
     def main_menu(self):
         """主菜单"""
@@ -220,54 +226,54 @@ class Menu:
         self.log.msg(f'用户选择Folding测试菜单: {pro}')
         self.main_menu()
 
-    def run_command(self, command: str, path: str = '/tmp', logname: str = "command",input_user = True):
+    def run_command(self, command: str, path: str = '/tmp', logname: str = "command", input_user=True):
         """运行命令并实时输出日志
-        command : 执行的命令
-        path : 执行命令时的目录
-        logname : 日志名称
-        input_user: 按回车继续
+        
+        Args:
+            command: 执行的命令
+            path: 执行命令时的目录
+            logname: 日志名称
+            input_user: 是否需要用户按回车继续
         """
-        logname = self.log.create_log_file(logname)
-        #enve =   os.environ.copy()
-        enve = {"PATH": os.environ.get("PATH", "")}  # 只传递必要的环境变量，避免潜在问题
-        enve['LC_ALL'] = 'C.UTF-8'
-        self.log.msg(f"执行命令: {command} \n", outconsole=True)
+        if logname == "fd_test":
+            if self.tool.check_fd_path(f"\'{self.log.get_log_file()}/fd\'"):
+                self.tool.run_command(f"mv {self.log.get_log_file()}/fd {self.log.get_log_file()}/fd_$(date +%Y-%m-%d_%H-%M-%S)")
+            self.tool.stop_nvidia_service()
+            self.tool.stop_openvswitch()
+            self.tool.rm_nvidia_mod()
+            self.tool.rm_switch_mod()
+            
+        self.log.msg(f"执行命令: {command}", outconsole=True)
         try:
-            self.log.msg(f"执行命令: {command}", logger_name=logname)
-            process = subprocess.Popen(
-                command,
-                shell=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,  # 将错误输出合并到标准输出
-                text=True,
-                cwd=path,
-                # env=enve,
-                bufsize=1,  # 行缓冲
-                start_new_session=False
-            )
-            # 非阻塞读，避免 readline 卡死
-            os.set_blocking(process.stdout.fileno(), False)
-            if process.stdout is None:
-                raise subprocess.SubprocessError("无法创建进程或获取输出流")
-            while True:
-                output = process.stdout.readline()
-                if output == '' and process.poll() is not None:
-                    break
-                if output:
-                    self.log.msg(output, logger_name=logname, outconsole=True)  # 同时记录到日志
-                if logname != "fd_test":
-                    if time.time() // 300 != globals().setdefault('_last_slot', -1):
-                        globals()['_last_slot'] = time.time() // 300
-                        self.job()
-            return_code = process.poll()
-            self.log.msg(f"命令执行结束, 返回码: {return_code}")
+            
+            # 使用TerminalManager在可用的TTY中执行命令
+            try:
 
+                # 在screen会话中执行命令
+                screen_name = self.terminal_manager.execute_command(
+                    command=command,
+                    logname=logname,
+                    path=path
+                )
 
-            self.log.msg(f"日志路径: {self.log.get_log_file()}/{logname}", outconsole=True)
-            self.log.msg(f"\n", outconsole=True)
+                self.log.msg(f"已创建screen会话: {screen_name}\n", logger_name=logname, outconsole=True)
+                self.log.msg(f"使用 screen -r {screen_name} 查看会话\n", logger_name=logname, outconsole=True)
+
+            except RuntimeError as e:
+                self.log.msg(f"screen执行失败: {e}, 使用普通模式执行命令", logger_name=logname, outconsole=True)
+                os._exit(1)
+
+            self.log.msg("screen会话已在后台创建，等待命令完成后再继续\n", logger_name=logname)
+            self.log.msg(f"日志路径: {self.log.get_log_file()}/{logname}\n", outconsole=True)
+            self.terminal_manager.wait_for_command_completion(screen_name)
+            self.log.msg("命令执行完成，screen 会话仍保留，返回主菜单\n", logger_name=logname)
+            if input_user:
+                input("按回车继续...")
+            return
         except Exception as e:
             self.log.msg(f"运行命令失败: {e}")
             print(f"执行失败: {e}")
+        
         if input_user:
             input("按回车继续...")
 
@@ -301,8 +307,11 @@ class Menu:
     def disk_speed_test_menu(self):
         """硬盘速度测试"""
         a = self.tool.run_command("lsblk -d -o NAME,TYPE,TRAN,PATH,SIZE,SERIAL,MODEL -J")
+        
         self.log.msg(f"diskdata:{a}")
         try:
+            if not isinstance(a, str):
+                a = str(a)
             data = json.loads(a)
         except json.JSONDecodeError as e:
             self.log.msg("解析硬盘信息失败，请检查lsblk命令输出是否正确。", outconsole=True)

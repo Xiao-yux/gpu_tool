@@ -1,7 +1,7 @@
 OUTPUT = dist/gpu_tool
 SOURCE = main.py
 CC     = clang
-PIP_DEPS = noneprompt toml Nuitka text2art art tqdm aiofiles websockets asyncio
+PIP_DEPS = noneprompt toml Nuitka text2art art tqdm aiofiles websockets asyncio Nuitka[onefile]
 
 build:
 	python -m nuitka --onefile --standalone --lto=yes --assume-yes-for-downloads\

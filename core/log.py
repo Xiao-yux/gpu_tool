@@ -1,11 +1,8 @@
 import logging
 import os
 import re
-import shutil
-import sys
 import time
 from functools import wraps
-
 import utils.tool as util
 
 # 全局日志实例
@@ -77,15 +74,6 @@ def get_log_file(pathtime=True):
     return get_logger().get_log_file(pathtime)
 
 
-def tty_print(msg: str, newline: bool = True, flush: bool = True) -> None:
-    """TTY打印的便捷函数
-    
-    Args:
-        msg: 打印消息
-        newline: 是否换行
-        flush: 是否刷新缓冲区
-    """
-    Log.tty_print(msg, newline, flush)
 
 
 def log_execution(func):
@@ -230,50 +218,31 @@ class Log:
                 raise e
 
         return wrapper
-    _tty_len: int = 0
-    @staticmethod
-    def tty_print(msg: str,
-                  newline: bool = True,
-                  flush: bool = True) -> None:
-        """
-        newline=False  -> 原地刷新（默认）
-        newline=True   -> 把内容写完后再换行，保证后续 print 不会覆盖它
-        """
-        if not sys.stdout.isatty():
-            print(msg, flush=flush)
-            return
-
-        width = shutil.get_terminal_size().columns
-        msg = msg[:width - 1]
-
-        if newline:
-            # 结束这一行，光标移到下一行
-            print(msg.ljust(Log._tty_len), end='\n', flush=flush)
-            Log._tty_len = 0          # 重置，下次再刷新就从 0 开始补空格
-        else:
-            print(msg.ljust(Log._tty_len), end='\r', flush=flush)
-            Log._tty_len = len(msg)
+    
 
 
     def msg(self, message, level="INFO", logger_name="gpu_tool_debug",outconsole=False):
         """# 记录日志"""
+        if message is None:
+            message = ""
         if self.out:
             outconsole = self.out
-        if outconsole:
-            print(f"{message}",end='')
-        if logger_name not in self.loggers:
-            self.main_logger.warning(f"Logger {logger_name} not found, using main logger")
-            self.create_log_file(logger_name)
-            logger_name = "gpu_tool_debug"
-
-        logger = self.loggers[logger_name]
         if logger_name == "memtester_test":
             a = ['\\','/','-','|','setting','testing']
             p = re.compile(r'^(?:' + '|'.join(map(re.escape, a)) + ')')
             if p.search(message):
                 return
+        if outconsole:
+            print(message, flush=True)
+            
+        if logger_name not in self.loggers:
+            self.main_logger.warning(f"Logger {logger_name} not found, using main logger")
+            self.create_log_file(logger_name)
+            logger_name = "gpu_tool_debug"
 
+        
 
+        logger = self.loggers[logger_name]
         if level == "INFO":
             logger.info(message)
         elif level == "DEBUG":
@@ -293,7 +262,7 @@ class Log:
         _CLEAN = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
         line = _CLEAN.sub('', line)          # 去颜色
         line = re.sub(r'\x08+', '', line)    # 去退格
-        return line.strip()
+        return line.rstrip('\r\n')
 
 
     def create_log_file(self, log_file, path='') -> str:

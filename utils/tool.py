@@ -1,4 +1,3 @@
-import datetime
 import glob
 import inspect
 import json
@@ -9,7 +8,6 @@ import subprocess
 import threading
 import time
 import re
-import multiprocessing as mp
 from typing import Any, Dict, List, Union, Optional
 from pathlib import Path
 class Tools:
@@ -93,7 +91,7 @@ class Tools:
     def fd_log_print(self,path):
         a = self.check_fd_log(path)
         try:
-            if a[1]:
+            if isinstance(a, list):
                 print(a[0])
                 return
         except KeyError:
@@ -112,7 +110,7 @@ class Tools:
         ser = ['nvidia-fabricmanager.service','nvidia-imex.service','nvidia-persistenced.service','nvidia-dcgm.service','openibd.service']
         for s in ser:
             cmd = "systemctl start " + s
-            self.run_command(cmd)
+            threading.Thread(target=self.run_command, args=(cmd,)).start()
     @staticmethod
     def get_gpu_count():
         """返回GPU数量"""
@@ -146,11 +144,11 @@ class Tools:
         return thread
 
     @staticmethod
-    def show_methods(cls):
+    def show_methods(clss):
         """打印类中所有用户定义的实例方法及其 docstring"""
-        for name, method in inspect.getmembers(cls, predicate=inspect.isfunction):
+        for name, method in inspect.getmembers(clss, predicate=inspect.isfunction):
             # 只保留定义在【当前类】里的，过滤掉继承来的
-            if method.__qualname__.startswith(cls.__name__ + '.'):
+            if method.__qualname__.startswith(clss.__name__ + '.'):
                 print(f'{name}{inspect.signature(method)}')
                 print(method.__doc__ or '  # 无 docstring')
                 print('-' * 40)
@@ -210,6 +208,8 @@ class Tools:
                                            universal_newlines=True) as process:
                     full_output =[ ]
                     if out:
+                        if process.stdout is None:
+                            return ""
                         for line in process.stdout:  # 逐行读，不会死锁
                             line = line.rstrip()
                             print(line)
@@ -251,6 +251,66 @@ class Tools:
         subprocess.run('systemctl restart nvidia-fabricmanager', shell=True, check=True)
         subprocess.run('systemctl restart nvidia-persistenced', shell=True, check=True)
         return True
+    
+    @staticmethod
+    def stop_nvidia_service():
+        """停止NVIDIA相关服务"""
+        print("正在停止 NVIDIA 相关服务...")
+        ser = ['nvidia-fabricmanager.service','nvidia-imex.service','nvidia-persistenced.service',
+               'nvidia-dcgm.service','openibd.service','nvidia-powerd.service','systemd-udevd.service','systemd-udevd-kernel.socket','systemd-udevd-control.socket']
+        for s in ser:
+            cmd = "systemctl stop " + s
+            try:
+                subprocess.run(cmd, shell=True)
+            except subprocess.CalledProcessError:
+                pass
+    
+    @staticmethod
+    def rm_nvidia_mod():
+        """移除NVIDIA模块"""
+        print("正在移除 NVIDIA 模块...")
+        try:
+            cmd = "rmmod nvidia_drm"
+            subprocess.run(cmd, shell=True)
+            cmd = "rmmod nvidia_uvm"
+            subprocess.run(cmd, shell=True)
+            cmd = "rmmod nvidia_modeset"
+            subprocess.run(cmd, shell=True)
+            cmd = "rmmod nvidia"
+            subprocess.run(cmd, shell=True)
+        except subprocess.CalledProcessError as e:
+            print(f"移除 NVIDIA 模块失败: {e}")
+        
+    @staticmethod
+    def rm_switch_mod():
+        """移除交换机模块"""
+        print("正在移除openvswitch模块...")
+        try:
+            cmd = "rmmod openvswitch"
+            subprocess.run(cmd, shell=True)
+            cmd = "rmmod nsh"
+            subprocess.run(cmd, shell=True)
+            cmd = "rmmod nf_nat"
+            subprocess.run(cmd, shell=True)
+            cmd = "rmmod nf_conncount"
+            subprocess.run(cmd, shell=True)
+            cmd = "rmmod nf_conntrack"
+            subprocess.run(cmd, shell=True)
+        except subprocess.CalledProcessError as e:
+            print(f"移除交换机模块失败: {e}")
+        
+    @staticmethod
+    def stop_openvswitch():
+        """停止openvswitch服务"""
+        print("正在停止 openvswitch 服务...")
+        a = ["openvswitch-switch.service","switcheroo-control.service","openibd.service"]
+        for s in a:
+            cmd = "systemctl stop " + s
+            try:
+                subprocess.run(cmd, shell=True)
+            except subprocess.CalledProcessError:
+                pass
+
     @staticmethod
     def check_fd_path(path):
         """检查目录非空"""
@@ -288,7 +348,7 @@ class Tools:
         return f"{str(_a)}"+ "bash/"
 
     @staticmethod
-    def print_report(s: dict) -> None:
+    def print_report(s) -> None:
         header = (
             "----------------------------------------------------------------------------------------------------\n"
             "| 机头SN : {sn:<40}  ||  Result : {result:<40} |\n"
@@ -373,7 +433,7 @@ class JsonDB:
     PathLike = Union[str, bytes, os.PathLike]
 
     @staticmethod
-    def ensure_file(path: PathLike,
+    def ensure_file(path: Union[str, os.PathLike[str]], 
                     *,
                     mkdir: bool = True,
                     content: Optional[str] = None,

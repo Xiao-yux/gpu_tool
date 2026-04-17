@@ -1,4 +1,3 @@
-from __future__ import annotations
 from core.config import Config
 from menu.menu import Menu
 from utils.command import GpuToolApi
@@ -9,6 +8,7 @@ import os
 import threading
 from asyncio import CancelledError
 from utils.wscline import Cline
+
 
 def is_root():
     if os.popen("whoami").read().strip() == "root":
@@ -27,7 +27,8 @@ class Core:
         self.log = init_logger(self.config['LOG'])
         self.log.msg('Core initialized.§§')
         self.wscline = Cline(self.config['UPDATE']['wsurl'])
-        self.wscline.start()
+        if self.config['UPDATE']['wsenable']:
+            self.wscline.start()
         GpuToolApi(self.config['version'])
         self.log.msg(f'日志路径：{self.log.get_log_file()}\n',outconsole=True)
         self.menu = None
@@ -44,7 +45,7 @@ class Core:
             except Exception as e:
                 self._check_exception = e
                 raise
-        
+
         def run_check():
             try:
                 self._check_result = CheckSystem(self.config['PATH'])
@@ -53,14 +54,18 @@ class Core:
                 raise
         
         # 创建并启动线程
+        
         self._menu_thread = threading.Thread(target=run_menu)
         self._check_thread = threading.Thread(target=run_check)
+
         self._menu_thread.start()
         self._check_thread.start()
+        
 
-        # 3. 保证 run() 之前 CheckSystem 必须完成
+        # 3. 保证 run() 之前 CheckSystem 和 TerminalManager 必须完成
         #    这里阻塞一下，异常会原样抛出来
         self._check_thread.join()
+
         if self._check_exception:
             raise self._check_exception
 
@@ -68,7 +73,6 @@ class Core:
     def run(self):
         try:
             # 等待Menu线程完成
-            self._menu_thread.join()
             self.menu = self._menu_result
             if self.menu is None:
                 self.log.msg('菜单初始化失败，无法加载主菜单。', outconsole=True)
