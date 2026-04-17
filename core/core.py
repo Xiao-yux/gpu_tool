@@ -8,6 +8,7 @@ import os
 import threading
 from asyncio import CancelledError
 from utils.wscline import Cline
+from core.i18n import init_i18n
 
 
 def is_root():
@@ -22,6 +23,9 @@ class Core:
     def __init__(self):
         is_root()
         self.config = Config().config
+        # 初始化国际化
+        language = self.config.get('LANGUAGE', {}).get('language', 'auto')
+        self.i18n = init_i18n(language)
         # 初始化全局日志实例
         from core.log import init_logger
         self.log = init_logger(self.config['LOG'])
@@ -30,8 +34,10 @@ class Core:
         if self.config['UPDATE']['wsenable']:
             self.wscline.start()
         GpuToolApi(self.config['version'])
-        self.log.msg(f'日志路径：{self.log.get_log_file()}',outconsole=True)
+        self.log.msg(f'{self.i18n.get("LOG_PATH", "Log path:")}: {self.log.get_log_file()}',outconsole=True)
         self.menu = None
+        # 将i18n实例传递给Manager
+        self._i18n_for_manager = self.i18n
         # 优化加载速度
 
         # 用于存储线程结果
@@ -41,14 +47,14 @@ class Core:
         
         def run_menu():
             try:
-                self._menu_result = Menu(self.config['PATH'])
+                self._menu_result = Menu(self.config['PATH'], self.i18n)
             except Exception as e:
                 self._check_exception = e
                 raise
 
         def run_check():
             try:
-                self._check_result = CheckSystem(self.config['PATH'])
+                self._check_result = CheckSystem(self.config['PATH'], self.i18n)
             except Exception as e:
                 self._check_exception = e
                 raise

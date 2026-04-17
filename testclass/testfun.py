@@ -6,6 +6,7 @@ import time
 from typing import List
 from core.log import get_logger
 from utils.tool import Tools
+from core.i18n import get_i18n
 
 
 class TestFun:
@@ -13,7 +14,8 @@ class TestFun:
     def __init__(self,path):
         self.path = path
         self.log = get_logger()
-        self.tool = Tools()
+        self.i18n = get_i18n()
+        self.tool = Tools(self.i18n)
 
     def fieldiag_level1(self,no_bmc = True) -> bool:
         """
@@ -129,8 +131,8 @@ class TestFun:
         try:
             data = json.loads(a)
         except json.JSONDecodeError as e:
-            self.log.msg("解析硬盘信息失败，请检查lsblk命令输出是否正确。", outconsole=True)
-            self.log.msg(f"错误:{e},data:{a}", outconsole=True)
+            self.log.msg(self.i18n.get('PARSING_DISK_INFO_FAILED', "解析硬盘信息失败，请检查lsblk命令输出是否正确。"), outconsole=True)
+            self.log.msg(self.i18n.get('ERROR_INFO', "错误:{},data:{}").format(e, a), outconsole=True)
             return []
         self.log.msg(f"diskdata3:{data}")
 
@@ -200,9 +202,9 @@ class TestFun:
                             globals()['_last_slot'] = time.time() // 300
                             self.log.msg(self.tool.run_command("nvidia-smi"),logger_name="time_5_save_info")
             return_code = process.poll()
-            self.log.msg(f"命令执行结束, 返回码: {return_code}")
-            self.log.msg(f"日志路径: {self.log.get_log_file()}/{logname}", outconsole=True)
+            self.log.msg(f"{self.i18n.get('COMMAND_EXECUTION_COMPLETED', 'Command execution completed')}, {self.i18n.get('RETURN_CODE', 'return code:')} {return_code}")
+            self.log.msg(f"{self.i18n.get('LOG_PATH', 'Log path:')}: {self.log.get_log_file()}/{logname}", outconsole=True)
             self.log.msg(f"\n", outconsole=True)
         except Exception as e:
-            self.log.msg(f"运行命令失败: {e}")
-            print(f"执行失败: {e}")
+            self.log.msg(f"{self.i18n.get('RUN_COMMAND_FAILED', 'Run command failed:')} {e}")
+            print(f"{self.i18n.get('EXECUTION_FAILED', 'Execution failed:')} {e}")

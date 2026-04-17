@@ -3,13 +3,19 @@ import time
 
 from utils.tool import Tools
 from core.log import get_logger
+from core.i18n import get_i18n
 
 class CheckSystem:
-    def __init__(self, config):
+    def __init__(self, config, i18n=None):
         self.log = get_logger()
         self.path = config
-        self.tool = Tools()
-        self.printlog("开始检查系统环境", "system_check")
+        self.tool = Tools(i18n)
+        # 获取i18n实例
+        if i18n is None:
+            self.i18n = get_i18n()
+        else:
+            self.i18n = i18n
+        self.printlog(self.i18n.get('START_CHECKING_SYSTEM', "开始检查系统环境"), "system_check")
         self.check_system()
 
     def check_system(self):
@@ -44,7 +50,7 @@ class CheckSystem:
             return False
     def check_dcgmi(self) -> bool:
         if os.path.exists('/usr/bin/dcgmi'):
-            self.printlog("未检测到 dcgmi")
+            self.printlog(self.i18n.get('NO_DCGMI_DETECTED', "未检测到 dcgmi"))
             return True
         else:
             return False
@@ -53,15 +59,15 @@ class CheckSystem:
         g = 1
 
         if not os.popen("lspci | grep -i nvidia").read():
-            self.printlog("未检测到 NVIDIA GPU，部分功能将不可用")
-            self.printlog(f"总线下显卡信息:{os.popen('lspci | grep -i nvidia').read()}", isprint=False)
+            self.printlog(self.i18n.get('NO_NVIDIA_GPU_DETECTED', "未检测到 NVIDIA GPU，部分功能将不可用"))
+            self.printlog(f"{self.i18n.get('BUS_GPU_INFO', 'Bus GPU info:')}: {os.popen('lspci | grep -i nvidia').read()}", isprint=False)
             g = 0
 
         if not os.path.exists("/usr/bin/nvidia-smi"):
-            self.printlog("未检测到 NVIDIA 驱动，部分功能将不可用")
+            self.printlog(self.i18n.get('NO_NVIDIA_DRIVER_DETECTED', "未检测到 NVIDIA 驱动，部分功能将不可用"))
             g = 0
         elif g == 1:
-            self.printlog("检测到 NVIDIA GPU和驱动，执行 nvidia-smi -pm 1")
+            self.printlog(self.i18n.get('NVIDIA_GPU_AND_DRIVER_DETECTED', "检测到 NVIDIA GPU和驱动，执行 nvidia-smi -pm 1"))
             self.tool.run_nvidia_service()
             self.tool.run_command("nvidia-smi -pm 1")
 
@@ -69,28 +75,28 @@ class CheckSystem:
 
         if not os.path.exists(f"{self.path['gpu_burn_path']}/{self.path['gpu_burn_exe']}"):
             self.printlog(
-                f"未检测到 {self.path['gpu_burn_path']}/{self.path['gpu_burn_exe']}，请确保已正确安装 GPU Burn，GPU Burn 测试功能将不可用")
+                self.i18n.get('NO_GPU_BURN_DETECTED', "未检测到 {}，请确保已正确安装 GPU Burn，GPU Burn 测试功能将不可用").format(f"{self.path['gpu_burn_path']}/{self.path['gpu_burn_exe']}"))
         # 检测nccl
         if not os.path.exists(f"{self.path['nccl_path']}/{self.path['nccl_exe']}"):
             self.printlog(
-                f"未检测到 {self.path['nccl_path']}/{self.path['nccl_exe']}，请确保已正确安装 NCCL，NCCL 测试功能将不可用")
+                self.i18n.get('NO_NCCL_DETECTED', "未检测到 {}，请确保已正确安装 NCCL，NCCL 测试功能将不可用").format(f"{self.path['nccl_path']}/{self.path['nccl_exe']}"))
         # 检测fieldiag
         if not os.path.exists(f"{self.path['fd_path']}/{self.path['fd_exe']}"):
             self.printlog(
-                f"未检测到 {self.path['fd_path']}/{self.path['fd_exe']}，请确保已正确安装 FieldDiag，FieldDiag 测试功能将不可用")
+                self.i18n.get('NO_FIELDDIAG_DETECTED', "未检测到 {}，请确保已正确安装 FieldDiag，FieldDiag 测试功能将不可用").format(f"{self.path['fd_path']}/{self.path['fd_exe']}"))
         # 检测dcgmi
         if not os.path.exists("/usr/bin/dcgmi"):
-            self.printlog("未检测到 dcgmi，请确保已正确安装 DCGM，DCGM 测试功能将不可用")
+            self.printlog(self.i18n.get('NO_DCGM_DETECTED', "未检测到 dcgmi，请确保已正确安装 DCGM，DCGM 测试功能将不可用"))
         # 检测nccllib
         if not os.popen("dpkg -l | grep -i libnccl2").read():
-            self.printlog("未检测到 libnccl2，请确保已正确安装 NCCLlib，NCCL 测试功能将不可用")
+            self.printlog(self.i18n.get('NO_LIBNCCL2_DETECTED', "未检测到 libnccl2，请确保已正确安装 NCCLlib，NCCL 测试功能将不可用"))
         if not os.popen("dpkg -l | grep -i libnccl-dev").read():
-            self.printlog("未检测到 libnccl-dev，请确保已正确安装 NCCLlib，NCCL 测试功能将不可用")
+            self.printlog(self.i18n.get('NO_LIBNCCL_DEV_DETECTED', "未检测到 libnccl-dev，请确保已正确安装 NCCLlib，NCCL 测试功能将不可用"))
 
     def sys_save(self, GPU=0):
         """收集系统信息"""
         a = self.log.create_log_file("system_info.log")
-        self.log.msg(f"GPU数量:{self.tool.get_gpu_count()}\n",outconsole=True)
+        self.log.msg(f"{self.i18n.get('GPU_COUNT', 'GPU count:')}: {self.tool.get_gpu_count()}\n",outconsole=True)
         self.log.msg(self.tool.get_sys_info(), logger_name=a)
         self.log.msg(self.tool.get_eth_info(), logger_name=a)
         if GPU == 1:

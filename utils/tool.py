@@ -10,9 +10,14 @@ import time
 import re
 from typing import Any, Dict, List, Union, Optional
 from pathlib import Path
+from core.i18n import get_i18n
 class Tools:
-    def __init__(self):
-        ...
+    def __init__(self, i18n=None):
+        # 获取i18n实例
+        if i18n is None:
+            self.i18n = get_i18n()
+        else:
+            self.i18n = i18n
 
     @staticmethod
     def get_tmp_path() -> str:
@@ -111,12 +116,11 @@ class Tools:
         for s in ser:
             cmd = "systemctl start " + s
             threading.Thread(target=self.run_command, args=(cmd,)).start()
-    @staticmethod
-    def get_gpu_count():
+    def get_gpu_count(self):
         """返回GPU数量"""
 
         if not os.path.exists('/usr/bin/nvidia-smi'):
-            print("检测不到 nvidia-smi，无法获取 GPU 数量")
+            print(self.i18n.get('NO_NVIDIA_SMI_DETECTED', "检测不到 nvidia-smi，无法获取 GPU 数量"))
             return 0
 
         if not os.popen('nvidia-smi --query-gpu=count --format=csv,noheader,nounits | grep -i nvidia').read():
@@ -186,10 +190,9 @@ class Tools:
     def get_eth_info(self,arg='') -> str:
         """# 网卡硬盘信息"""
         return os.popen(f'bash {self.get_tmp_path()}bash/CX_DISK_INFO.sh {arg}').read()
-    @staticmethod
-    def input_chick():
+    def input_chick(self):
         """输入回车继续"""
-        input("按下回车键继续...")
+        input(self.i18n.get('PRESS_ENTER_TO_CONTINUE', "按下回车键继续..."))
         return
     @staticmethod
     def run_command(command: str, cmd = "1", out = False,path="/tmp") -> int | None | str:
@@ -252,10 +255,9 @@ class Tools:
         subprocess.run('systemctl restart nvidia-persistenced', shell=True, check=True)
         return True
     
-    @staticmethod
-    def stop_nvidia_service():
+    def stop_nvidia_service(self):
         """停止NVIDIA相关服务"""
-        print("正在停止 NVIDIA 相关服务...")
+        print(self.i18n.get('STOPPING_NVIDIA_SERVICES', "正在停止 NVIDIA 相关服务..."))
         ser = ['nvidia-fabricmanager.service','nvidia-imex.service','nvidia-persistenced.service',
                'nvidia-dcgm.service','openibd.service','nvidia-powerd.service','systemd-udevd.service','systemd-udevd-kernel.socket','systemd-udevd-control.socket']
         for s in ser:
@@ -265,10 +267,9 @@ class Tools:
             except subprocess.CalledProcessError:
                 pass
     
-    @staticmethod
-    def rm_nvidia_mod():
+    def rm_nvidia_mod(self):
         """移除NVIDIA模块"""
-        print("正在移除 NVIDIA 模块...")
+        print(self.i18n.get('REMOVING_NVIDIA_MODULES', "正在移除 NVIDIA 模块..."))
         try:
             cmd = "rmmod nvidia_drm"
             subprocess.run(cmd, shell=True)
@@ -279,12 +280,11 @@ class Tools:
             cmd = "rmmod nvidia"
             subprocess.run(cmd, shell=True)
         except subprocess.CalledProcessError as e:
-            print(f"移除 NVIDIA 模块失败: {e}")
+            print(self.i18n.get('REMOVE_NVIDIA_MODULES_FAILED', "移除 NVIDIA 模块失败: {}").format(e))
         
-    @staticmethod
-    def rm_switch_mod():
+    def rm_switch_mod(self):
         """移除交换机模块"""
-        print("正在移除openvswitch模块...")
+        print(self.i18n.get('REMOVING_SWITCH_MODULES', "正在移除openvswitch模块..."))
         try:
             cmd = "rmmod openvswitch"
             subprocess.run(cmd, shell=True)
@@ -297,12 +297,11 @@ class Tools:
             cmd = "rmmod nf_conntrack"
             subprocess.run(cmd, shell=True)
         except subprocess.CalledProcessError as e:
-            print(f"移除交换机模块失败: {e}")
+            print(self.i18n.get('REMOVE_SWITCH_MODULES_FAILED', "移除交换机模块失败: {}").format(e))
         
-    @staticmethod
-    def stop_openvswitch():
+    def stop_openvswitch(self):
         """停止openvswitch服务"""
-        print("正在停止 openvswitch 服务...")
+        print(self.i18n.get('STOPPING_OPENVSWITCH_SERVICE', "正在停止 openvswitch 服务..."))
         a = ["openvswitch-switch.service","switcheroo-control.service","openibd.service"]
         for s in a:
             cmd = "systemctl stop " + s
@@ -315,14 +314,13 @@ class Tools:
     def check_fd_path(path):
         """检查目录非空"""
         if os.path.exists(path) and os.listdir(path):
-            os.system(f"mv {path} {path}_{time.strftime('%Y-%m-%d-%H-%S', time.localtime())}_bak")
+            # os.system(f"mv {path} {path}_{time.strftime('%Y-%m-%d-%H-%S', time.localtime())}_bak")
             return True
         return False
-    @staticmethod
-    def get_gpu_memory():
+    def get_gpu_memory(self):
         """返回GPU显存信息"""
         if not os.path.exists('/usr/bin/nvidia-smi'):
-            print("检测不到 nvidia-smi，无法获取 GPU 显存")
+            print(self.i18n.get('NO_NVIDIA_SMI_MEMORY_DETECTED', "检测不到 nvidia-smi，无法获取 GPU 显存"))
             return 0
 
         if not os.popen('nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits | grep -i nvidia').read():

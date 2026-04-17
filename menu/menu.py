@@ -9,6 +9,8 @@ import json
 from noneprompt import ListPrompt, Choice, InputPrompt, CheckboxPrompt
 import os
 from menu.menuarg import MenuChess
+from menu.menuarg_en import MenuChessEn
+from core.i18n import get_i18n
 from utils.installpack import InstallPack
 from utils.tool import Tools
 from core.log import get_logger
@@ -16,21 +18,29 @@ from testclass.testmanager import Manager
 from core.terminal_manager import TerminalManager
 
 class Menu:
-    def __init__(self, path: Dict):
-        self.menu_chess = MenuChess()
+    def __init__(self, path: Dict, i18n=None):
+        # 根据语言设置选择合适的菜单
+        if i18n is None:
+            i18n = get_i18n()
+        
+        if i18n.language == 'en':
+            self.menu_chess = MenuChessEn()
+        else:
+            self.menu_chess = MenuChess()
         self.path = path
-        self.tool = Tools()
+        self.i18n = i18n
+        self.tool = Tools(i18n)
         self.log = get_logger()
         self.install = InstallPack()
         self.log.msg('Menu initialized.')
         self.autotest = Manager(path)
-        self.defcheckmsg = "(按↑或↓移动，空格选择，回车确认)"
+        self.defcheckmsg = i18n.get('CHECK_MSG', "(按↑或↓移动，空格选择，回车确认)")
         self.terminal_manager = TerminalManager() 
 
     def main_menu(self):
         """主菜单"""
-        pro = ListPrompt("请选择操作:", choices=self.menu_chess.main_menu,allow_filter=False,
-                          error_message="暂未完成").prompt()
+        pro = ListPrompt(self.i18n.get('MAIN_MENU_TITLE', "请选择操作:"), choices=self.menu_chess.main_menu,allow_filter=False,
+                          error_message=self.i18n.get('NOT_IMPLEMENTED', "暂未完成")).prompt()
         if pro.data == "exit":
             os._exit(0)
         elif pro.data == "1":
@@ -50,7 +60,7 @@ class Menu:
         self.main_menu()
     def system_set_menu(self):
         """BMC用户设置菜单"""
-        pro = ListPrompt("请选择设置项:", choices=self.menu_chess.setsystem_menu, error_message="暂未完成").prompt()
+        pro = ListPrompt(self.i18n.get('SETTINGS_MENU_TITLE', "请选择设置项:"), choices=self.menu_chess.setsystem_menu, error_message=self.i18n.get('NOT_IMPLEMENTED', "暂未完成")).prompt()
         if pro.data == "exit":
             self.main_menu()
         elif pro.data == "1":
@@ -65,7 +75,7 @@ class Menu:
         self.main_menu()
     def rtt_memu(self):
         fd = f"\'{self.log.get_log_file()}/fd\'"
-        p = ListPrompt("请选择:",choices=self.menu_chess.sys_tool_menu).prompt()
+        p = ListPrompt(self.i18n.get('SELECT', "请选择:"),choices=self.menu_chess.sys_tool_menu).prompt()
         if p.data == "1":
             a = os.path.exists(fd)
             self.log.msg(f"{fd} is exist {a} \n",outconsole=True)
@@ -74,7 +84,7 @@ class Menu:
         self.main_menu()
 
     def bmc_set_menu(self):
-        pro = ListPrompt("请选择BMC设置项:", choices=self.menu_chess.bmc_set_menu,
+        pro = ListPrompt(self.i18n.get('SELECT', "请选择:"), choices=self.menu_chess.bmc_set_menu,
                          validator=lambda x: x != self.menu_chess.bmc_set_menu[1], error_message="暂未完成").prompt()
         if pro.data == "exit":
             self.main_menu()
@@ -85,7 +95,7 @@ class Menu:
         self.main_menu()
 
     def download_gpu(self):
-        pro = ListPrompt("请选择:",choices=self.menu_chess.download_gpu).prompt()
+        pro = ListPrompt(self.i18n.get('SELECT', "请选择:"),choices=self.menu_chess.download_gpu).prompt()
         if pro.data == "exit":
             self.main_menu()
         if pro.data == "1":
@@ -100,7 +110,7 @@ class Menu:
 
 
     def apt_install_menu(self):
-        pro = ListPrompt("请选择：",choices=self.menu_chess.apt_menu,allow_filter=False).prompt()
+        pro = ListPrompt(self.i18n.get('SELECT', "请选择:"),choices=self.menu_chess.apt_menu,allow_filter=False).prompt()
         if pro.data == "exit":
             self.main_menu()
         if pro.data == "1":
@@ -126,7 +136,7 @@ class Menu:
         self.apt_install_menu()
     def gpu_test_menu(self):
         """GPU测试菜单"""
-        pro = ListPrompt("请选择GPU测试项:", choices=self.menu_chess.gpu_test_menu).prompt()
+        pro = ListPrompt(self.i18n.get('SELECT', "请选择:"), choices=self.menu_chess.gpu_test_menu).prompt()
         if pro.data == "exit":
             return
         if pro.data == "1":
@@ -136,7 +146,7 @@ class Menu:
         elif pro.data == "3":
             self.dcgmi_menu()
         elif pro.data == "4":
-            a = ListPrompt("请选择NVBAND测试项:", choices=self.menu_chess.nvband_menu).prompt()
+            a = ListPrompt(self.i18n.get('SELECT', "请选择:"), choices=self.menu_chess.nvband_menu).prompt()
             cmd = f"./nvbandwidth"
             path = f"{self.tool.get_bash_path()}"
             if a.data == "-1":
@@ -156,7 +166,7 @@ class Menu:
 
     def sys_info_menu(self):
         """系统信息菜单"""
-        pro = ListPrompt("请选择系统信息查看项:", choices=self.menu_chess.system_menu,allow_filter=False).prompt()
+        pro = ListPrompt(self.i18n.get('SELECT', "请选择:"), choices=self.menu_chess.system_menu,allow_filter=False).prompt()
         if pro.data == "exit":
             self.main_menu()
         if pro.data == "1":
@@ -175,7 +185,7 @@ class Menu:
 
     def dcgmi_menu(self):
         """DCGMI测试菜单"""
-        pro = ListPrompt("请选择DCGMI测试项:", choices=self.menu_chess.dcgm_menu,allow_filter=False).prompt()
+        pro = ListPrompt(self.i18n.get('SELECT', "请选择:"), choices=self.menu_chess.dcgm_menu,allow_filter=False).prompt()
         if pro.data == "exit":
             self.gpu_test_menu()
         cmd = f"dcgmi {pro.data}"
@@ -185,12 +195,28 @@ class Menu:
 
     def gpu_burn_menu(self):
         """GPU烧机测试菜单"""
-        pro = ListPrompt("请选择GPU烧机测试项:", choices=self.menu_chess.gpu_burn_menu,allow_filter=False).prompt()
-        if pro.data == "exit":
+        pro = InputPrompt(self.i18n.get('INPUT_TIME_WITH_UNIT', "请输入时间-默认S(单位(秒/分/小时)-(S/M/H))-0是退出:  "),default_text="0").prompt()
+        if pro == "0":
             self.gpu_test_menu()
-        if pro.data == "1":
-            pro.data = InputPrompt("请输入时间(单位秒):").prompt()
-        cmd = f"./{self.path['gpu_burn_exe']} {pro.data}"
+            return
+        
+        # 解析时间输入
+        time_str = pro.strip().upper()
+        try:
+            if time_str.endswith('S'):
+                time = int(time_str[:-1])
+            elif time_str.endswith('M'):
+                time = int(time_str[:-1]) * 60
+            elif time_str.endswith('H'):
+                time = int(time_str[:-1]) * 3600
+            else:
+                # 默认为秒
+                time = int(time_str)
+        except (ValueError, IndexError):
+            self.log.msg(self.i18n.get('INVALID_TIME_FORMAT', "无效的时间格式。请输入数字后跟 S(秒)、M(分)或 H(小时)。"), outconsole=True)
+            self.gpu_test_menu()
+            return 
+        cmd = f"./{self.path['gpu_burn_exe']} {time}"
         self.run_command(cmd, path=self.path['gpu_burn_path'], logname="gpu_burn_test")
         self.log.msg(f'用户选择GPU烧机测试菜单: {pro}')
         self.main_menu()
@@ -201,7 +227,7 @@ class Menu:
         path = f"{self.path['fd_path']}"
         self.tool.check_fd_path(f"\'{self.log.get_log_file()}/fd\'")
         logname = self.log.create_log_file("fd_test")
-        pro = ListPrompt("请选择Folding测试项:", choices=self.menu_chess.fd_menu,allow_filter=False).prompt()
+        pro = ListPrompt(self.i18n.get('SELECT', "请选择:"), choices=self.menu_chess.fd_menu,allow_filter=False).prompt()
         if pro.data == "exit":
             self.gpu_test_menu()
         if pro.data == "1":
@@ -214,7 +240,7 @@ class Menu:
             a = CheckboxPrompt("选择单项测试项目:", choices=self.menu_chess.fd_test_arg_menu,annotation=self.defcheckmsg).prompt()
             if not a:
                 self.gpu_test_menu()
-            cmd += f"{self.tool.fd_arg_chines(a)}"
+            cmd += f"--no_bmc {self.tool.fd_arg_chines(a)} --log '{self.log.get_log_file()}/fd'"
             self.log.msg(cmd)
             self.run_command(cmd, path, logname)
         elif pro.data == "4":
@@ -256,26 +282,26 @@ class Menu:
                     path=path
                 )
 
-                self.log.msg(f"已创建screen会话: {screen_name}\n", logger_name=logname, outconsole=True)
-                self.log.msg(f"使用 screen -r {screen_name} 查看会话\n", logger_name=logname, outconsole=True)
+                self.log.msg(f"{self.i18n.get('SCREEN_SESSION_CREATED', 'Screen session created:')}: {screen_name}\n", logger_name=logname, outconsole=True)
+                self.log.msg(f"{self.i18n.get('SCREEN_SESSION_VIEW', 'Use screen -r to view session')}: screen -r {screen_name}\n", logger_name=logname, outconsole=True)
 
             except RuntimeError as e:
-                self.log.msg(f"screen执行失败: {e}, 使用普通模式执行命令", logger_name=logname, outconsole=True)
+                self.log.msg(f"{self.i18n.get('SCREEN_EXECUTION_FAILED', 'Screen execution failed:')} {e}, {self.i18n.get('USING_NORMAL_MODE', 'using normal mode to execute command')}", logger_name=logname, outconsole=True)
                 os._exit(1)
 
-            self.log.msg("screen会话已在后台创建，等待命令完成后再继续\n", logger_name=logname)
-            self.log.msg(f"日志路径: {self.log.get_log_file()}/{logname}\n", outconsole=True)
+            self.log.msg(self.i18n.get("SCREEN_SESSION_WAITING", "Screen session created in background, waiting for command to complete") + "\n", logger_name=logname)
+            self.log.msg(f"{self.i18n.get('LOG_PATH', 'Log path:')}: {self.log.get_log_file()}/{logname}\n", outconsole=True)
             self.terminal_manager.wait_for_command_completion(screen_name)
-            self.log.msg("命令执行完成，screen 会话仍保留，返回主菜单\n", logger_name=logname)
+            self.log.msg(self.i18n.get("COMMAND_COMPLETED", "Command execution completed, screen session retained, returning to main menu") + "\n", logger_name=logname)
             if input_user:
-                input("按回车继续...")
+                input(self.i18n.get("PRESS_ENTER_CONTINUE", "Press Enter to continue..."))
             return
         except Exception as e:
-            self.log.msg(f"运行命令失败: {e}")
-            print(f"执行失败: {e}")
+            self.log.msg(f"{self.i18n.get('RUN_COMMAND_FAILED', 'Run command failed:')} {e}")
+            print(f"{self.i18n.get('EXECUTION_FAILED', 'Execution failed:')} {e}")
         
         if input_user:
-            input("按回车继续...")
+            input(self.i18n.get("PRESS_ENTER_CONTINUE", "Press Enter to continue..."))
 
     def nccl_menu(self):
         cmd = f"./{self.path['nccl_exe']} "
@@ -285,7 +311,7 @@ class Menu:
         self.run_command(cmd, path, logname)
 
     def system_test_menu(self):
-        pro = ListPrompt("请选择系统其他测试项:", choices=self.menu_chess.sys_test_menu,allow_filter=False).prompt()
+        pro = ListPrompt(self.i18n.get('SELECT', "请选择:"), choices=self.menu_chess.sys_test_menu,allow_filter=False).prompt()
         if pro.data == "exit":
             self.main_menu()
         if pro.data == "1":
