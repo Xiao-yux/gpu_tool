@@ -16,6 +16,8 @@ fd_exe = "fieldiag.sh"  #fieldiag可执行文件
 gpu_burn_exe = "gpu_burn"  #gpu_burn可执行文件
 nccl_exe = "all_reduce_perf"  #nccl可执行文件
 
+[SYSTEM]
+lto = true
 
 [UPDATE]
 #待实现，不用管

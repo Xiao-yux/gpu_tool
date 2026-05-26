@@ -242,8 +242,8 @@ class Tools:
         return os.popen('dmidecode -s system-serial-number').read()
 
     @staticmethod
-    def get_nvidia_bug_report(paths,logname):
-        cmd = f'nvidia-bug-report.sh --output-file "{logname}"'
+    def get_nvidia_bug_report(paths):
+        cmd = f'cd {paths} && nvidia-bug-report.sh'
         subprocess.Popen(cmd,cwd=paths,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
 
     @staticmethod

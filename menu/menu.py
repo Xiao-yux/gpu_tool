@@ -265,9 +265,9 @@ class Menu:
             if self.tool.check_fd_path(f"\'{self.log.get_log_file()}/fd\'"):
                 self.tool.run_command(f"mv {self.log.get_log_file()}/fd {self.log.get_log_file()}/fd_$(date +%Y-%m-%d_%H-%M-%S)")
             self.tool.stop_nvidia_service()
-            self.tool.stop_openvswitch()
+            # self.tool.stop_openvswitch()
             self.tool.rm_nvidia_mod()
-            self.tool.rm_switch_mod()
+            # self.tool.rm_switch_mod()
             
         self.log.msg(f"执行命令: {command}", outconsole=True)
         try:
@@ -281,9 +281,9 @@ class Menu:
                     logname=logname,
                     path=path
                 )
-
-                self.log.msg(f"{self.i18n.get('SCREEN_SESSION_CREATED', 'Screen session created:')}: {screen_name}\n", logger_name=logname, outconsole=True)
-                self.log.msg(f"{self.i18n.get('SCREEN_SESSION_VIEW', 'Use screen -r to view session')}: screen -r {screen_name}\n", logger_name=logname, outconsole=True)
+                if logname != "fd_test":
+                    self.log.msg(f"{self.i18n.get('SCREEN_SESSION_CREATED', 'Screen session created:')}: {screen_name}\n", logger_name=logname, outconsole=True)
+                    self.log.msg(f"{self.i18n.get('SCREEN_SESSION_VIEW', 'Use screen -r to view session')}: screen -r {screen_name}\n", logger_name=logname, outconsole=True)
 
             except RuntimeError as e:
                 self.log.msg(f"{self.i18n.get('SCREEN_EXECUTION_FAILED', 'Screen execution failed:')} {e}, {self.i18n.get('USING_NORMAL_MODE', 'using normal mode to execute command')}", logger_name=logname, outconsole=True)

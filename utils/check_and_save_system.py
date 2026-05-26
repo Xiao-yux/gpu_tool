@@ -67,9 +67,9 @@ class CheckSystem:
             self.printlog(self.i18n.get('NO_NVIDIA_DRIVER_DETECTED', "未检测到 NVIDIA 驱动，部分功能将不可用"))
             g = 0
         elif g == 1:
-            self.printlog(self.i18n.get('NVIDIA_GPU_AND_DRIVER_DETECTED', "检测到 NVIDIA GPU和驱动，执行 nvidia-smi -pm 1"))
+            self.printlog(self.i18n.get('NVIDIA_GPU_AND_DRIVER_DETECTED', "检测到 NVIDIA GPU和驱动"))
             self.tool.run_nvidia_service()
-            self.tool.run_command("nvidia-smi -pm 1")
+            # self.tool.run_command("nvidia-smi -pm 1")
 
         # 检测gpuburn
 
@@ -96,7 +96,7 @@ class CheckSystem:
     def sys_save(self, GPU=0):
         """收集系统信息"""
         a = self.log.create_log_file("system_info.log")
-        self.log.msg(f"{self.i18n.get('GPU_COUNT', 'GPU count:')}: {self.tool.get_gpu_count()}\n",outconsole=True)
+        self.log.msg(f"{self.i18n.get('GPU_COUNT', 'GPU count')}: {self.tool.get_gpu_count()}\n",outconsole=True)
         self.log.msg(self.tool.get_sys_info(), logger_name=a)
         self.log.msg(self.tool.get_eth_info(), logger_name=a)
         if GPU == 1:
@@ -112,7 +112,7 @@ class CheckSystem:
         self.log.msg(self.tool.run_command("dmidecode"), logger_name=self.log.create_log_file("dmidecode", "system"))
         self.log.msg(self.tool.run_command("lshw"), logger_name=self.log.create_log_file("lshw", "system"))
         self.log.msg(self.tool.run_command("dmesg"), logger_name=self.log.create_log_file("dmesg", "system"))
-        self.log.msg(self.tool.get_nvidia_bug_report(f"{self.log.log_dir}",logname=f"nvidia-bug-report-{time.strftime('%Y-%m-%d-%H:%M:%S')}.log.gz"), logger_name=self.log.create_log_file(f"nvidia_bug_report", "system"))
+        self.log.msg(self.tool.get_nvidia_bug_report(f"{self.log.log_dir}"), logger_name=self.log.create_log_file(f"nvidia_bug_report", "system"))
         self.log.msg(self.tool.run_command(f"{self.tool.get_tmp_path()}bash/nic_info"),logger_name=self.log.create_log_file("nic_info", "system"))
 
     def printlog(self, message, logname="system_check", path="system", isprint=True):

@@ -5,6 +5,7 @@ import sys
 import time
 from typing import Dict
 from core.log import get_logger
+import utils.tool
 
 class TerminalManager:
     """使用 screen 命令管理持久化的终端会话"""
@@ -15,6 +16,7 @@ class TerminalManager:
         self.last_progress_line = ""
         self.last_size= 0
         self.progress_active = False
+        self.tool = utils.tool.Tools
         self._initialize_screen()  # 初始化 screen 环境
 
     def _initialize_screen(self) -> None:
@@ -32,8 +34,8 @@ class TerminalManager:
                 return
             
             # 确保屏幕日志目录存在
-            log_dir = os.path.join(os.path.expanduser("~"), "screen_logs")
-            os.makedirs(log_dir, exist_ok=True)
+            # log_dir = os.path.join(os.path.expanduser("~"), "screen_logs")
+            # os.makedirs(log_dir, exist_ok=True)
             
             self.log.msg("screen 环境初始化完成")
         except Exception as e:
@@ -94,6 +96,12 @@ class TerminalManager:
             str: screen 会话名称
         """
         # 生成 screen 会话名称
+        # if logname =="fd_test":
+        #     self.fd_run(command, path)
+        #     return "fd_test"
+        if logname == "dcgmi_test":
+            self.tool.run_command("nvidia-smi -pm 1")
+            
         screen_name = self._generate_screen_name(logname)
         
         # 创建日志文件路径
@@ -119,11 +127,7 @@ class TerminalManager:
             # 执行 screen 命令创建会话
             subprocess.run(
                 screen_cmd,
-                shell=True,
-                check=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True
+                shell=True
             )
             
             return screen_name
@@ -132,12 +136,17 @@ class TerminalManager:
             self.log.msg(f"创建 screen 会话失败: {e}")
             raise RuntimeError(f"创建 screen 会话失败: {e}")
 
-
+    def fd_run(self, command: str, path: str = "/tmp"):
+        cmd = f"python3 {self.tool.get_bash_path()}run_fd.py '{shlex.quote(path)}' {shlex.quote(command)}"
+        
+        subprocess.run(cmd, shell=True,text=True)
+        return True
+        
 
     def wait_for_command_completion(self, screen_name: str) -> bool:
         """等待 screen 命令结束"""
         if screen_name not in self.screens:
-            self.log.msg(f"Screen 会话 {screen_name} 不存在", outconsole=True)
+            self.log.msg(f"Screen 会话 {screen_name} 不存在")
             return False
 
         screen_info = self.screens[screen_name]

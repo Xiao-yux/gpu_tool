@@ -1,4 +1,4 @@
-from core.config import Config
+from core.config import get_config, Config
 from menu.menu import Menu
 from utils.command import GpuToolApi
 from utils.check_and_save_system import CheckSystem
@@ -22,7 +22,7 @@ def is_root():
 class Core:
     def __init__(self):
         is_root()
-        self.config = Config().config
+        self.config = get_config()
         # 初始化国际化
         language = self.config.get('LANGUAGE', {}).get('language', 'auto')
         self.i18n = init_i18n(language)
@@ -34,52 +34,33 @@ class Core:
         if self.config['UPDATE']['wsenable']:
             self.wscline.start()
         GpuToolApi(self.config['version'])
-        self.log.msg(f'{self.i18n.get("LOG_PATH", "Log path:")}: {self.log.get_log_file()}',outconsole=True)
-        self.menu = None
-        # 将i18n实例传递给Manager
-        self._i18n_for_manager = self.i18n
-        # 优化加载速度
-
-        # 用于存储线程结果
-        self._menu_result = None
-        self._check_result = None
-        self._check_exception = None
+        # CheckSystem(self.config['PATH'], self.i18n)
+        self.log.msg(f'{self.i18n.get("LOG_PATH", "Log path")}: {self.log.get_log_file()}',outconsole=True)
+        # self.menu = Menu(self.config['PATH'], self.i18n)
         
-        def run_menu():
-            try:
-                self._menu_result = Menu(self.config['PATH'], self.i18n)
-            except Exception as e:
-                self._check_exception = e
-                raise
+        if self.config['SYSTEM']['lto']:
+            def menu_wrapper(self_ref):
+                menu = Menu(self_ref.config['PATH'], self_ref.i18n)
+                self_ref.menu = menu
+                return menu
+            self.tmp_menu = threading.Thread(target=menu_wrapper, args=(self,))
+            self.tmp_check = threading.Thread(target=CheckSystem, args=(self.config['PATH'], self.i18n))
+            self.tmp_menu.start()
+            self.tmp_check.start()
+        else:
+            CheckSystem(self.config['PATH'], self.i18n)
+            self.menu = Menu(self.config['PATH'], self.i18n)
+            
 
-        def run_check():
-            try:
-                self._check_result = CheckSystem(self.config['PATH'], self.i18n)
-            except Exception as e:
-                self._check_exception = e
-                raise
         
-        # 创建并启动线程
-        
-        self._menu_thread = threading.Thread(target=run_menu)
-        self._check_thread = threading.Thread(target=run_check)
-
-        self._menu_thread.start()
-        self._check_thread.start()
-        
-
-        # 3. 保证 run() 之前 CheckSystem 和 TerminalManager 必须完成
-        #    这里阻塞一下，异常会原样抛出来
-        self._check_thread.join()
-
-        if self._check_exception:
-            raise self._check_exception
 
 
     def run(self):
         try:
-            # 等待Menu线程完成
-            self.menu = self._menu_result
+            # 等待Menu线程完成,获取Menu实例
+            if self.config['SYSTEM']['lto']:
+                self.tmp_menu.join()
+                self.tmp_check.join()
             if self.menu is None:
                 self.log.msg('菜单初始化失败，无法加载主菜单。', outconsole=True)
                 sys.exit(1)

@@ -241,7 +241,7 @@ class Log:
             logger_name = "gpu_tool_debug"
 
         
-
+        message = self.clean(message)
         logger = self.loggers[logger_name]
         if level == "INFO":
             logger.info(message)
@@ -259,10 +259,8 @@ class Log:
     @staticmethod
     def clean(line:str)->str:
         """清理特殊字符"""
-        _CLEAN = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
-        line = _CLEAN.sub('', line)          # 去颜色
         line = re.sub(r'\x08+', '', line)    # 去退格
-        return line.rstrip('\r\n')
+        return line.rstrip('\r\n') # 去除行尾的换行符和回车符
 
 
     def create_log_file(self, log_file, path='') -> str:

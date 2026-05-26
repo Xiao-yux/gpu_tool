@@ -4,12 +4,12 @@ CC     = clang
 PIP_DEPS = noneprompt toml Nuitka text2art art tqdm aiofiles websockets asyncio Nuitka[onefile]
 
 build:
-	python -m nuitka --onefile --standalone --lto=yes --assume-yes-for-downloads\
-	    --clang  --include-package=websockets\
+	python -m nuitka --onefile --onefile-no-compression --lto=yes --assume-yes-for-downloads\
+	    --clang  \
 		--include-data-dir=bash=bash --show-progress \
-	    --include-data-file=config.toml=config.toml \
+	    --include-data-file=config.toml=config.toml  \
 	    --output-dir=dist --output-filename=gpu_tool --remove-output $(SOURCE)
-# --enable-plugins=upx
+# --enable-plugins=upx --include-package=websockets
 
 clean:
 	rm -rf dist main.build main.dist
