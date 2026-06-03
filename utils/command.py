@@ -4,12 +4,13 @@ from colorama import init, Fore, Back, Style
 from art import text2art
 
 from utils.tool import Tools
-from utils.xid_help import show_xid_help
+from utils.show_xid import show_xid
 
 class GpuToolApi:
     def __init__(self,version):
         self.version = version
         self.tool = Tools()
+        self.xid_path = self.tool.get_bash_path()+"Xid-Catalog.zh-CN.xlsx"
         self.run()
 
     def run(self):
@@ -30,7 +31,7 @@ class GpuToolApi:
             self.tool.fd_log_print(args.check_fd_log)
             sys.exit(0)
         if args.xid is not None:
-            show_xid_help(args.xid)
+            show_xid(self.xid_path,args.xid)
             sys.exit(0)
         init(autoreset=True)
         print(text2art(tx1, chr_ignore=True))

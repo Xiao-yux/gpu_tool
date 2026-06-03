@@ -1,7 +1,7 @@
 OUTPUT = dist/gpu_tool
 SOURCE = main.py
 CC     = clang
-PIP_DEPS = noneprompt toml Nuitka text2art art tqdm aiofiles websockets asyncio Nuitka[onefile]
+PIP_DEPS = noneprompt toml Nuitka text2art art tqdm aiofiles websockets asyncio Nuitka[onefile] openpyxl
 # 		--clang 
 
 build:
