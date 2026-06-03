@@ -4,6 +4,7 @@ from colorama import init, Fore, Back, Style
 from art import text2art
 
 from utils.tool import Tools
+from utils.xid_help import show_xid_help
 
 class GpuToolApi:
     def __init__(self,version):
@@ -27,6 +28,9 @@ class GpuToolApi:
             sys.exit(0)
         if args.check_fd_log:
             self.tool.fd_log_print(args.check_fd_log)
+            sys.exit(0)
+        if args.xid is not None:
+            show_xid_help(args.xid)
             sys.exit(0)
         init(autoreset=True)
         print(text2art(tx1, chr_ignore=True))
@@ -54,5 +58,6 @@ class GpuToolApi:
         parser.add_argument('--version', action='version', version=f'{ver}', help='显示版本信息')
         parser.add_argument('--disp_name', action='store', help='自定义颜文字')
         parser.add_argument('--check_fd_log', metavar='FD_LOG_PATH',help='分析fd日志')
+        parser.add_argument('--xid', metavar='id', type=int, help='查询XID错误码帮助信息')
 
         return parser.parse_args()

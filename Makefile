@@ -2,14 +2,31 @@ OUTPUT = dist/gpu_tool
 SOURCE = main.py
 CC     = clang
 PIP_DEPS = noneprompt toml Nuitka text2art art tqdm aiofiles websockets asyncio Nuitka[onefile]
+# 		--clang 
 
 build:
-	python -m nuitka --onefile --onefile-no-compression --lto=yes --assume-yes-for-downloads\
-	    --clang  \
-		--include-data-dir=bash=bash --show-progress \
-	    --include-data-file=config.toml=config.toml  \
-	    --output-dir=dist --output-filename=gpu_tool --remove-output $(SOURCE)
-# --enable-plugins=upx --include-package=websockets
+	source ./.venv/bin/activate && \
+	export CCACHE_LINK=ccache && \
+	python -m nuitka \
+		--onefile \
+		--onefile-no-compression \
+		--onefile-tempdir-spec="{CACHE_DIR}/gpu_tool" \
+		--onefile-cache-mode=cached \
+		--lto=yes \
+		--static-libpython=yes \
+		--assume-yes-for-downloads \
+		--enable-plugins=upx \
+		--upx-binary=/usr/bin/upx \
+		--product-name="gpu_tool" \
+		--noinclude-default-mode=allow \
+		--include-data-dir=bash=bash \
+		--include-data-file=config.toml=config.toml \
+		--output-dir=dist \
+		--output-filename=gpu_tool \
+		--remove-output \
+		--show-progress \
+		$(SOURCE)
+#  --include-package=websockets
 
 clean:
 	rm -rf dist main.build main.dist
