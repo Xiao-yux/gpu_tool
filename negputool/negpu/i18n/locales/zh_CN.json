@@ -1,0 +1,24 @@
+{
+  "_meta": {
+    "language": "zh_CN",
+    "name": "简体中文",
+    "version": "0.1.0"
+  },
+  "app": {
+    "title": "negpu",
+    "tagline": "异步优先的 GPU/服务器 测试工具集"
+  },
+  "menu": {
+    "main_title": "请选择操作:",
+    "exit": "退出",
+    "back": "返回"
+  },
+  "common": {
+    "ok": "确定",
+    "cancel": "取消",
+    "yes": "是",
+    "no": "否",
+    "press_enter": "按回车键继续..."
+  },
+  "_todo": "更多文案将在 Phase 2/5 补充。"
+}

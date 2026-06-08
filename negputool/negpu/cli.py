@@ -88,5 +88,13 @@ def main() -> None:
         raise SystemExit(130) from None
 
 
+if __name__ == "__main__":
+    main()
 
 
+# Re-export the symbol used by pyproject [project.scripts].
+__all__ = ["app", "main"]
+
+
+# Silence "imported but unused" for asyncio (used in later phases).
+_ = asyncio

@@ -1,0 +1,24 @@
+{
+  "_meta": {
+    "language": "en",
+    "name": "English",
+    "version": "0.1.0"
+  },
+  "app": {
+    "title": "negpu",
+    "tagline": "Async-first GPU/Server testing toolkit"
+  },
+  "menu": {
+    "main_title": "Please select an action:",
+    "exit": "Exit",
+    "back": "Back"
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "yes": "Yes",
+    "no": "No",
+    "press_enter": "Press Enter to continue..."
+  },
+  "_todo": "More keys will be added in Phase 2/5."
+}
