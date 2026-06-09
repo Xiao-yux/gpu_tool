@@ -12,6 +12,10 @@ from pathlib import Path
 
 # Make sure ``import negpu`` works without installing the package in
 # editable mode (e.g. when running tests directly via ``pytest tests/``).
+# With src-layout the package lives under ``src/``, so we add BOTH the
+# project root and ``src/`` to sys.path.
 _ROOT = Path(__file__).resolve().parent.parent
-if str(_ROOT) not in sys.path:
-    sys.path.insert(0, str(_ROOT))
+_SRC = _ROOT / "src"
+for p in (_ROOT, _SRC):
+    if str(p) not in sys.path:
+        sys.path.insert(0, str(p))

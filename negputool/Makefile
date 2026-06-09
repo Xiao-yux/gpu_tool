@@ -21,14 +21,17 @@ MYPY   ?= $(PY) -m mypy
 PYTEST ?= $(PY) -m pytest
 
 PKG    := negpu
-SRC    := negpu
+SRC    := src/negpu
 TESTS  := tests
 
 OUTPUT     := dist/negpu
 ONEFILE    := dist/negpu-onefile
-ENTRY      := negpu/cli.py
+ENTRY      := src/negpu/cli.py
 DATA_DIRS  := bash
 DATA_FILE  := config.toml
+
+# Ensure ``import negpu`` works when running tools without ``pip install -e .``.
+export PYTHONPATH := $(CURDIR)/src:$(PYTHONPATH)
 
 # ---------------------------------------------------------------------------
 # Phony targets
