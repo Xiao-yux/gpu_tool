@@ -1,0 +1,15 @@
+2026-04-01 15:27:54.847 [I] [sub/root.go:201] start frpc service for config file [/mnt/c/Users/Administrator/Documents/work/gpu_tool/webserver/utils/frp_0.68.0_linux_amd64/frpc.toml] with aggregated configuration
+2026-04-01 15:27:54.850 [I] [client/service.go:378] try to connect to server...
+2026-04-01 15:27:55.015 [I] [client/service.go:370] [c8ed6c8e9fc0fbfa] login to server success, get run id [c8ed6c8e9fc0fbfa]
+2026-04-01 15:27:55.015 [I] [proxy/proxy_manager.go:180] [c8ed6c8e9fc0fbfa] proxy added: [192-168-1-1-888]
+2026-04-01 15:27:55.059 [I] [client/control.go:176] [c8ed6c8e9fc0fbfa] [192-168-1-1-888] start proxy success
+2026-04-01 15:31:55.592 [I] [sub/root.go:201] start frpc service for config file [/mnt/c/Users/Administrator/Documents/work/gpu_tool/webserver/utils/frp_0.68.0_linux_amd64/frpc.toml] with aggregated configuration
+2026-04-01 15:31:55.594 [I] [client/service.go:378] try to connect to server...
+2026-04-01 15:31:55.859 [I] [client/service.go:370] [c14da0377ba188dd] login to server success, get run id [c14da0377ba188dd]
+2026-04-01 15:31:55.859 [I] [proxy/proxy_manager.go:180] [c14da0377ba188dd] proxy added: [192-168-1-1-888]
+2026-04-01 15:31:55.910 [I] [client/control.go:176] [c14da0377ba188dd] [192-168-1-1-888] start proxy success
+2026-04-01 15:36:23.121 [I] [sub/root.go:201] start frpc service for config file [/mnt/c/Users/Administrator/Documents/work/gpu_tool/webserver/utils/frp_0.68.0_linux_amd64/frpc.toml] with aggregated configuration
+2026-04-01 15:36:23.123 [I] [client/service.go:378] try to connect to server...
+2026-04-01 15:36:23.328 [I] [client/service.go:370] [1ab584e4cbbe55b7] login to server success, get run id [1ab584e4cbbe55b7]
+2026-04-01 15:36:23.328 [I] [proxy/proxy_manager.go:180] [1ab584e4cbbe55b7] proxy added: [192-168-1-1-888]
+2026-04-01 15:36:23.383 [I] [client/control.go:176] [1ab584e4cbbe55b7] [192-168-1-1-888] start proxy success

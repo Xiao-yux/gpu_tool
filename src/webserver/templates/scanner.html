@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>厚茂科技 - BMC扫描</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+
+    <!-- 顶部 Header -->
+    <header>
+        <div class="logo">
+            <!-- 简单的 SVG Logo -->
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            服务器管理后台
+        </div>
+    </header>
+
+    <!-- 主体布局 -->
+    <div class="layout-container">
+
+        <!-- 左侧侧边栏 -->
+        <aside>
+            <div class="menu-title">功能菜单</div>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="/" class="nav-link">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                        仪表盘
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/scanner" class="nav-link active">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                        BMC扫描
+                    </a>
+                </li>
+                 <li class="nav-item">
+                    <a href="/ipscan" class="nav-link">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                        ip扫描
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/server" class="nav-link">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        服务器批量管理
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/tasks" class="nav-link">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                        指令表单
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="setActive(this)">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L5.09 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.04.64.09.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                        系统设置
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="setActive(this)">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        帮助中心
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- 右侧内容区 -->
+        <main id="main-content">
+            <div class="content-header">
+                <div class="breadcrumb">首页 / BMC扫描</div>
+                <h1 class="page-title">BMC扫描</h1>
+            </div>
+
+            <!-- 扫描结果容器 -->
+            <div class="clients-container">
+                <div class="clients-header">
+                    <h2>在线Web服务</h2>
+                    <span class="clients-count" id="scanCount">0 个服务</span>
+                </div>
+                <div class="clients-list" id="scanResults">
+                    <!-- 扫描结果将通过 JavaScript 动态添加 -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 自动刷新扫描结果
+        let refreshInterval;
+
+        // 加载扫描结果
+        async function loadScanResults() {
+            try {
+                const response = await fetch('/api/scanner/results');
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResults(data.results);
+                    document.getElementById('scanCount').textContent = `${data.count-1} 个服务`;
+                }
+            } catch (error) {
+                console.error('加载扫描结果失败:', error);
+            }
+        }
+
+        // 显示扫描结果
+        function displayResults(results) {
+            const container = document.getElementById('scanResults');
+            container.innerHTML = '';
+
+            if (results.length === 0) {
+                container.innerHTML = '<div class="placeholder-card">暂无扫描结果</div>';
+                return;
+            }
+
+            // 按IP分组，优先选择80端口
+            const ipMap = new Map();
+            results.forEach(item => {
+                if (!ipMap.has(item.ip) || item.port === 80) {
+                    ipMap.set(item.ip, item);
+                }
+            });
+
+            // 转换为数组
+            const uniqueResults = Array.from(ipMap.values());
+
+            uniqueResults.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'client-card';
+                card.onclick = function() {
+                    window.open(item.url, '_blank');
+                };
+
+                // 确保title显示正常，如果为空则显示默认值
+                const displayTitle = item.title && item.title.trim() ? item.title : 'Web服务';
+
+                card.innerHTML = `
+                    <div class="client-avatar">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <div class="client-info">
+                        <div class="client-ip">${item.ip}</div>
+                        <div class="client-sn">${displayTitle}</div>
+                        <div class="client-status online">
+                            ${item.protocol.toUpperCase()} - 在线
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // 页面加载时启动
+        window.addEventListener('DOMContentLoaded', function() {
+            loadScanResults();
+            // 每30秒自动刷新一次
+            refreshInterval = setInterval(loadScanResults, 30000);
+        });
+
+        // 页面卸载时清除定时器
+        window.addEventListener('beforeunload', function() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
+    </script>
+</body>
+</html>

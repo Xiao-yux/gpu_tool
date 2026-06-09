@@ -15,3 +15,72 @@ tmp
 webserver/utils/log
 webserver/utils/frp_0.68.0_linux_amd64/log
 .venv*
+# negputool local files (separate from root .gitignore)
+# --------------------------------------------------------------------------
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+*.egg
+MANIFEST
+.installed.cfg
+*.egg-info
+
+# venv
+.venv/
+.venv-windows/
+venv/
+env/
+ENV/
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.cache
+.tox/
+
+# ruff / mypy / black
+.ruff_cache/
+.mypy_cache/
+.black/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Negpu build outputs (Nuitka)
+negputool.build/
+negputool.dist/
+negputool.onefile-build/
+negputool_main.dist/
+negputool_main.build/
+*.onefile
+
+# Local logs (runtime)
+*.log
+logs/

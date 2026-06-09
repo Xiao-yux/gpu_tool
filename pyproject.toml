@@ -1,0 +1,183 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gpu_tool"
+version = "2.2.2.dev0"
+description = "gpu_tool: a refactored, async-first GPU/Server testing toolkit (reborn from gpu_tool)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "gpu_tool contributors" },
+]
+keywords = ["gpu_tool","tool"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Environment :: Console :: Curses",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Hardware",
+    "Topic :: System :: Monitoring",
+    "Typing :: Typed",
+]
+dependencies = [
+    "pydantic>=2.5,<3.0",
+    "noneprompt",
+    "tomli>=2.0,<3.0; python_version < '3.11'",
+    "websockets>=12.0,<14.0",
+    "aiofiles>=23.2,<25.0",
+    "openpyxl>=3.1,<4.0",
+    "tqdm>=4.66,<5.0",
+    "text2art>=0.1.0,<1.0",
+    "rich>=13.7,<14.0",
+    "jinja2>=3.1,<4.0",
+    "weasyprint>=60.0,<65.0; platform_system == 'Linux'",
+    "Nuitka",
+    "Nuitka[onefile]",
+    "art",
+    "toml",
+    "termios",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4,<9.0",
+    "pytest-asyncio>=0.23,<1.0",
+    "pytest-mock>=3.12,<4.0",
+    "pytest-cov>=4.1,<6.0",
+    "ruff>=0.1.0,<1.0",
+    "mypy>=1.8,<2.0",
+    "black>=24.0,<25.0",
+    "typing",
+
+]
+
+[project.scripts]
+gpu_tool = "gpu_tool.main:app"
+gpu-tool = "gpu_tool.main:app"
+
+[project.urls]
+Homepage = "https://github.com/Xiao-yux/gpu_tool"
+Issues = "https://github.com/Xiao-yux/gpu_tool/issues"
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["gpu_tool*"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+"gpu_tool.i18n" = ["locales/*.json"]
+
+
+# ----------------------------------------------------------------------------
+# Tooling configuration
+# ----------------------------------------------------------------------------
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+extend-exclude = ["build", "dist", ".venv", ".venv-windows", "gpu_tooltool.egg-info"]
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W",   # pycodestyle / pyflakes
+    "I",              # isort
+    "B",              # bugbear
+    "UP",             # pyupgrade
+    "N",              # pep8-naming
+    "C4",             # flake8-comprehensions
+    "ASYNC",          # flake8-async
+    "PT",             # pytest style
+    "RET",            # return
+    "SIM",            # simplify
+    "TID",            # tidy imports
+    "RUF",            # ruff-specific
+]
+ignore = [
+    "E501",  # line length is enforced by formatter/black
+    "B008",  # do not perform function calls in argument defaults
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "B011"]
+"gpu_tooltool/_version.py" = ["UP"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["gpu_tool"]
+
+[tool.black]
+line-length = 110
+target-version = ["py310", "py311", "py312"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_unreachable = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+disallow_any_unimported = false
+no_implicit_optional = true
+check_untyped_defs = true
+ignore_missing_imports = true
+plugins = ["pydantic.mypy"]
+mypy_path = ["src"]
+exclude = ["build/", "dist/", "gpu_tooltool.egg-info/", ".venv/"]
+
+[[tool.mypy.overrides]]
+module = ["noneprompt.*", "text2art.*", "art.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+pythonpath = ["src"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--tb=short",
+    "--cov=gpu_tool",
+    "--cov-report=term-missing",
+    "--cov-fail-under=0",
+]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning:websockets.*",
+    "ignore::DeprecationWarning:paramiko.*",
+    # File handlers are closed via gpu_toolLogger.close(); GC-time warnings
+    # are non-fatal.
+    "ignore::ResourceWarning",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["gpu_tool"]
+omit = [
+    "gpu_tool/_version.py",
+    "gpu_tool/main.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+    "\\.\\.\\.",
+]
