@@ -3,7 +3,7 @@
 Centralises every "where on disk do we put things" decision so the rest of
 the codebase never assembles paths by hand.
 
-Layout (negpu >=0.1):
+Layout (gpu >=0.1):
 
     /home/<user>/log/<sn>/<时间>/
     ├── system/     # dmesg, nvidia-smi, lspci, ipmitool* (collected on startup)
@@ -44,33 +44,40 @@ def current_user() -> str:
 
 
 def user_log_root(log_path_template: str) -> Path:
-    """Resolve ``/home/<user>/log`` (or the override template).
-
-    The template may be a relative path, in which case it is resolved
-    against the user's home directory.  The literal token ``{user}`` is
-    replaced with the current user name so config files can write
-    e.g. ``/var/log/{user}`` without hard-coding a user.
     """
-    template = log_path_template.format(user=current_user())
-    p = Path(template).expanduser()
-    if not p.is_absolute():
-        p = Path.home() / p
-    return p
+    根据用户和日志路径模板生成完整的日志文件路径
+    参数:
+        log_path_template (str): 日志路径模板，可以包含用户相关的占位符
+    返回:
+        Path: 解析后的绝对路径对象，会自动处理用户目录和相对路径转换
+    """
+    template = log_path_template.format(user=current_user())  # 使用当前用户替换模板中的占位符
+    p = Path(template).expanduser()  # 展开路径中的用户目录(~)为实际路径
+    if not p.is_absolute():  # 如果路径不是绝对路径
+        p = Path.home() / p  # 则将其转换为相对于用户主目录的绝对路径
+    return p  # 返回处理后的完整路径
 
 
 def serial_number() -> str:
-    """Best-effort chassis serial number.
-
-    Prefers ``dmidecode -s system-serial-number`` (Linux), falls back to
-    the hostname when dmidecode is missing or returns empty.
     """
+    获取系统序列号
+    该函数尝试通过dmidecode命令获取系统序列号，如果失败则回退到主机名作为序列号。
+    序列号会被清理，移除可能影响文件路径使用的特殊字符。
+    Returns:
+        str: 清理后的系统序列号，如果获取失败则返回主机名
+    """
+    # 检查系统是否安装了dmidecode命令
     if shutil.which("dmidecode") is None:
         return _hostname_fallback()
     try:
+        # 尝试执行dmidecode命令获取系统序列号
         out = subprocess_run_capture(["dmidecode", "-s", "system-serial-number"])
     except (FileNotFoundError, PermissionError, OSError):
+        # 如果命令执行失败，回退到主机名
         return _hostname_fallback()
+    # 清理输出字符串，移除首尾空白字符
     cleaned = out.strip()
+    # 检查是否为空值或常见的默认值
     if not cleaned or cleaned.lower() in {"to be filled by o.e.m.", "default string", "none"}:
         return _hostname_fallback()
     # Serial numbers may contain spaces or slashes; sanitise for path use.

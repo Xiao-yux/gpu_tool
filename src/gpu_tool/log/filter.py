@@ -2,10 +2,8 @@
 
 Two layers:
 
-* :func:`clean` — strip backspaces and trailing newline noise; applied
-  to **every** log line before write.
-* :func:`is_memtester_noise` / :func:`is_progress_noise` / :func:`is_blank` —
-  predicate filters applied to specific loggers that are known to emit
+* :func:`clean` — 过滤掉控制字符（如 ``\\x08``）和 ANSI 转义序列。
+* :func:`is_memtester_noise` / ：func:`is_progress_noise` / :func:`is_blank` — 识别并过滤掉无用的更新（memtester 进度、旋转光标、空行）。
   useless updates (memtester progress, spinning cursors, blank rows).
 
 Per REFACTORING_TASK [11]B, the noise set is the original 5 classes

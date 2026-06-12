@@ -1,19 +1,11 @@
-import subprocess
-import time
-import pty
-import select
-import tty
-import termios
 from typing import Dict, List
 import json
 from noneprompt import ListPrompt, Choice, InputPrompt, CheckboxPrompt
 import os
-from gpu_tool.menu.menuarg import MenuChess
-from gpu_tool.menu.menuarg_en import MenuChessEn
-from gpu_tool.core.i18n import get_i18n
+from gpu_tool.i18n.i18n import get_i18n
 from gpu_tool.utils.installpack import InstallPack
 from gpu_tool.utils.tool import Tools
-from gpu_tool.core.log import get_logger
+from gpu_tool.log.logger import get_logger
 from gpu_tool.testmanager.testmanager import Manager
 from gpu_tool.core.terminal_manager import TerminalManager
 
@@ -22,19 +14,20 @@ class Menu:
         # 根据语言设置选择合适的菜单
         if i18n is None:
             i18n = get_i18n()
-        
-        if i18n.language == 'en':
+        if i18n.lang == 'en':
+            from gpu_tool.menu.menuarg_en import MenuChessEn
             self.menu_chess = MenuChessEn()
         else:
+            from gpu_tool.menu.menuarg import MenuChess
             self.menu_chess = MenuChess()
         self.path = path
         self.i18n = i18n
         self.tool = Tools(i18n)
         self.log = get_logger()
         self.install = InstallPack()
-        self.log.msg('Menu initialized.')
+        self.log.info('Menu initialized.')
         self.autotest = Manager(path)
-        self.defcheckmsg = i18n.get('CHECK_MSG', "(按↑或↓移动，空格选择，回车确认)")
+        self.defcheckinfo = i18n.get('CHECK_info', "(按↑或↓移动，空格选择，回车确认)")
         self.terminal_manager = TerminalManager() 
 
     def main_menu(self):
@@ -56,7 +49,7 @@ class Menu:
         elif pro.data == "6":
             self.tool.run_command("poweroff")
 
-        self.log.msg(f'用户选择: {pro}')
+        self.log.info(f'用户选择: {pro}')
         self.main_menu()
     def system_set_menu(self):
         """BMC用户设置菜单"""
@@ -71,14 +64,14 @@ class Menu:
             self.download_gpu()
         elif pro.data == "4":
             self.rtt_memu()
-        self.log.msg(f'用户选择BMC用户设置菜单: {pro}')
+        self.log.info(f'用户选择BMC用户设置菜单: {pro}')
         self.main_menu()
     def rtt_memu(self):
         fd = f"\'{self.log.get_log_file()}/fd\'"
         p = ListPrompt(self.i18n.get('SELECT', "请选择:"),choices=self.menu_chess.sys_tool_menu).prompt()
         if p.data == "1":
             a = os.path.exists(fd)
-            self.log.msg(f"{fd} is exist {a} \n",outconsole=True)
+            self.log.info(f"{fd} is exist {a} \n",outconsole=True)
             self.tool.check_fd_log(fd)
 
         self.main_menu()
@@ -91,7 +84,7 @@ class Menu:
         elif pro.data == "1":
             self.tool.set_bmc_dhcp()
         cmd = f"ipmitool user {pro.data}"
-        self.log.msg(f'用户选择BMC用户设置菜单: {pro}')
+        self.log.info(f'用户选择BMC用户设置菜单: {pro}')
         self.main_menu()
 
     def download_gpu(self):
@@ -114,22 +107,22 @@ class Menu:
         if pro.data == "exit":
             self.main_menu()
         if pro.data == "1":
-            self.log.msg("安装cuda_keyring")
+            self.log.info("安装cuda_keyring")
             self.install.apt_install_cuda_keyring()
         if pro.data == "2":
-            self.log.msg("安装nvidia驱动和cuda")
+            self.log.info("安装nvidia驱动和cuda")
             self.install.apt_install_nvidia_pack()
         if pro.data == "3":
-            self.log.msg("安装mlnx 驱动")
+            self.log.info("安装mlnx 驱动")
             self.install.apt_install_mlnx_ofed_linux()
         if pro.data == "4":
-            self.log.msg("安装DOCA")
+            self.log.info("安装DOCA")
             self.install.apt_install_doca()
         if pro.data == "5":
-            self.log.msg("安装DCGMI")
+            self.log.info("安装DCGMI")
             self.install.apt_install_dcgm()
         if pro.data == "6":
-            self.log.msg("安装libnccl")
+            self.log.info("安装libnccl")
             self.install.apt_install_libnccl()
         if pro.data == "7":
             self.install.apt_install_systest()
@@ -161,7 +154,7 @@ class Menu:
             path = f"{self.tool.get_bash_path()}"
             logname = self.log.create_log_file("p2pBandwidthLatencyTest_test")
             self.run_command(cmd, path, logname)
-        self.log.msg(f'用户选择GPU测试菜单: {pro}')
+        self.log.info(f'用户选择GPU测试菜单: {pro}')
         self.main_menu()
 
     def sys_info_menu(self):
@@ -170,16 +163,16 @@ class Menu:
         if pro.data == "exit":
             self.main_menu()
         if pro.data == "1":
-            self.log.msg(self.tool.get_sys_info(), outconsole=True)
+            self.log.info(self.tool.get_sys_info(), outconsole=True)
         elif pro.data == "2":
-            self.log.msg(self.tool.get_gpu_info(), outconsole=True)
+            self.log.info(self.tool.get_gpu_info(), outconsole=True)
         elif pro.data == "3":
-            self.log.msg(self.tool.get_eth_info(), outconsole=True)
+            self.log.info(self.tool.get_eth_info(), outconsole=True)
         elif pro.data == "4":
-            self.log.msg(self.tool.run_command("nvidia-smi topo -m",cmd="2"), outconsole=True)
+            self.log.info(self.tool.run_command("nvidia-smi topo -m",cmd="2"), outconsole=True)
         elif pro.data == "5":
-            self.log.msg(self.tool.run_command("ipmitool lan print",cmd="2"), outconsole=True)
-        self.log.msg(f'用户选择: {pro}')
+            self.log.info(self.tool.run_command("ipmitool lan print",cmd="2"), outconsole=True)
+        self.log.info(f'用户选择: {pro}')
         self.tool.input_chick()
         self.main_menu()
 
@@ -189,7 +182,7 @@ class Menu:
         if pro.data == "exit":
             self.gpu_test_menu()
         cmd = f"dcgmi {pro.data}"
-        self.log.msg(f'用户选择DCGMI测试菜单: {pro}')
+        self.log.info(f'用户选择DCGMI测试菜单: {pro}')
         self.run_command(cmd, logname="dcgmi_test",path=self.log.get_log_file())
         self.main_menu()
 
@@ -213,12 +206,12 @@ class Menu:
                 # 默认为秒
                 time = int(time_str)
         except (ValueError, IndexError):
-            self.log.msg(self.i18n.get('INVALID_TIME_FORMAT', "无效的时间格式。请输入数字后跟 S(秒)、M(分)或 H(小时)。"), outconsole=True)
+            self.log.info(self.i18n.get('INVALID_TIME_FORMAT', "无效的时间格式。请输入数字后跟 S(秒)、M(分)或 H(小时)。"), outconsole=True)
             self.gpu_test_menu()
             return 
         cmd = f"./{self.path['gpu_burn_exe']} {time}"
         self.run_command(cmd, path=self.path['gpu_burn_path'], logname="gpu_burn_test")
-        self.log.msg(f'用户选择GPU烧机测试菜单: {pro}')
+        self.log.info(f'用户选择GPU烧机测试菜单: {pro}')
         self.main_menu()
 
     def fd_menu(self):
@@ -237,11 +230,11 @@ class Menu:
             cmd += f"--no_bmc --level2 --log '{self.log.get_log_file()}/fd'"
             self.run_command(cmd, path, logname)
         elif pro.data == "3":
-            a = CheckboxPrompt("选择单项测试项目:", choices=self.menu_chess.fd_test_arg_menu,annotation=self.defcheckmsg).prompt()
+            a = CheckboxPrompt("选择单项测试项目:", choices=self.menu_chess.fd_test_arg_menu,annotation=self.defcheckinfo).prompt()
             if not a:
                 self.gpu_test_menu()
             cmd += f"--no_bmc {self.tool.fd_arg_chines(a)} --log '{self.log.get_log_file()}/fd'"
-            self.log.msg(cmd)
+            self.log.info(cmd)
             self.run_command(cmd, path, logname)
         elif pro.data == "4":
             arg = InputPrompt(f"请输入自定义参数: {cmd} [input] --log {self.log.get_log_file()}/fd").prompt()
@@ -249,7 +242,7 @@ class Menu:
                 self.gpu_test_menu()
             cmd += f"{arg} --log '{self.log.get_log_file()}/fd'"
             self.run_command(cmd, path, logname)
-        self.log.msg(f'用户选择Folding测试菜单: {pro}')
+        self.log.info(f'用户选择Folding测试菜单: {pro}')
         self.main_menu()
 
     def run_command(self, command: str, path: str = '/tmp', logname: str = "command", input_user=True):
@@ -269,7 +262,7 @@ class Menu:
             self.tool.rm_nvidia_mod()
             # self.tool.rm_switch_mod()
             
-        self.log.msg(f"执行命令: {command}", outconsole=True)
+        self.log.info(f"执行命令: {command}", outconsole=True)
         try:
             
             # 使用TerminalManager在可用的TTY中执行命令
@@ -282,22 +275,22 @@ class Menu:
                     path=path
                 )
                 if logname != "fd_test":
-                    self.log.msg(f"{self.i18n.get('SCREEN_SESSION_CREATED', 'Screen session created:')}: {screen_name}\n", logger_name=logname, outconsole=True)
-                    self.log.msg(f"{self.i18n.get('SCREEN_SESSION_VIEW', 'Use screen -r to view session')}: screen -r {screen_name}\n", logger_name=logname, outconsole=True)
+                    self.log.info(f"{self.i18n.get('SCREEN_SESSION_CREATED', 'Screen session created:')}: {screen_name}\n", logger_name=logname, outconsole=True)
+                    self.log.info(f"{self.i18n.get('SCREEN_SESSION_VIEW', 'Use screen -r to view session')}: screen -r {screen_name}\n", logger_name=logname, outconsole=True)
 
             except RuntimeError as e:
-                self.log.msg(f"{self.i18n.get('SCREEN_EXECUTION_FAILED', 'Screen execution failed:')} {e}, {self.i18n.get('USING_NORMAL_MODE', 'using normal mode to execute command')}", logger_name=logname, outconsole=True)
+                self.log.info(f"{self.i18n.get('SCREEN_EXECUTION_FAILED', 'Screen execution failed:')} {e}, {self.i18n.get('USING_NORMAL_MODE', 'using normal mode to execute command')}", logger_name=logname, outconsole=True)
                 os._exit(1)
 
-            self.log.msg(self.i18n.get("SCREEN_SESSION_WAITING", "Screen session created in background, waiting for command to complete") + "\n", logger_name=logname)
-            self.log.msg(f"{self.i18n.get('LOG_PATH', 'Log path:')}: {self.log.get_log_file()}/{logname}\n", outconsole=True)
+            self.log.info(self.i18n.get("SCREEN_SESSION_WAITING", "Screen session created in background, waiting for command to complete") + "\n", logger_name=logname)
+            self.log.info(f"{self.i18n.get('LOG_PATH', 'Log path:')}: {self.log.get_log_file()}/{logname}\n", outconsole=True)
             self.terminal_manager.wait_for_command_completion(screen_name)
-            self.log.msg(self.i18n.get("COMMAND_COMPLETED", "Command execution completed, screen session retained, returning to main menu") + "\n", logger_name=logname)
+            self.log.info(self.i18n.get("COMMAND_COMPLETED", "Command execution completed, screen session retained, returning to main menu") + "\n", logger_name=logname)
             if input_user:
                 input(self.i18n.get("PRESS_ENTER_CONTINUE", "Press Enter to continue..."))
             return
         except Exception as e:
-            self.log.msg(f"{self.i18n.get('RUN_COMMAND_FAILED', 'Run command failed:')} {e}")
+            self.log.info(f"{self.i18n.get('RUN_COMMAND_FAILED', 'Run command failed:')} {e}")
             print(f"{self.i18n.get('EXECUTION_FAILED', 'Execution failed:')} {e}")
         
         if input_user:
@@ -324,7 +317,7 @@ class Menu:
 
             a = int(os.popen("export LC_ALL=C.UTF-8 && free -m | grep Mem | awk '{print ($2)}'").read())
             cmd = f"memtester {a - 4096}M 1"
-            self.log.msg(cmd)
+            self.log.info(cmd)
             self.run_command(cmd, logname="memtester_test")
         if pro.data == "3":
             self.disk_speed_test_menu()
@@ -334,20 +327,20 @@ class Menu:
         """硬盘速度测试"""
         a = self.tool.run_command("lsblk -d -o NAME,TYPE,TRAN,PATH,SIZE,SERIAL,MODEL -J")
         
-        self.log.msg(f"diskdata:{a}")
+        self.log.info(f"diskdata:{a}")
         try:
             if not isinstance(a, str):
                 a = str(a)
             data = json.loads(a)
         except json.JSONDecodeError as e:
-            self.log.msg("解析硬盘信息失败，请检查lsblk命令输出是否正确。", outconsole=True)
-            self.log.msg(f"错误:{e},data:{a}", outconsole=True)
+            self.log.info("解析硬盘信息失败，请检查lsblk命令输出是否正确。", outconsole=True)
+            self.log.info(f"错误:{e},data:{a}", outconsole=True)
             return []
-        self.log.msg(f"diskdata3:{data}")
+        self.log.info(f"diskdata3:{data}")
 
         choices: List[Choice] = []
         for dev in data.get("blockdevices", []):
-            self.log.msg(f"diskdata2:{dev}")
+            self.log.info(f"diskdata2:{dev}")
             if dev.get("type") == "disk":
                 if dev.get("tran") not in ["nvme", "sata", "sas"]:
                     continue
@@ -357,16 +350,16 @@ class Menu:
                 path = dev.get("path")
                 sn = dev.get("serial")
                 model = dev.get("model")
-                self.log.msg(f"diskdata:{name}-{model}-{sn}-{tran}-{size}")
+                self.log.info(f"diskdata:{name}-{model}-{sn}-{tran}-{size}")
                 choices.append(Choice(f"{name}-{model}-{sn}-{tran}-{size}", [path, sn, tran, size]))
-                self.log.msg(f"choicesdata:{choices}")
+                self.log.info(f"choicesdata:{choices}")
 
         if not choices:
             print("无 nvme,sata,sas硬盘。(usb会被排除)")
             return None
 
 
-        pro_disk = CheckboxPrompt("请选择测试硬盘(不要选有分区的盘):", choices=choices,annotation=self.defcheckmsg).prompt()
+        pro_disk = CheckboxPrompt("请选择测试硬盘(不要选有分区的盘):", choices=choices,annotation=self.defcheckinfo).prompt()
 
         for disk in pro_disk:
             #1 顺序写大文件
@@ -378,13 +371,13 @@ class Menu:
             #4 混合读写
             cmd4 = f"fio --name=randrw --filename={disk.data[0]} --size=5G --rw=randrw --rwmixread=70 --bs=4k --ioengine=libaio --direct=1 --numjobs=8 --iodepth=32 --runtime=30 --time_based --group_reporting"
 
-            self.log.msg("正在测试 顺序写大文件\n", outconsole=True)
+            self.log.info("正在测试 顺序写大文件\n", outconsole=True)
             self.run_command(cmd, logname=f"disk_speed_test_{disk.data[1]}")
-            self.log.msg("正在测试 顺序读大文件\n", outconsole=True)
+            self.log.info("正在测试 顺序读大文件\n", outconsole=True)
             self.run_command(cmd2, logname=f"disk_speed_test_{disk.data[1]}")
-            self.log.msg("正在测试 随机读 4K\n", outconsole=True)
+            self.log.info("正在测试 随机读 4K\n", outconsole=True)
             self.run_command(cmd3, logname=f"disk_speed_test_{disk.data[1]}")
-            self.log.msg("正在测试 混合读写\n", outconsole=True)
+            self.log.info("正在测试 混合读写\n", outconsole=True)
             self.run_command(cmd4, logname=f"disk_speed_test_{disk.data[1]}")
         self.system_test_menu()
         return None
@@ -392,4 +385,4 @@ class Menu:
     def job(self) -> None:
         """每 5 分钟会被调用的任务函数"""
 
-        self.log.msg(self.tool.run_command("nvidia-smi"),logger_name="time_5_save_info")
+        self.log.info(self.tool.run_command("nvidia-smi"),logger_name="time_5_save_info")

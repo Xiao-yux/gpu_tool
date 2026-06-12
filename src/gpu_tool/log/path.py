@@ -1,8 +1,4 @@
-"""negpu.log.path - re-exports of path helpers for log-specific use.
-
-Most code can simply :mod:`import negpu.config.paths` directly. This
-module exists so that tests and downstream consumers can write
-``negpu.log.path.LogPaths`` and have a stable, narrow import surface.
+"""gpu_tool.log.path - re-exports of path helpers for log-specific use.
 """
 
 from __future__ import annotations

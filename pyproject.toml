@@ -44,7 +44,6 @@ dependencies = [
     "Nuitka[onefile]",
     "art",
     "toml",
-    "termios",
 ]
 
 [project.optional-dependencies]

@@ -15,11 +15,11 @@ Implements REFACTORING_TASK [1]B / [2]C / [4]A / [14]C:
 """
 
 from __future__ import annotations
-
+__all__: list[str] = ["load"]
 import os
 import sys
 from pathlib import Path
-from typing import Any, Final
+from typing import Any, Final, cast
 
 # ``tomllib`` is stdlib in Python 3.11+.  For 3.10 we use the
 # ``tomli`` backport (already in requirements.txt for py<3.11).
@@ -84,7 +84,6 @@ wsurl = "ws://127.0.0.1:8765"
 [log]
 log_path = "/home/{user}/log"
 log_file = "gpu_tool_debug.log"
-log_level = "INFO"
 console_output = false
 
 [report]
@@ -130,14 +129,13 @@ def find_config_file() -> Path | None:
 
 
 def _deep_merge(defaults: dict[str, object], user: dict[str, object]) -> dict[str, object]:
-    """缺键补默认，旧值保留 (per REFACTORING_TASK [4]A).
-
-    Recursive dict merge; non-dict values in ``user`` always win.
+    """
+    配置文件合并：用户配置覆盖默认配置，但缺键补默认，且嵌套 dict 也递归合并。
     """
     result: dict[str, object] = dict(defaults)  # start from defaults
     for k, v in user.items():
         if k in result and isinstance(result[k], dict) and isinstance(v, dict):
-            result[k] = _deep_merge(result[k], v)
+            result[k] = _deep_merge(cast(dict[str, object], result[k]), v)
         else:
             result[k] = v
     return result
@@ -153,13 +151,9 @@ def install_default_config(
     *,
     overwrite: bool = False,
 ) -> Path:
-    """Write the built-in default config to ``target``.
-
-    Per REFACTORING_TASK [14]C: this is the only place where ``{user}``
-    is resolved.  After this runs once, the file on disk contains
-    concrete paths and is no longer re-rendered.
-
-    Returns the resolved :class:`~pathlib.Path`.
+    """
+    target: where to install the default config (default: ``/etc/gpu_tool/config.toml``).
+    overwrite: if True, 是否覆盖已存在的文件 (default: False, recommended to avoid clobbering user edits).
     """
     dest = Path(target).expanduser()
     if dest.exists() and not overwrite:

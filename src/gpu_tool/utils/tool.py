@@ -2,37 +2,34 @@ import glob
 import inspect
 import json
 import os
-import pathlib
 import sys
 import subprocess
 import threading
-import time
 import re
-from typing import Any, Dict, List, Union, Optional
 from pathlib import Path
-from gpu_tool.core.i18n import get_i18n
 class Tools:
-    def __init__(self, i18n=None):
-        # 获取i18n实例
-        if i18n is None:
-            self.i18n = get_i18n()
-        else:
-            self.i18n = i18n
+    def __init__(self):
+        pass
+
 
     @staticmethod
-    def get_tmp_path() -> str:
-        """获取临时目录
+    def get_tmp_path() -> Path:
+        """获取程序临时目录 root path
         return /usr/***/
         """
         temp_dir = os.path.join(os.path.dirname(__file__))
         _a = temp_dir.replace('utils','')
-        return _a
+        return Path(_a)
     @staticmethod
-    def get_dist_path() -> str:
+    def get_bash_path() -> Path:
+        """获取bash脚本目录"""
+        return Tools.get_tmp_path() / "bash"
+    @staticmethod
+    def get_dist_path() -> Path:
         """获取程序所在目录
 
         """
-        return str(pathlib.Path(sys.argv[0]).parent.resolve()) + '/'
+        return Path(sys.argv[0]).parent.resolve()
 
     @staticmethod
     def poweoff():
@@ -103,14 +100,6 @@ class Tools:
             pass
         self.print_report(a)
 
-
-    @staticmethod
-    def is_config_path() -> bool:
-        """判断配置文件是否存在"""
-        config_file= "/etc/gpu_tool/config.toml" #配置文件
-        return os.path.exists(config_file)
-
-
     def run_nvidia_service(self):
         ser = ['nvidia-fabricmanager.service','nvidia-imex.service','nvidia-persistenced.service','nvidia-dcgm.service','openibd.service']
         for s in ser:
@@ -120,7 +109,7 @@ class Tools:
         """返回GPU数量"""
 
         if not os.path.exists('/usr/bin/nvidia-smi'):
-            print(self.i18n.get('NO_NVIDIA_SMI_DETECTED', "检测不到 nvidia-smi，无法获取 GPU 数量"))
+            print("No nvidia-smi detected, cannot get GPU count")
             return 0
 
         if not os.popen('nvidia-smi --query-gpu=count --format=csv,noheader,nounits | grep -i nvidia').read():
@@ -176,11 +165,6 @@ class Tools:
                     return True
         return False
 
-    @staticmethod
-    def copy_file( src, dst)-> None:
-        """复制文件"""
-        os.system(f'cp {src} {dst}')
-
     def get_gpu_info(self,arg='')-> str:
         """返回GPU信息"""
         return os.popen(f"bash {self.get_tmp_path()}bash/nvidia_info.sh {arg}").read()
@@ -192,7 +176,7 @@ class Tools:
         return os.popen(f'bash {self.get_tmp_path()}bash/CX_DISK_INFO.sh {arg}').read()
     def input_chick(self):
         """输入回车继续"""
-        input(self.i18n.get('PRESS_ENTER_TO_CONTINUE', "按下回车键继续..."))
+        input("按下回车键继续...")
         return
     @staticmethod
     def run_command(command: str, cmd = "1", out = False,path="/tmp") -> int | None | str:
@@ -257,7 +241,6 @@ class Tools:
     
     def stop_nvidia_service(self):
         """停止NVIDIA相关服务"""
-        print(self.i18n.get('STOPPING_NVIDIA_SERVICES', "正在停止 NVIDIA 相关服务..."))
         ser = ['nvidia-fabricmanager.service','nvidia-imex.service','nvidia-persistenced.service',
                'nvidia-dcgm.service','openibd.service','nvidia-powerd.service','systemd-udevd.service','systemd-udevd-kernel.socket','systemd-udevd-control.socket']
         for s in ser:
@@ -269,7 +252,6 @@ class Tools:
     
     def rm_nvidia_mod(self):
         """移除NVIDIA模块"""
-        print(self.i18n.get('REMOVING_NVIDIA_MODULES', "正在移除 NVIDIA 模块..."))
         try:
             cmd = "rmmod nvidia_drm"
             subprocess.run(cmd, shell=True)
@@ -280,11 +262,10 @@ class Tools:
             cmd = "rmmod nvidia"
             subprocess.run(cmd, shell=True)
         except subprocess.CalledProcessError as e:
-            print(self.i18n.get('REMOVE_NVIDIA_MODULES_FAILED', "移除 NVIDIA 模块失败: {}").format(e))
+            print("Failed to remove NVIDIA modules: {}".format(e))
         
     def rm_switch_mod(self):
         """移除交换机模块"""
-        print(self.i18n.get('REMOVING_SWITCH_MODULES', "正在移除openvswitch模块..."))
         try:
             cmd = "rmmod openvswitch"
             subprocess.run(cmd, shell=True)
@@ -297,11 +278,10 @@ class Tools:
             cmd = "rmmod nf_conntrack"
             subprocess.run(cmd, shell=True)
         except subprocess.CalledProcessError as e:
-            print(self.i18n.get('REMOVE_SWITCH_MODULES_FAILED', "移除交换机模块失败: {}").format(e))
-        
+            print("Failed to remove switch modules: {}".format(e))
+
     def stop_openvswitch(self):
         """停止openvswitch服务"""
-        print(self.i18n.get('STOPPING_OPENVSWITCH_SERVICE', "正在停止 openvswitch 服务..."))
         a = ["openvswitch-switch.service","switcheroo-control.service","openibd.service"]
         for s in a:
             cmd = "systemctl stop " + s
@@ -320,7 +300,7 @@ class Tools:
     def get_gpu_memory(self):
         """返回GPU显存信息"""
         if not os.path.exists('/usr/bin/nvidia-smi'):
-            print(self.i18n.get('NO_NVIDIA_SMI_MEMORY_DETECTED', "检测不到 nvidia-smi，无法获取 GPU 显存"))
+            print("No nvidia-smi detected, cannot get GPU memory")
             return 0
 
         if not os.popen('nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits | grep -i nvidia').read():
@@ -336,14 +316,6 @@ class Tools:
             cmd += i.data + ","
         cmd = cmd[:-1]  # 去除最后一个逗号
         return cmd
-    @staticmethod
-    def get_bash_path():
-        """获取bash路径"""
-        # temp_dir = Path(sys.path[1])
-        # temp_dir = Path(__file__).resolve().parent
-        temp_dir = os.path.join(os.path.dirname(__file__))
-        _a = temp_dir.replace('utils', '')
-        return f"{str(_a)}"+ "bash/"
 
     @staticmethod
     def print_report(s) -> None:
@@ -381,150 +353,9 @@ class Tools:
 
 
 
-class ipmitools():
-    """ ipmi相关工具"""
-    @staticmethod
-    def sdr():
-        """传感器数据"""
-        return os.popen('ipmitool sdr').read()
-    @staticmethod
-    def fru():
-        """电源信息"""
-        return os.popen('ipmitool fru').read()
-    @staticmethod
-    def lan():
-        """lan信息"""
-        return os.popen('ipmitool lan print').read()
-    @staticmethod
-    def syslogtotty():
-        """重定向系统日志到tty9"""
-        subprocess.run('', shell=True, check=True)
-    @staticmethod
-    def user():
-        """用户信息"""
-        return os.popen('ipmitool user list 1').read()
 
-class JsonDB:
-    def __init__(self, file_path: str, auto_save: bool = False):
-        self.file_path = os.path.abspath(file_path)
-        self.ensure_file(self.file_path)
-        self.auto_save = auto_save
-        self._data: Dict[str, Any] = {}
-        self._load()
 
-    # ---------- 内部工具 ----------
-    def _load(self) -> None:
-        if os.path.getsize(self.file_path) == 0:  # 文件空
-            self._data = {}
-            return
-        if os.path.isfile(self.file_path):
-            with open(self.file_path, "r", encoding="utf-8") as f:
-                self._data = json.load(f)
-        else:
-            self._data = {}
 
-    def save(self) -> None:
-        os.makedirs(os.path.dirname(self.file_path), exist_ok=True)
-        with open(self.file_path, "w", encoding="utf-8") as f:
-            json.dump(self._data, f, ensure_ascii=False, indent=2)
-
-    PathLike = Union[str, bytes, os.PathLike]
-
-    @staticmethod
-    def ensure_file(path: Union[str, os.PathLike[str]], 
-                    *,
-                    mkdir: bool = True,
-                    content: Optional[str] = None,
-                    encoding: str = "utf-8",
-                    mode: str = "w",  # "w" / "a" / "x"  或 None（只创建空文件）
-                    permissions: Optional[int] = None
-                    ) -> tuple[bool, str]:
-        """
-        创建文件并写入内容（可选）。
-        返回 (success, message)
-        """
-        try:
-            # 1. 统一转成 Path 对象，并展开 ~ 和环境变量
-            p = Path(path).expanduser().expanduser().resolve()
-
-            # 2. 若目录不存在，按需创建
-            if mkdir:
-                parent = p.parent
-                if not parent.exists():
-                    parent.mkdir(parents=True, exist_ok=True)
-
-            # 3. 若仅想创建空文件且已存在，直接返回
-            if mode is None and p.exists():
-                return True, f"文件已存在: {p}"
-
-            # 4. 写入/追加内容
-            if mode in {"w", "a", "x"}:
-                with p.open(mode, encoding=encoding) as f:
-                    if content is not None:
-                        f.write(content)
-            elif mode is None:
-                # 只创建空文件
-                p.touch(exist_ok=True)
-            else:
-                return False, f"不支持的 mode: {mode}"
-
-            # 5. 设置权限（可选）
-            if permissions is not None:
-                os.chmod(p, permissions)
-
-            return True, f"文件已创建: {p}"
-
-        except Exception as e:
-            return False, f"创建文件失败: {e}"
-
-    def _maybe_save(self) -> None:
-        if self.auto_save:
-            self.save()
-
-    # ---------- 对外 API ----------
-    def add(self, key: str, value: Any) -> None:
-        """
-        多次 add 同一 key，自动升级为数组并追加：
-        第 1 次: add('user','alice')   -> {'user': 'alice'}
-        第 2 次: add('user','bob')     -> {'user': ['alice', 'bob']}
-        第 3 次: add('user','c')       -> {'user': ['alice', 'bob', 'c']}
-        """
-        if key not in self._data:
-            # 第一次：直接存
-            self._data[key] = value
-        else:
-            exist = self._data[key]
-            if isinstance(exist, list):
-                # 已经是数组，直接追加
-                exist.append(value)
-            else:
-                # 升级成数组
-                self._data[key] = [exist, value]
-        self._maybe_save()
-    def get(self,key):
-        try:
-            return self._data[key]
-        except KeyError:
-            return None
-
-    def edit(self, key: str, value: Any) -> None:
-        """整体覆盖，不做数组升级"""
-        self._data[key] = value
-        self._maybe_save()
-
-    # 让对象像 dict 一样使用
-    def __getitem__(self, key: str) -> Any:
-        return self._data[key]
-
-    def __setitem__(self, key: str, value: Any) -> None:
-        self._data[key] = value
-        self._maybe_save()
-
-    def __contains__(self, key: str) -> bool:
-        return key in self._data
-
-    def __repr__(self) -> str:
-        return f"JsonDB({self._data})"
 if __name__ == '__main__':
     tools = Tools()
     a = "/mnt/c/Users/Administrator/Documents/work/gpu_tool/tmp/2"

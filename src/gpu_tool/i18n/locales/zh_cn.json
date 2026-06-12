@@ -1,0 +1,19 @@
+{
+    "app_name": "GPU Tool",
+    "welcome_message": "欢迎使用 GPU Tool！",
+    "settings": "设置",
+    "about": "关于",
+    "exit": "退出",
+    "language": "语言",
+    "ok": "确定",
+    "cancel": "取消",
+    "close": "关闭",
+    "save": "保存",
+    "apply": "应用",
+    "reset": "重置",
+    "refresh": "刷新",
+    "delete": "删除",
+    "add": "添加",
+    "edit": "编辑",
+    "copy": "复制"
+}

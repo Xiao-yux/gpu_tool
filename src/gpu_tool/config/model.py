@@ -84,8 +84,7 @@ class LogConfig(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     log_path: str = "/home/{user}/log"   # 日志文件夹路径
-    log_file: str = "gpu_tool_debug.log" 
-    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+    log_file: str = "gpu_tool_debug.log"  # 主日志文件名
     console_output: bool = False   # 是否在控制台输出日志
 
 
