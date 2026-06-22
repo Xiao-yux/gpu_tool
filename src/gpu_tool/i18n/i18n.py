@@ -20,12 +20,15 @@ class I18n:
             return lang
         else:
             return load().language.language
-    def load_json(self):
+    def load_json(self)-> dict:
         """加载 JSON 翻译文件"""
-        path = f"{Tools.get_dist_path()}/i18n/locales/{self.lang}.json"
+        path = f"{Tools.get_tmp_path()}/i18n/locales/{self.lang}.json"
         with open(path, 'r', encoding='utf-8') as f:
             return json.load(f)
-
+    def get(self, key) -> str:
+        """获取翻译文本"""
+        return self.date.get(key, key)
+    
 def init_i18n():
     global __i18n__
     __i18n__ = I18n()

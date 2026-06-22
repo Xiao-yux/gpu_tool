@@ -10,7 +10,7 @@ class GpuToolApi:
     def __init__(self,version):
         self.version = version
         self.tool = Tools()
-        self.xid_path = self.tool.get_bash_path()+"Xid-Catalog.zh-CN.xlsx"
+        self.xid_path = f"{self.tool.get_bash_path()}Xid-Catalog.zh-CN.xlsx"
         self.run()
 
     def run(self):

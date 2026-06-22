@@ -1,6 +1,11 @@
 from gpu_tool.core.core import Core
 
 
-if __name__ == '__main__':
+def app() -> None:
+    """Entry point for the gpu_tool CLI."""
     c = Core()
     c.run()
+
+
+if __name__ == '__main__':
+    app()

@@ -7,7 +7,7 @@ from websockets.protocol import State  # 15.x 版本
 import json,aiofiles
 import time
 from gpu_tool.utils.tool import Tools
-from gpu_tool.core.log import get_logger
+from gpu_tool.log.logger import get_logger
 
 class Cline:
     def __init__(self, wsurl: str):
@@ -29,7 +29,7 @@ class Cline:
         self._running = True
         self.thread = threading.Thread(target=self._run_async_loop, daemon=True)
         self.thread.start()
-        self.log.msg("[Cline] 后台任务已启动")
+        self.log.info("[Cline] 后台任务已启动")
 
     def _run_async_loop(self):
         """在新线程中运行事件循环"""
@@ -49,18 +49,18 @@ class Cline:
         while self._running:
             # 检查连接次数是否超过最大限制
             if connection_attempts >= max_attempts:
-                self.log.msg(f"[Cline] 连接尝试次数已达上限({max_attempts}次)，停止连接")
+                self.log.info(f"[Cline] 连接尝试次数已达上限({max_attempts}次)，停止连接")
                 break
                 
             await asyncio.sleep(2)
             connection_attempts += 1
-            self.log.msg(f"[Cline] 尝试连接... (第{connection_attempts}次)")
+            self.log.info(f"[Cline] 尝试连接... (第{connection_attempts}次)")
             
             try:
                 async with websockets.connect(self.wsurl) as ws:
                     self.ws = ws
-                    self.log.msg(f"[Cline] 已连接到服务器")
-                    self.log.msg(f"[Cline] {self.ws.response}")
+                    self.log.info(f"[Cline] 已连接到服务器")
+                    self.log.info(f"[Cline] {self.ws.response}")
                     # 连接成功，重置计数器
                     connection_attempts = 0
                     # 启动定时发送任务
@@ -79,12 +79,12 @@ class Cline:
                             pass
 
             except websockets.exceptions.ConnectionClosed:
-                self.log.msg("[Cline] 连接断开")
+                self.log.info("[Cline] 连接断开")
             except Exception as e:
-                self.log.msg(f"[Cline] 错误: {e}")
+                self.log.info(f"[Cline] 错误: {e}")
             finally:
                 self.ws = None
-                self.log.msg("关闭链接")
+                self.log.info("关闭链接")
 
             if self._running:
                 await asyncio.sleep(5)
@@ -97,11 +97,11 @@ class Cline:
                 # 检查状态：websockets 15.x 使用 State.OPEN
                 if self.ws and self.ws.state == State.OPEN:
 
-                    await self.ws.send("{'info':'ping','msg':'在线维持'}")
+                    await self.ws.send("{'info':'ping','info':'在线维持'}")
                 else:
                     break
             except Exception as e:
-                self.log.msg(f"[Cline] 发送错误: {e}")
+                self.log.info(f"[Cline] 发送错误: {e}")
                 break
 
     async def _send_sys_info(self):
@@ -113,9 +113,9 @@ class Cline:
         # 15.x 中使用 state 检查或直接发送
         if self.ws is not None and self.ws.state == State.OPEN:
             await self.ws.send(json.dumps(status, ensure_ascii=False))
-            self.log.msg(f"[Cline] 数据已发送: {status.get('time')}")
+            self.log.info(f"[Cline] 数据已发送: {status.get('time')}")
         else:
-            self.log.msg("[Cline] ws 未连接，无法发送数据")
+            self.log.info("[Cline] ws 未连接，无法发送数据")
 
     async def _gather_sys_info(self):
         """收集系统信息"""
@@ -155,15 +155,15 @@ class Cline:
 
     async def _handle_message(self, message: str):
         """处理服务器消息"""
-        self.log.msg(f"[Cline] 收到: {message}")
+        self.log.info(f"[Cline] 收到: {message}")
         try:
             # 1. 只解析一次，别再覆盖同名变量
-            msg_dict = json.loads(message)
+            info_dict = json.loads(message)
             if self.ws is None:
-                self.log.msg("[Cline] ws 未连接，无法处理消息")
+                self.log.info("[Cline] ws 未连接，无法处理消息")
                 return
-            if msg_dict.get('info') == 'cmd':
-                cmd = msg_dict.get('cmd')
+            if info_dict.get('info') == 'cmd':
+                cmd = info_dict.get('cmd')
 
                 if cmd == 'sysinfo':
                     status = await self._gather_sys_info()
@@ -174,13 +174,13 @@ class Cline:
                     info = await self.ttyget()
                     await self.ws.send(json.dumps(info, ensure_ascii=False))
 
-            elif msg_dict.get('info') == 'log':
-                self.log.msg(f"[Cline] 收到: {msg_dict.get('msg')}")
+            elif info_dict.get('info') == 'log':
+                self.log.info(f"[Cline] 收到: {info_dict.get('info')}")
 
         except Exception as e:
             import traceback, sys
-            self.log.msg("hand错误: " + str(e))
-            self.log.msg("traceback:\n" + traceback.format_exc())  # ← 关键
+            self.log.info("hand错误: " + str(e))
+            self.log.info("traceback:\n" + traceback.format_exc())  # ← 关键
 
 
     async def ttyget(self):

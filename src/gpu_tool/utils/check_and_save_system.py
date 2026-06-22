@@ -1,21 +1,32 @@
 import os
 import time
+from typing import ClassVar
 
 from gpu_tool.utils.tool import Tools
-from gpu_tool.core.log import get_logger
-from gpu_tool.core.i18n import get_i18n
+from gpu_tool.log.logger import get_logger
+from gpu_tool.i18n.i18n import get_i18n
+from gpu_tool.config.model import PathConfig
+from gpu_tool.runner.local import run_command
 
 class CheckSystem:
-    def __init__(self, config, i18n=None):
+    
+    DEFAULT_COMMANDS: ClassVar[dict[str, tuple[str, ...]]] = {
+        "dmesg": ("dmesg",),
+        "nvidia-smi": ("nvidia-smi",),
+        "lspci": ("lspci", "-vvv"),
+        "lsblk": ("lsblk", "-O"),
+        "ipmitool-lan": ("ipmitool", "lan", "print"),
+        "ipmitool-sdr": ("ipmitool", "sdr"),
+        "ipmitool-fru": ("ipmitool", "fru"),
+    }
+    def __init__(self, config: PathConfig):
         self.log = get_logger()
         self.path = config
-        self.tool = Tools(i18n)
+        self.tool = Tools()
         # 获取i18n实例
-        if i18n is None:
-            self.i18n = get_i18n()
-        else:
-            self.i18n = i18n
-        self.printlog(self.i18n.get('START_CHECKING_SYSTEM', "开始检查系统环境"), "system_check")
+        self.i18n = get_i18n()
+
+        self.log.info(self.i18n.get('start_checksys'), "system_check")
         self.check_system()
 
     def check_system(self):
@@ -50,7 +61,7 @@ class CheckSystem:
             return False
     def check_dcgmi(self) -> bool:
         if os.path.exists('/usr/bin/dcgmi'):
-            self.printlog(self.i18n.get('NO_DCGMI_DETECTED', "未检测到 dcgmi"))
+            self.log.info(self.i18n.get('no_dcgmi'))
             return True
         else:
             return False
@@ -58,65 +69,58 @@ class CheckSystem:
         """检查系统"""
         g = 1
 
-        if not os.popen("lspci | grep -i nvidia").read():
-            self.printlog(self.i18n.get('NO_NVIDIA_GPU_DETECTED', "未检测到 NVIDIA GPU，部分功能将不可用"))
-            self.printlog(f"{self.i18n.get('BUS_GPU_INFO', 'Bus GPU info:')}: {os.popen('lspci | grep -i nvidia').read()}", isprint=False)
+        if not run_command("lspci | grep -i nvidia"):
+            self.log.info(self.i18n.get('no_gpu'),console=True)
+            self.log.info(f"GPU Bus Info: {run_command('lspci | grep -i nvidia')}", console=False)
             g = 0
 
         if not os.path.exists("/usr/bin/nvidia-smi"):
-            self.printlog(self.i18n.get('NO_NVIDIA_DRIVER_DETECTED', "未检测到 NVIDIA 驱动，部分功能将不可用"))
+            self.log.info(self.i18n.get('no_nvidia_smi'),console=True)
             g = 0
         elif g == 1:
-            self.printlog(self.i18n.get('NVIDIA_GPU_AND_DRIVER_DETECTED', "检测到 NVIDIA GPU和驱动"))
             self.tool.run_nvidia_service()
-            # self.tool.run_command("nvidia-smi -pm 1")
+            # run_command("nvidia-smi -pm 1")
 
         # 检测gpuburn
 
-        if not os.path.exists(f"{self.path['gpu_burn_path']}/{self.path['gpu_burn_exe']}"):
-            self.printlog(
-                self.i18n.get('NO_GPU_BURN_DETECTED', "未检测到 {}，请确保已正确安装 GPU Burn，GPU Burn 测试功能将不可用").format(f"{self.path['gpu_burn_path']}/{self.path['gpu_burn_exe']}"))
+        if not os.path.exists(f"{self.path.gpu_burn_path}/{self.path.gpu_burn_exe}"):
+            self.log.info(
+                self.i18n.get('no_gpu_burn'),console=True)
         # 检测nccl
-        if not os.path.exists(f"{self.path['nccl_path']}/{self.path['nccl_exe']}"):
-            self.printlog(
-                self.i18n.get('NO_NCCL_DETECTED', "未检测到 {}，请确保已正确安装 NCCL，NCCL 测试功能将不可用").format(f"{self.path['nccl_path']}/{self.path['nccl_exe']}"))
+        if not os.path.exists(f"{self.path.nccl_path}/{self.path.nccl_exe}"):
+            self.log.info(
+                self.i18n.get('no_nccl'),console=True)
         # 检测fieldiag
-        if not os.path.exists(f"{self.path['fd_path']}/{self.path['fd_exe']}"):
-            self.printlog(
-                self.i18n.get('NO_FIELDDIAG_DETECTED', "未检测到 {}，请确保已正确安装 FieldDiag，FieldDiag 测试功能将不可用").format(f"{self.path['fd_path']}/{self.path['fd_exe']}"))
+        if not os.path.exists(f"{self.path.fd_path}/{self.path.fd_exe}"):
+            self.log.info(
+                self.i18n.get('no_fd'),console=True)
         # 检测dcgmi
         if not os.path.exists("/usr/bin/dcgmi"):
-            self.printlog(self.i18n.get('NO_DCGM_DETECTED', "未检测到 dcgmi，请确保已正确安装 DCGM，DCGM 测试功能将不可用"))
+            self.log.info(self.i18n.get('no_dcgmi'),console=True)
         # 检测nccllib
-        if not os.popen("dpkg -l | grep -i libnccl2").read():
-            self.printlog(self.i18n.get('NO_LIBNCCL2_DETECTED', "未检测到 libnccl2，请确保已正确安装 NCCLlib，NCCL 测试功能将不可用"))
-        if not os.popen("dpkg -l | grep -i libnccl-dev").read():
-            self.printlog(self.i18n.get('NO_LIBNCCL_DEV_DETECTED', "未检测到 libnccl-dev，请确保已正确安装 NCCLlib，NCCL 测试功能将不可用"))
+        if not run_command("dpkg -l | grep -i libnccl2"):
+            self.log.info(self.i18n.get('no_nccl2lib'),console=True)
+        if not run_command("dpkg -l | grep -i libnccl-dev"):
+            self.log.info(self.i18n.get('no_nccl_dev'),console=True)
 
     def sys_save(self, GPU=0):
         """收集系统信息"""
-        a = self.log.create_log_file("system_info.log")
-        self.log.msg(f"{self.i18n.get('GPU_COUNT', 'GPU count')}: {self.tool.get_gpu_count()}\n",outconsole=True)
-        self.log.msg(self.tool.get_sys_info(), logger_name=a)
-        self.log.msg(self.tool.get_eth_info(), logger_name=a)
+        a = "system_info"
+        self.log.info(f"{self.i18n.get('gpu_cont')}: {self.tool.get_gpu_count()}\n",console=True,file_name="system_info")
+        self.log.info(self.tool.get_sys_info(), file_name=a)
+        self.log.info(self.tool.get_eth_info(), file_name=a)
         if GPU == 1:
-            self.log.msg(self.tool.get_gpu_info(), logger_name=a)
-            self.log.msg(self.tool.run_command("nvidia-smi -q"),
-                         logger_name=self.log.create_log_file("nvidia-smi", "system"))
-            self.log.msg(self.tool.run_command("nvidia-smi topo -m"),
-                         logger_name=self.log.create_log_file("nvidia-smi", "system"))
+            self.log.info(self.tool.get_gpu_info(), file_name=a)
+            self.log.info(run_command("nvidia-smi -q"),
+                         file_name="system/nvidia-smi")
+            self.log.info(run_command("nvidia-smi topo -m"),
+                         file_name="system/nvidia-smi-topo")
 
-        self.log.msg(self.tool.run_command("lspci -vvv"), logger_name=self.log.create_log_file("lspci", "system"))
-        self.log.msg(self.tool.run_command("lscpu"), logger_name=self.log.create_log_file("lscpu", "system"))
-        self.log.msg(self.tool.run_command("lsusb"), logger_name=self.log.create_log_file("lsusb", "system"))
-        self.log.msg(self.tool.run_command("dmidecode"), logger_name=self.log.create_log_file("dmidecode", "system"))
-        self.log.msg(self.tool.run_command("lshw"), logger_name=self.log.create_log_file("lshw", "system"))
-        self.log.msg(self.tool.run_command("dmesg"), logger_name=self.log.create_log_file("dmesg", "system"))
-        self.log.msg(self.tool.get_nvidia_bug_report(f"{self.log.log_dir}"), logger_name=self.log.create_log_file(f"nvidia_bug_report", "system"))
-        self.log.msg(self.tool.run_command(f"{self.tool.get_tmp_path()}bash/nic_info"),logger_name=self.log.create_log_file("nic_info", "system"))
-
-    def printlog(self, message, logname="system_check", path="system", isprint=True):
-        """打印日志,同时输出到控制台"""
-        self.log.msg(message, logger_name=self.log.create_log_file(logname, path))
-        if isprint:
-            print(message)
+        self.log.info(run_command("lspci -vvv"), file_name="system/lspci")
+        self.log.info(run_command("lscpu"), file_name="system/lscpu")
+        self.log.info(run_command("lsusb"), file_name="system/lsusb")
+        self.log.info(run_command("dmidecode"), file_name="system/dmidecode")
+        self.log.info(run_command("lshw"), file_name="system/lshw")
+        self.log.info(run_command("dmesg"), file_name="system/dmesg")
+        self.tool.get_nvidia_bug_report(f"{self.log.paths.system}")
+        self.log.info(run_command(f"{self.tool.get_tmp_path()}bash/nic_info"),file_name="system/nic_info")

@@ -4,9 +4,9 @@ import signal
 import subprocess
 import time
 from typing import List
-from gpu_tool.core.log import get_logger
+from gpu_tool.log.logger import get_logger
 from gpu_tool.utils.tool import Tools
-from gpu_tool.core.i18n import get_i18n
+from gpu_tool.i18n.i18n import get_i18n
 
 
 class TestFun:
@@ -15,7 +15,7 @@ class TestFun:
         self.path = path
         self.log = get_logger()
         self.i18n = get_i18n()
-        self.tool = Tools(self.i18n)
+        self.tool = Tools()
 
     def fieldiag_level1(self,no_bmc = True) -> bool:
         """
@@ -24,7 +24,7 @@ class TestFun:
         cmd = f"{self.path['fd_exe']} --level1"
         if no_bmc:
             cmd += " --no_bmc"
-        cmd += f" --log {self.log.get_log_file()}/fd-{time.strftime('%Y%m%d-%H%M')}"
+        cmd += f" --log {self.log.paths.run}/fd-{time.strftime('%Y%m%d-%H%M')}"
         self.run_command(cmd,logname="auto_fd1")
         return True
 
@@ -35,7 +35,7 @@ class TestFun:
         cmd = f"{self.path['fd_exe']} --level2"
         if no_bmc:
             cmd += " --no_bmc"
-        cmd += f" --log '{self.log.get_log_file()}/fd-{time.strftime('%Y%m%d-%H%M')}'"
+        cmd += f" --log '{self.log.paths.run}/fd-{time.strftime('%Y%m%d-%H%M')}'"
         self.run_command(cmd,logname="auto_fd2")
         return True
 
@@ -72,12 +72,12 @@ class TestFun:
 
     def save_debug(self):
         """触发nvidia_bug_report日志收集"""
-        self.log.msg(self.tool.get_nvidia_bug_report(f"{self.log.log_dir}",logname=f"nvidia-bug-report-{time.strftime('%Y-%m-%d-%H:%M:%S')}.log.gz"), logger_name=self.log.create_log_file(f"nvidia_bug_report", "system"))
+        self.tool.get_nvidia_bug_report(f"{self.log.paths.run}")
     def nccl_test(self):
         """nccl test"""
         cmd = f"./{self.path['nccl_exe']} "
         path = f"{self.path['nccl_path']}"
-        logname = self.log.create_log_file("auto_nccl_test")
+        logname = "auto_nccl_test"
         cmd += f"-b 256M -e {self.tool.get_gpu_memory()} -f 2 -g {self.tool.get_gpu_count()}"
         self.run_command(cmd, path, logname)
 

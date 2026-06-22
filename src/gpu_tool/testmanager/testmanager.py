@@ -4,10 +4,11 @@ from noneprompt import ListPrompt, Choice, InputPrompt, CheckboxPrompt
 import os
 from gpu_tool.menu.menuarg import MenuChess
 from gpu_tool.menu.menuarg_en import MenuChessEn
-from gpu_tool.utils.tool import Tools,JsonDB
-from gpu_tool.core.log import get_logger
+from gpu_tool.utils.tool import Tools
+from gpu_tool.utils.jsonDB import JsonDB
+from gpu_tool.log.logger import get_logger
 from gpu_tool.testmanager.testfun import TestFun
-from gpu_tool.core.i18n import get_i18n
+from gpu_tool.i18n.i18n import get_i18n
 
 class Manager:
     def __init__(self,path,i18n=None):
@@ -18,7 +19,7 @@ class Manager:
             self.i18n = i18n
         
         # 根据语言设置选择合适的菜单
-        if self.i18n.language == 'en':
+        if self.i18n.lang == 'en':
             self.menu = MenuChessEn()
         else:
             self.menu = MenuChess()
@@ -38,34 +39,34 @@ class Manager:
             self.functions.append(func)
             self.aotojson.add("todo",func.__name__)
         else:
-            print(self.i18n.get('ADD_FAILED', "添加失败"))
-
+            print("添加失败")
+ 
     def delete(self, func):
         """从管理列表中删除指定的函数"""
         if func in self.functions:
             self.functions.remove(func)
-            print(self.i18n.get('FUNCTION_DELETED', "函数 {} 已删除").format(func.__name__))
+            print(f"函数 {func.__name__} 已删除")
         else:
-            print(self.i18n.get('DELETE_FAILED', "删除失败：函数 {} 不在列表中").format(func.__name__))
+            print(f"删除失败：函数 {func.__name__} 不在列表中")
 
     def run(self):
         """按顺序运行所有添加的函数，并使用printf同时输出"""
         if self.functions is None or len(self.functions) == 0:
             # print(self.i18n.get('FUNCTION_LIST_EMPTY', "函数列表为空，无事可做。"))
             return
-        print(self.i18n.get('START_RUNNING_FUNCTIONS', "开始运行所有函数..."))
+        print("开始运行所有函数...")
         for func in self.functions:
             self.aotojson.add("done",func.__name__)
-            print(self.i18n.get('RUNNING_FUNCTION', "运行函数: {}").format(func.__name__))
+            print(f"运行函数: {func.__name__}")
             func()
 
-        print(self.i18n.get('ALL_FUNCTIONS_COMPLETED', "所有函数运行完毕。"))
+        print("所有函数运行完毕。")
         self._clean_checkpoint()
 
 
     def runmenu(self):
         chin = self.menu.aotu_test_menu
-        p = ListPrompt(self.i18n.get('SELECT', "请选择:"),chin).prompt()
+        p = ListPrompt(self.i18n.get('select_option'),chin).prompt()
         if p.data == "exit" :
             return
         if p.data == "1":
@@ -89,20 +90,20 @@ class Manager:
                 choices.append(Choice(doc, [method,a]))  # 返回值用绑定方法，直接可调用
                 a+=1
         if not choices:
-            print(self.i18n.get('NO_METHODS_AVAILABLE', '没有可调用的方法！'))
+            print('没有可调用的方法！')
             return
         a: int =0
-        choices.append(Choice(self.i18n.get('EXIT', "退出"),"exit"))
-        choices.append(Choice(self.i18n.get('RUN', "运行"),"run"))
+        choices.append(Choice(self.i18n.get('exit'),"exit"))
+        choices.append(Choice(self.i18n.get('run_command'),"run"))
         ma = []
         while True:
-            p = ListPrompt(self.i18n.get('SELECT_TEST_WITH_SELECTED', "请选择:           已选择:{}").format(ma), choices,default_select=a).prompt()
+            p = ListPrompt(f"请选择:           已选择:{ma}",choices).prompt()
             print(end="\b")
             if p.data == "exit":
                 self.functions=[]
                 return
             if p.data == "run":
-                self.log.msg(self.i18n.get('ABOUT_TO_EXECUTE', "即将执行:{}").format(self.testfunc.__name__),outconsole=True)
+                self.log.info(f"即将执行: {self.testfunc.__name__}",console=True)
                 break
             self.add(p.data[0])
             ma.append(p.name)
@@ -121,11 +122,11 @@ class Manager:
     def _get_fun_name(self,name):
         """传入函数名称返回对应函数"""
         if not hasattr(self.testfunc, name):
-            raise AttributeError(self.i18n.get('METHOD_NOT_FOUND', '{} 没有方法 {}').format(self.testfunc.__class__.__name__, name))
+            raise AttributeError(f'{self.testfunc.__class__.__name__} 没有方法 {name}')
         return getattr(self.testfunc, name)
 
     def _prepare_resume_file(self)->str:
-        log_path = self.log.get_log_file(pathtime=False)          # 用户给的日志文件路径
+        log_path = self.log.paths.sn          # 用户给的日志文件路径
         self._resume_file = log_path + '/resume.json'   # 断点文件
         return log_path + '/resume.json'
 
@@ -135,16 +136,14 @@ class Manager:
             if os.path.exists(self._resume_file):
                 os.remove(self._resume_file)
         except Exception as e:
-            self.log.msg(self.i18n.get('CLEAN_CHECKPOINT_FAILED', "清理断点文件失败: {}").format(e))
+            self.log.info(f"清理断点文件失败: {e}")
 
     def _if_done(self):
-        a= list(self.aotojson.get("todo")-self.aotojson.get("done"))
+        a= list(self.aotojson.get("todo") - self.aotojson.get("done"))
         if len(a) == 0:
             self._clean_checkpoint()
     def _rrun(self):
-        self.log.set_log_path(self.aotojson.get("log_path"))
-        self.log.msg(self.i18n.get('TEST_LOG', "测试log"))
-        self.log.msg(self.log.get_log_file())
+
         self._fun_func()
 
     def _fun_func(self):
