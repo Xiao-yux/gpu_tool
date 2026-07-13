@@ -4,8 +4,8 @@ import shlex
 import sys
 import time
 from typing import Dict
-from gpu_tool.core.log import get_logger
-import gpu_tool.utils.tool as utils
+from log.logger import get_logger
+import utils.tool as utils
 
 class TerminalManager:
     """使用 screen 命令管理持久化的终端会话"""
@@ -30,16 +30,16 @@ class TerminalManager:
                 text=True
             )
             if result.returncode != 0:
-                self.log.msg("screen 未安装，请先安装 screen 命令")
+                self.log.info("screen 未安装，请先安装 screen 命令")
                 return
             
             # 确保屏幕日志目录存在
             # log_dir = os.path.join(os.path.expanduser("~"), "screen_logs")
             # os.makedirs(log_dir, exist_ok=True)
             
-            self.log.msg("screen 环境初始化完成")
+            self.log.info("screen 环境初始化完成")
         except Exception as e:
-            self.log.msg(f"初始化 screen 环境失败: {e}")
+            self.log.info(f"初始化 screen 环境失败: {e}")
 
 
 
@@ -133,7 +133,7 @@ class TerminalManager:
             return screen_name
             
         except subprocess.CalledProcessError as e:
-            self.log.msg(f"创建 screen 会话失败: {e}")
+            self.log.info(f"创建 screen 会话失败: {e}")
             raise RuntimeError(f"创建 screen 会话失败: {e}")
 
     def fd_run(self, command: str, path: str = "/tmp"):
@@ -146,7 +146,7 @@ class TerminalManager:
     def wait_for_command_completion(self, screen_name: str) -> bool:
         """等待 screen 命令结束并输出会话执行信息到屏幕上"""
         if screen_name not in self.screens:
-            self.log.msg(f"Screen 会话 {screen_name} 不存在")
+            self.log.info(f"Screen 会话 {screen_name} 不存在")
             return False
 
         screen_info = self.screens[screen_name]
@@ -155,11 +155,11 @@ class TerminalManager:
         log_name = screen_info.get('logname') or "unknown"
 
         if not log_file:
-            self.log.msg(f"Screen 会话 {screen_name} 的日志信息不完整", outconsole=True)
+            self.log.info(f"Screen 会话 {screen_name} 的日志信息不完整", console=True)
             return False
         
         if not marker:
-            self.log.msg(f"Screen 会话 {screen_name} 没有设置结束标记", outconsole=True)
+            self.log.info(f"Screen 会话 {screen_name} 没有设置结束标记", console=True)
             return False
         #等待日志文件被创建
         while not os.path.exists(log_file):
@@ -187,7 +187,7 @@ class TerminalManager:
                                 # 实时输出到屏幕，去掉末尾的换行符再 print，避免双换行
                                 sys.stdout.write(line)
                                 sys.stdout.flush() # 强制刷新缓冲区，确保立即显示
-                                self.log.msg(line, logger_name=log_name) # 也记录到日志中
+                                self.log.info(line, file_name=log_name) # 也记录到日志中
                     
                     # 情况2：文件变小了（可能是 screen 清空了日志或重启了）
                     elif current_size < _file_size:

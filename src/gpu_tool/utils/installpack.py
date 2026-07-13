@@ -1,8 +1,8 @@
 
 import tqdm
-import gpu_tool.utils.tool as utils
-from gpu_tool.log.logger import get_logger
-from gpu_tool.runner.local import run_command
+import utils.tool as utils
+from log.logger import get_logger
+from runner.local import run_command
 class InstallPack:
     def __init__(self):
         self.tool = utils.Tools()

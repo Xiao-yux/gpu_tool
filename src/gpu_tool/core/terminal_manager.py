@@ -5,8 +5,8 @@ import shlex
 import sys
 import time
 from typing import Dict
-from gpu_tool.log.logger import get_logger
-import gpu_tool.utils.tool as utils
+from log.logger import get_logger
+import utils.tool as utils
 
 class TerminalManager:
     """使用 screen 命令管理持久化的终端会话"""

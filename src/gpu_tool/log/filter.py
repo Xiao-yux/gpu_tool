@@ -1,4 +1,4 @@
-"""negpu.log.filter - control-character & noise filters.
+"""log.filter - control-character & noise filters.
 
 Two layers:
 

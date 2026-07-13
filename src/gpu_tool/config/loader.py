@@ -1,4 +1,4 @@
-"""gpu_tool.config.loader - TOML config loader + first-run install.
+"""config.loader - TOML config loader + first-run install.
 
 Implements REFACTORING_TASK [1]B / [2]C / [4]A / [14]C:
 
@@ -24,13 +24,13 @@ from typing import Any, Final, cast
 # ``tomllib`` is stdlib in Python 3.11+.  For 3.10 we use the
 # ``tomli`` backport (already in requirements.txt for py<3.11).
 try:
-    import tomllib  # type: ignore[import-not-found]  # py3.11+
-except ImportError:  # pragma: no cover - py3.10 branch
-    import tomli as tomllib  # type: ignore[no-redef, import-not-found]
+    import tomllib  
+except ImportError:  
+    import tomli as tomllib  
 
-from gpu_tool._version import __version__
-from gpu_tool.config.model import gpuConfig
-from gpu_tool.config.paths import current_user
+from _version import __version__
+from config.model import gpuConfig
+from config.paths import current_user
 
 # ---------------------------------------------------------------------------
 # Search paths

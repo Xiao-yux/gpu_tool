@@ -1,9 +1,9 @@
-"""gpu_tool.log.path - re-exports of path helpers for log-specific use.
+"""log.path - re-exports of path helpers for log-specific use.
 """
 
 from __future__ import annotations
 
-from gpu_tool.config.paths import (  # noqa: F401
+from config.paths import (  # noqa: F401
     REPORT_SUBDIR,
     RUN_SUBDIR,
     SCRIPT_SUBDIR,

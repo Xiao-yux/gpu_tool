@@ -9,7 +9,7 @@ The format:
 
 from __future__ import annotations
 
-import asyncio
+
 import logging
 import time
 from pathlib import Path
@@ -17,9 +17,9 @@ from typing import Literal, Protocol
 
 import aiofiles
 
-from gpu_tool.config.model import LogConfig
-from gpu_tool.config.paths import LogPaths
-from gpu_tool.log.filter import clean
+from config.model import LogConfig
+from config.paths import LogPaths
+from log.filter import clean
 
 # Per REFACTORING_TASK [9]A
 _FORMAT: str = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"

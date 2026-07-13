@@ -1,4 +1,4 @@
-from gpu_tool.core.core import Core
+from core.core import Core
 
 
 def app() -> None:

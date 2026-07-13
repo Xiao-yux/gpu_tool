@@ -1,15 +1,15 @@
-from gpu_tool.config.loader import load
-from gpu_tool.menu.menu import Menu
-from gpu_tool.utils.command import GpuToolApi
-from gpu_tool.utils.check_and_save_system import CheckSystem
+from config.loader import load
+from menu.menu import Menu
+from utils.command import GpuToolApi
+from utils.check_and_save_system import CheckSystem
 from noneprompt import CancelledError
-from gpu_tool.log.logger import get_logger,init_logger
+from log.logger import get_logger,init_logger
 import sys
 import os
 import threading
 from asyncio import CancelledError
-from gpu_tool.utils.wscline import Cline
-from gpu_tool.i18n.i18n import init_i18n
+from utils.wscline import Cline
+from i18n.i18n import init_i18n
 
 
 def is_root():

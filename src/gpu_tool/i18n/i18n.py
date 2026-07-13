@@ -1,7 +1,7 @@
-from gpu_tool.config.loader import load
+from config.loader import load
 import locale
 import json
-from gpu_tool.utils.tool import Tools
+from utils.tool import Tools
 __i18n__ = None
 
 

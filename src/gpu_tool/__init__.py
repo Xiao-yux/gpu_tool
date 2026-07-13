@@ -7,6 +7,6 @@ distributable as both a Python wheel and a single-file Nuitka binary.
 
 from __future__ import annotations
 
-from gpu_tool._version import __version__
+from _version import __version__
 
 __all__ = ["__version__"]

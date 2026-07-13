@@ -2,11 +2,11 @@ import os
 import time
 from typing import ClassVar
 
-from gpu_tool.utils.tool import Tools
-from gpu_tool.log.logger import get_logger
-from gpu_tool.i18n.i18n import get_i18n
-from gpu_tool.config.model import PathConfig
-from gpu_tool.runner.local import run_command
+from utils.tool import Tools
+from log.logger import get_logger
+from i18n.i18n import get_i18n
+from config.model import PathConfig
+from runner.local import run_command
 
 class CheckSystem:
     
@@ -106,7 +106,7 @@ class CheckSystem:
     def sys_save(self, GPU=0):
         """收集系统信息"""
         a = "system_info"
-        self.log.info(f"{self.i18n.get('gpu_cont')}: {self.tool.get_gpu_count()}\n",console=True,file_name="system_info")
+        self.log.info(f"{self.i18n.get('gpu_cont')} {self.tool.get_gpu_count()}\n",console=True,file_name="system_info")
         self.log.info(self.tool.get_sys_info(), file_name=a)
         self.log.info(self.tool.get_eth_info(), file_name=a)
         if GPU == 1:

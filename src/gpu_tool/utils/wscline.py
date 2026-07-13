@@ -6,8 +6,8 @@ import websockets
 from websockets.protocol import State  # 15.x 版本
 import json,aiofiles
 import time
-from gpu_tool.utils.tool import Tools
-from gpu_tool.log.logger import get_logger
+from utils.tool import Tools
+from log.logger import get_logger
 
 class Cline:
     def __init__(self, wsurl: str):

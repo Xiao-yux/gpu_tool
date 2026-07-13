@@ -1,4 +1,4 @@
-from gpu_tool.log.logger import get_logger
+from log.logger import get_logger
 import subprocess
 
 # class run_command:

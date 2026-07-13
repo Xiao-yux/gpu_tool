@@ -2,13 +2,13 @@ import inspect
 from typing import List
 from noneprompt import ListPrompt, Choice, InputPrompt, CheckboxPrompt
 import os
-from gpu_tool.menu.menuarg import MenuChess
-from gpu_tool.menu.menuarg_en import MenuChessEn
-from gpu_tool.utils.tool import Tools
-from gpu_tool.utils.jsonDB import JsonDB
-from gpu_tool.log.logger import get_logger
-from gpu_tool.testmanager.testfun import TestFun
-from gpu_tool.i18n.i18n import get_i18n
+from menu.menuarg import MenuChess
+from menu.menuarg_en import MenuChessEn
+from utils.tool import Tools
+from utils.jsonDB import JsonDB
+from log.logger import get_logger
+from testmanager.testfun import TestFun
+from i18n.i18n import get_i18n
 
 class Manager:
     def __init__(self,path,i18n=None):

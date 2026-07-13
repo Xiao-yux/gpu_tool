@@ -167,13 +167,13 @@ class Tools:
 
     def get_gpu_info(self,arg='')-> str:
         """返回GPU信息"""
-        return os.popen(f"bash {self.get_tmp_path()}bash/nvidia_info.sh {arg}").read()
+        return os.popen(f"bash {self.get_tmp_path()}/bash/nvidia_info.sh {arg}").read()
     def get_sys_info(self,arg='') -> str:
         """# 返回系统信息"""
-        return os.popen(f'bash {self.get_tmp_path()}bash/sys_info.sh {arg}').read()
+        return os.popen(f'bash {self.get_tmp_path()}/bash/sys_info.sh {arg}').read()
     def get_eth_info(self,arg='') -> str:
         """# 网卡硬盘信息"""
-        return os.popen(f'bash {self.get_tmp_path()}bash/CX_DISK_INFO.sh {arg}').read()
+        return os.popen(f'bash {self.get_tmp_path()}/bash/CX_DISK_INFO.sh {arg}').read()
     def input_chick(self):
         """输入回车继续"""
         input("按下回车键继续...")

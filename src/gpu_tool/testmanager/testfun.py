@@ -4,9 +4,9 @@ import signal
 import subprocess
 import time
 from typing import List
-from gpu_tool.log.logger import get_logger
-from gpu_tool.utils.tool import Tools
-from gpu_tool.i18n.i18n import get_i18n
+from log.logger import get_logger
+from utils.tool import Tools
+from i18n.i18n import get_i18n
 
 
 class TestFun:
@@ -84,7 +84,7 @@ class TestFun:
     def p2pBandwidthLatencyTest(self):
         cmd = "./p2pBandwidthLatencyTest"
         path = f"{self.tool.get_bash_path()}"
-        logname = self.log.create_log_file("auto_p2pBandwidthLatencyTest_test")
+        logname = "auto_p2pBandwidthLatencyTest_test"
         self.run_command(cmd, path, logname)
 
     def nvbandwidth(self):
@@ -127,18 +127,18 @@ class TestFun:
     def disk_speed_test(self):
         """硬盘速度测试"""
         a = self.tool.run_command("lsblk -d -o NAME,TYPE,TRAN,PATH,SIZE,SERIAL,MODEL -J")
-        self.log.msg(f"diskdata:{a}")
+        self.log.info(f"diskdata:{a}")
         try:
-            data = json.loads(a)
+            data = json.loads(f"{a}")
         except json.JSONDecodeError as e:
-            self.log.msg(self.i18n.get('PARSING_DISK_INFO_FAILED', "解析硬盘信息失败，请检查lsblk命令输出是否正确。"), outconsole=True)
-            self.log.msg(self.i18n.get('ERROR_INFO', "错误:{},data:{}").format(e, a), outconsole=True)
+            self.log.info(self.i18n.get('parsing_disk_info_failed'), console=True)
+            self.log.info(self.i18n.get('error_info_2').format(e, a), console=True)
             return []
-        self.log.msg(f"diskdata3:{data}")
+        self.log.info(f"diskdata3:{data}")
 
         disk : List = []
         for dev in data.get("blockdevices", []):
-            self.log.msg(f"diskdata2:{dev}")
+            self.log.info(f"diskdata2:{dev}")
             if dev.get("type") == "disk":
                 if dev.get("tran") not in ["nvme", "sata", "sas"]:
                     continue
@@ -153,13 +153,13 @@ class TestFun:
             # 4 混合读写
             cmd4 = f"fio --name=randrw --filename={d} --size=5G --rw=randrw --rwmixread=70 --bs=4k --ioengine=libaio --direct=1 --numjobs=8 --iodepth=32 --runtime=30 --time_based --group_reporting"
 
-            self.log.msg("正在测试 顺序写大文件", outconsole=True)
+            self.log.info("正在测试 顺序写大文件", console=True)
             self.run_command(cmd, logname=f"auto_disk_speed_test_{d}")
-            self.log.msg("正在测试 顺序读大文件", outconsole=True)
+            self.log.info("正在测试 顺序读大文件", console=True)
             self.run_command(cmd2, logname=f"auto_disk_speed_test_{d}")
-            self.log.msg("正在测试 随机读 4K", outconsole=True)
+            self.log.info("正在测试 随机读 4K", console=True)
             self.run_command(cmd3, logname=f"auto_disk_speed_test_{d}")
-            self.log.msg("正在测试 混合读写", outconsole=True)
+            self.log.info("正在测试 混合读写", console=True)
             self.run_command(cmd4, logname=f"auto_disk_speed_test_{d}")
         return None
 
@@ -169,12 +169,12 @@ class TestFun:
         path : 执行命令时的目录
         logname : 日志名称
         """
-        logname = self.log.create_log_file(logname)
+
         enve = os.environ.copy()
         enve['LC_ALL'] = 'C.UTF-8'
-        self.log.msg(f"执行命令{command}", outconsole=True)
+        self.log.info(f"执行命令{command}", console=True)
         try:
-            self.log.msg(f"执行命令: {command}", logger_name=logname)
+            self.log.info(f"执行命令: {command}", file_name=logname)
             process = subprocess.Popen(
                 command,
                 shell=True,
@@ -196,15 +196,14 @@ class TestFun:
                     break
                 if output:
                     time.sleep(0.1)
-                    self.log.msg(output.strip(), logger_name=logname, outconsole=True)  # 同时记录到日志
+                    self.log.info(output.strip(), file_name=logname, console=True)  # 同时记录到日志
                     if logname != "auto_fd2":
                         if time.time() // 300 != globals().setdefault('_last_slot', -1):
                             globals()['_last_slot'] = time.time() // 300
-                            self.log.msg(self.tool.run_command("nvidia-smi"),logger_name="time_5_save_info")
+                            self.log.info(f"{self.tool.run_command('nvidia-smi')}",file_name="time_5_save_info")
             return_code = process.poll()
-            self.log.msg(f"{self.i18n.get('COMMAND_EXECUTION_COMPLETED', 'Command execution completed')}, {self.i18n.get('RETURN_CODE', 'return code:')} {return_code}")
-            self.log.msg(f"{self.i18n.get('LOG_PATH', 'Log path:')}: {self.log.get_log_file()}/{logname}", outconsole=True)
-            self.log.msg(f"\n", outconsole=True)
+            self.log.info(f"{self.i18n.get('command_execution_completed')}, {self.i18n.get('return_code')} {return_code}")
+            self.log.info(f"{self.i18n.get('log_path')}: {self.log.paths.root}/{logname}", console=True)
+            self.log.info(f"\n", console=True)
         except Exception as e:
-            self.log.msg(f"{self.i18n.get('RUN_COMMAND_FAILED', 'Run command failed:')} {e}")
-            print(f"{self.i18n.get('EXECUTION_FAILED', 'Execution failed:')} {e}")
+            self.log.info(f"{self.i18n.get('ececution_failed')} {e}",console=True)

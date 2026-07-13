@@ -3,8 +3,8 @@ import sys
 from colorama import init, Fore, Back, Style
 from art import text2art
 
-from gpu_tool.utils.tool import Tools
-from gpu_tool.utils.show_xid import show_xid
+from utils.tool import Tools
+from utils.show_xid import show_xid
 
 class GpuToolApi:
     def __init__(self,version):

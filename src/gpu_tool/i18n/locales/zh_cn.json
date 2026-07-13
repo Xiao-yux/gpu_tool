@@ -41,5 +41,9 @@
     "no_nccl":"未检测到 NCCL-Test。",
     "no_nccl2lib":"未检测到 libnccl2。",
     "no_nccl_dev":"未检测到 libnccl-dev。",
-    "gpu_cont" : "GPU 数量:"
+    "gpu_cont" : "GPU 数量:",
+    "parsing_disk_info_failed": "解析硬盘信息失败，请检查lsblk命令输出是否正确。",
+    "error_info_2": "错误：{},信息：{}",
+    "return_code": "返回码：",
+    "command_execution_completed": "命令执行完成"
 }
