@@ -10,6 +10,7 @@ The format:
 from __future__ import annotations
 
 
+import inspect
 import logging
 import time
 from pathlib import Path
@@ -80,9 +81,10 @@ class gpuLogger:
         return log_path
 
     def _get_logger(
-        self, file_name: str | None
+        self, caller_name: str, file_name: str | None
     ) -> tuple[logging.Logger, logging.FileHandler]:
         """Return a cached ``(logger, file_handler)`` pair for ``file_name``."""
+
         log_path = self._resolve_log_file(file_name)
         key = str(log_path)
 
@@ -90,7 +92,7 @@ class gpuLogger:
         if cached is not None:
             return cached
 
-        logger = logging.getLogger(__name__)
+        logger = logging.getLogger(caller_name)
         logger.setLevel(logging.DEBUG)
         logger.propagate = False
         # Drop any pre-existing handlers to keep the logger self-contained.
@@ -115,8 +117,9 @@ class gpuLogger:
     ) -> None:
         """Shared implementation behind every public log method."""
         text = clean(message) if message is not None else ""
-
-        logger, _ = self._get_logger(file_name)
+        frame = inspect.stack()[2]
+        caller_module = frame.frame.f_globals.get("__name__", "unknown")
+        logger, _ = self._get_logger(caller_module, file_name)
 
         if console:
             print(f"[{level}] {text}", flush=True)
@@ -175,7 +178,7 @@ class gpuLogger:
 
 
 # ---------------------------------------------------------------------------
-# Module-level convenience (mirrors the old negpu.log.msg() API)
+# Module-level 
 # ---------------------------------------------------------------------------
 
 _default: gpuLogger | None = None

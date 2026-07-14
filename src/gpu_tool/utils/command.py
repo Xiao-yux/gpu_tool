@@ -1,16 +1,14 @@
 import argparse
 import sys
-from colorama import init, Fore, Back, Style
-from art import text2art
-
+from _version import __version__
 from utils.tool import Tools
 from utils.show_xid import show_xid
-
+import time
 class GpuToolApi:
-    def __init__(self,version):
-        self.version = version
+    def __init__(self):
+        self.version = __version__
         self.tool = Tools()
-        self.xid_path = f"{self.tool.get_bash_path()}Xid-Catalog.zh-CN.xlsx"
+        self.xid_path = f"{self.tool.get_bash_path()}/Xid-Catalog.zh-CN.xlsx"
         self.run()
 
     def run(self):
@@ -33,10 +31,6 @@ class GpuToolApi:
         if args.xid is not None:
             show_xid(self.xid_path,args.xid)
             sys.exit(0)
-        init(autoreset=True)
-        print(text2art(tx1, chr_ignore=True))
-        print(f"{Fore.GREEN}v{self.version}")
-
         return
     @staticmethod
     def parse_arguments(ver=None):
@@ -60,5 +54,4 @@ class GpuToolApi:
         parser.add_argument('--disp_name', action='store', help='自定义颜文字')
         parser.add_argument('--check_fd_log', metavar='FD_LOG_PATH',help='分析fd日志')
         parser.add_argument('--xid', metavar='id', type=int, help='查询XID错误码帮助信息')
-
         return parser.parse_args()

@@ -24,13 +24,14 @@ from typing import Any, Final, cast
 # ``tomllib`` is stdlib in Python 3.11+.  For 3.10 we use the
 # ``tomli`` backport (already in requirements.txt for py<3.11).
 try:
-    import tomllib  
+    import tomllib    # pyright: ignore[reportMissingImports]
 except ImportError:  
     import tomli as tomllib  
 
 from _version import __version__
 from config.model import gpuConfig
 from config.paths import current_user
+from _config import DEFAULT_CONFIG
 
 # ---------------------------------------------------------------------------
 # Search paths
@@ -53,7 +54,10 @@ _DEFAULT_INSTALL_PATH: Final[str] = "/etc/gpu_tool/config.toml"
 
 # Note: the ``{user}`` placeholder here is *only* resolved on first-run
 # install. Subsequent reads never touch it again.
-DEFAULT_CONFIG_TEMPLATE: Final[str] = """\
+DEFAULT_CONFIG_TEMPLATE: Final[str] = DEFAULT_CONFIG
+
+#用 _config.py 中的 DEFAULT_CONFIG_TEMPLATE 代替 方便修改
+"""\
 # gpu_tool configuration
 # Auto-generated on first run; edit freely.
 # Re-running ``gpu_tool config-install`` will not overwrite your changes.

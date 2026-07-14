@@ -12,9 +12,14 @@ class CheckSystem:
     
     DEFAULT_COMMANDS: ClassVar[dict[str, tuple[str, ...]]] = {
         "dmesg": ("dmesg",),
-        "nvidia-smi": ("nvidia-smi",),
+        "nvidia-smi": ("nvidia-smi","-q"),
+        "nvidia-smi-nvlink": ("nvidia-smi", "nvlink", "--status"),
+        "nvidia-smi-topo": ("nvidia-smi", "topo", "-m"),
         "lspci": ("lspci", "-vvv"),
         "lsblk": ("lsblk", "-O"),
+        "lsusb": ("lsusb",),
+        "lshw": ("lshw",),
+        "dmidecode": ("dmidecode",),
         "ipmitool-lan": ("ipmitool", "lan", "print"),
         "ipmitool-sdr": ("ipmitool", "sdr"),
         "ipmitool-fru": ("ipmitool", "fru"),
@@ -26,7 +31,7 @@ class CheckSystem:
         # 获取i18n实例
         self.i18n = get_i18n()
 
-        self.log.info(self.i18n.get('start_checksys'), "system_check")
+        self.log.info(self.i18n.get('start_checksys'))
         self.check_system()
 
     def check_system(self):
@@ -35,7 +40,7 @@ class CheckSystem:
         g = 0
         if self.check_gpu():
             g = 1
-        self.tool.async_run(self.sys_save(GPU=g))
+        self.sys_save(GPU=g)
         
         return True
 
@@ -106,21 +111,21 @@ class CheckSystem:
     def sys_save(self, GPU=0):
         """收集系统信息"""
         a = "system_info"
-        self.log.info(f"{self.i18n.get('gpu_cont')} {self.tool.get_gpu_count()}\n",console=True,file_name="system_info")
+        self.log.info(f"{self.i18n.get('gpu_cont')} {self.tool.get_gpu_count()}\n",console=True,file_name=a)
         self.log.info(self.tool.get_sys_info(), file_name=a)
         self.log.info(self.tool.get_eth_info(), file_name=a)
         if GPU == 1:
             self.log.info(self.tool.get_gpu_info(), file_name=a)
-            self.log.info(run_command("nvidia-smi -q"),
-                         file_name="system/nvidia-smi")
-            self.log.info(run_command("nvidia-smi topo -m"),
-                         file_name="system/nvidia-smi-topo")
-
-        self.log.info(run_command("lspci -vvv"), file_name="system/lspci")
-        self.log.info(run_command("lscpu"), file_name="system/lscpu")
-        self.log.info(run_command("lsusb"), file_name="system/lsusb")
-        self.log.info(run_command("dmidecode"), file_name="system/dmidecode")
-        self.log.info(run_command("lshw"), file_name="system/lshw")
-        self.log.info(run_command("dmesg"), file_name="system/dmesg")
+        self.save_def_info()
         self.tool.get_nvidia_bug_report(f"{self.log.paths.system}")
-        self.log.info(run_command(f"{self.tool.get_tmp_path()}bash/nic_info"),file_name="system/nic_info")
+        self.log.info(run_command(f"{self.tool.get_tmp_path()}/bash/nic_info"),file_name="system/nic_info")
+    def save_def_info(self):
+        """收集系统原始数据 DEFAULT_COMMANDS 内的命令
+        """
+        for cmd_name, cmd in self.DEFAULT_COMMANDS.items():
+            try:
+                output = run_command(" ".join(cmd))
+                self.log.info(output, file_name=f"system/{cmd_name}")
+            except Exception as e:
+                self.log.info(f"{self.i18n.get('command_execution_failed').format(' '.join(cmd), e)}", console=True)
+        
