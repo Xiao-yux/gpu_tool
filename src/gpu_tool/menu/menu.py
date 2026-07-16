@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, List
+from typing import List
 import json
 from noneprompt import ListPrompt, Choice, InputPrompt, CheckboxPrompt
 import os
@@ -7,12 +7,10 @@ from i18n.i18n import get_i18n
 from utils.installpack import InstallPack
 from utils.tool import Tools
 from log.logger import get_logger
-from testmanager.testmanager import Manager
 from core.terminal_manager import TerminalManager
 from config.model import PathConfig
 from utils.nvsmi import nvsmi
 from utils.ipmitool import ipmitools
-from runner.local import run_command
 
 class Menu:
     def __init__(self, path: PathConfig):
@@ -147,7 +145,7 @@ class Menu:
             self.dcgmi_menu()
         elif pro.data == "4":
             a = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.nvband_menu).prompt()
-            cmd = f"./nvbandwidth"
+            cmd = "./nvbandwidth"
             path = f"{self.tool.get_bash_path()}"
             if a.data == "-1":
                 self.run_command(cmd, path, logname="nvband_test")

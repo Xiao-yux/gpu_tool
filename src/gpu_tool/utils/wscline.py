@@ -1,11 +1,10 @@
 import asyncio
 import threading
-from typing import Dict, Any
 import websockets.asyncio
 import websockets
 from websockets.protocol import State  # 15.x 版本
-import json,aiofiles
-import time
+import json
+import aiofiles
 from utils.tool import Tools
 from log.logger import get_logger
 
@@ -59,7 +58,7 @@ class Cline:
             try:
                 async with websockets.connect(self.wsurl) as ws:
                     self.ws = ws
-                    self.log.info(f"[Cline] 已连接到服务器")
+                    self.log.info("[Cline] 已连接到服务器")
                     self.log.info(f"[Cline] {self.ws.response}")
                     # 连接成功，重置计数器
                     connection_attempts = 0
@@ -178,7 +177,7 @@ class Cline:
                 self.log.info(f"[Cline] 收到: {info_dict.get('info')}")
 
         except Exception as e:
-            import traceback, sys
+            import traceback
             self.log.info("hand错误: " + str(e))
             self.log.info("traceback:\n" + traceback.format_exc())  # ← 关键
 

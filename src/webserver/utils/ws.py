@@ -1,7 +1,5 @@
-import inspect
 import os
 import json
-from telnetlib import AYT
 
 import websockets
 import asyncio

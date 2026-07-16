@@ -24,7 +24,6 @@ when the default config is first copied to ``/etc/gpu/config.toml``.
 
 from __future__ import annotations
 
-from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 

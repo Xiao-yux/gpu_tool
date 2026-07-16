@@ -1,6 +1,6 @@
 import inspect
 from typing import List
-from noneprompt import ListPrompt, Choice, InputPrompt, CheckboxPrompt
+from noneprompt import ListPrompt, Choice
 import os
 from menu.menuarg import MenuChess
 from menu.menuarg_en import MenuChessEn

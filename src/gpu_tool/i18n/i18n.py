@@ -15,7 +15,10 @@ class I18n:
         """
         if load().language.language == "auto":
             lang, _ = locale.getdefaultlocale()
-            if lang != "zh_CN":
+            #统一小写
+            if lang is not None:
+                lang = lang.lower()
+            if lang != "zh_cn":
                 lang = "en"
             return lang
         else:

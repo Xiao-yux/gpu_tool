@@ -1,4 +1,3 @@
-from log.logger import get_logger
 import subprocess
 
 # class run_command:

@@ -1,5 +1,4 @@
 from types import FunctionType
-from testmanager.testfun import TestFun
 
 class Test:
     name : str = "测试名称"

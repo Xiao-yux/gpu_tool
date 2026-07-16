@@ -19,7 +19,7 @@ __all__: list[str] = ["load"]
 import os
 import sys
 from pathlib import Path
-from typing import Any, Final, cast
+from typing import Final, cast
 
 # ``tomllib`` is stdlib in Python 3.11+.  For 3.10 we use the
 # ``tomli`` backport (already in requirements.txt for py<3.11).

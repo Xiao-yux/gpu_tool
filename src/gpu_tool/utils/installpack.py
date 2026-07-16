@@ -54,18 +54,18 @@ class InstallPack:
 
     def apt_install_dcgm(self):
         self.apt_update_package()
-        cmd = f"sudo apt-get install -y datacenter-gpu-manager-4-cuda-all"
+        cmd = "sudo apt-get install -y datacenter-gpu-manager-4-cuda-all"
         self.log.info(run_command(cmd,out=True), file_name=self.logname )
 
     def apt_install_libnccl(self):
         self.apt_update_package()
-        cmd = f'sudo apt-get install -y libnccl2 libnccl-dev'
+        cmd = 'sudo apt-get install -y libnccl2 libnccl-dev'
         self.log.info(run_command(cmd, out=True), file_name=self.logname)
 
     def apt_install_cuda_keyring(self):
         url = 'https://developer.download.nvidia.cn/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb'
         cmd = f'wget -c -O ~/cuda-keyring_1.1-1_all.deb {url}'
-        cmd2 = f'dpkg -i ~/cuda-keyring_1.1-1_all.deb'
+        cmd2 = 'dpkg -i ~/cuda-keyring_1.1-1_all.deb'
         self.log.info(run_command(cmd, out=True), file_name=self.logname)
         self.log.info(run_command(cmd2, out=True), file_name=self.logname)
 
@@ -73,7 +73,7 @@ class InstallPack:
         self.apt_update_package()
         url = 'https://content.mellanox.com/DOCA/DOCA_v3.1.0/host/doca-host_3.1.0-091000-25.07-ubuntu2204_amd64.deb'
         cmd = f'wget -c -O ~/doca.deb {url}'
-        tar = f'dpkg -i ~/doca.deb'
+        tar = 'dpkg -i ~/doca.deb'
         self.log.info(run_command(cmd, out=True), file_name=self.logname)
         self.log.info(run_command(tar, out=True), file_name=self.logname)
         self.log.info(run_command('apt install -y doca-all', out=True), file_name=self.logname)
@@ -84,7 +84,7 @@ class InstallPack:
         url = 'https://content.mellanox.com/ofed/MLNX_OFED-24.10-3.2.5.0/MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu22.04-x86_64.tgz'
         cmd = f'wget -c -O ~/MLNX.tgz {url}'
         #解压
-        tar = f'cd ~ && tar -zxvf ~/MLNX.tgz'
+        tar = 'cd ~ && tar -zxvf ~/MLNX.tgz'
         #MLNX依赖
         cmd2 = ('apt-get install -y gcc g++ make perl autoconf dkms libltdl-dev m4 gfortran automake swig tk quilt '
                 'debhelper libnl-route-3-dev graphviz flex bison libgfortran5 tcl libfuse2 pkg-config chrpath '
@@ -98,6 +98,6 @@ class InstallPack:
 
     def apt_update_package(self):
         """更新软件包"""
-        cmd = f'sudo apt-get update'
+        cmd = 'sudo apt-get update'
         print("正在 apt-get update")
         self.tool.run_command(cmd)

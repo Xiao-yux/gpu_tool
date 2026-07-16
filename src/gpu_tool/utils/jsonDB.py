@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Any, Dict, List, Union, Optional
+from typing import Any, Dict, Union, Optional
 from pathlib import Path
 
 class JsonDB:

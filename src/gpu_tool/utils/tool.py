@@ -1,6 +1,5 @@
 import glob
 import inspect
-import json
 import os
 import sys
 import subprocess
@@ -311,7 +310,7 @@ class Tools:
     @staticmethod
     def fd_arg_chines(chines):
         """fd 选择参数解析"""
-        cmd = f"--test="
+        cmd = "--test="
         for i in chines:
             cmd += i.data + ","
         cmd = cmd[:-1]  # 去除最后一个逗号

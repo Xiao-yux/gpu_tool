@@ -1,6 +1,5 @@
 import sys
 import os
-import time
 import threading
 
 from art import text2art
@@ -44,7 +43,8 @@ class Core:
         GpuToolApi()
         # print("api tiem:{}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
 
-        threading.Thread(target=self._start_system_check, daemon=True).start()
+        self.ch = threading.Thread(target=self._start_system_check, daemon=True)
+        self.ch.start()
         self.log.info('系统检查已后台启动。')
         # print("check tiem:{}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
         self.menu = None
@@ -66,6 +66,7 @@ class Core:
             if self.menu is None:
                 self.log.info('菜单初始化失败，无法加载主菜单。', console=True)
                 sys.exit(1)
+            self.ch.join()
             self.menu.main_menu()
         except KeyboardInterrupt:
             self.log.info('程序被用户中断，退出。', console=True)

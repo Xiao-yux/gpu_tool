@@ -6,6 +6,9 @@
 #   ./nic_info.sh                            # 从系统获取实时数据
 #   ./nic_info.sh --debug <lspci_vvv_file> <nic_list_file>  # 从文件读取调试数据
 # ==============================================================================
+# github : https://github.com/Xiao-yux/gpu_tool
+# user   : Xiao-yux
+# email  : 1409109991@qq.com
 
 # 颜色输出定义
 RED='\033[0;31m'

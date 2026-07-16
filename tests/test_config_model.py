@@ -10,7 +10,6 @@ from gpu_tool.config.model import (
     LogConfig,
     gpuConfig,
     PathConfig,
-    SystemConfig,
     UpdateConfig,
 )
 

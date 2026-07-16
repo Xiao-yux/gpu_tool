@@ -1,5 +1,7 @@
 #!/usr/bin/bash
-
+# github : https://github.com/Xiao-yux/gpu_tool
+# user   : Xiao-yux
+# email  : 1409109991@qq.com
 export LC_ALL=C.UTF-8
 
 

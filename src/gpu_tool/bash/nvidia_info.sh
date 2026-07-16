@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# github : https://github.com/Xiao-yux/gpu_tool
+# user   : Xiao-yux
+# email  : 1409109991@qq.com
+
+
+
+
+
 INPUT_CMD="nvidia-smi -q"
 if [ "$1" == "--debug" ]; then
     if [ -n "$2" ]; then

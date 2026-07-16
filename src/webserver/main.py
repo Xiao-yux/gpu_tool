@@ -1,8 +1,7 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template
 import threading
 import asyncio
 
-from websockets import route
 from utils.ws import WebSocketServer
 from utils import routws
 from utils.db import init_db

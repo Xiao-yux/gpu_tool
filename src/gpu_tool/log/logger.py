@@ -12,11 +12,9 @@ from __future__ import annotations
 
 import inspect
 import logging
-import time
 from pathlib import Path
-from typing import Literal, Protocol
+from typing import Literal
 
-import aiofiles
 
 from config.model import LogConfig
 from config.paths import LogPaths

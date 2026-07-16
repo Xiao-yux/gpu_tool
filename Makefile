@@ -60,36 +60,6 @@ endif
 # -----------------------------------------------------------------------------
 # Dependency groups
 # -----------------------------------------------------------------------------
-# Runtime dependencies (mirror pyproject.toml -> project.dependencies)
-RUNTIME_DEPS := \
-    pydantic \
-    noneprompt \
-    toml \
-    websockets \
-    aiofiles \
-    openpyxl \
-    tqdm \
-    text2art \
-    rich \
-    jinja2 \
-    weasyprint
-
-# Dev / tooling dependencies (mirror pyproject.toml -> [project.optional-dependencies] dev)
-DEV_DEPS := \
-    pytest \
-    pytest-asyncio \
-    pytest-mock \
-    pytest-cov \
-    ruff \
-    mypy \
-    black \
-    typing
-
-# Build-only dependencies (Nuitka + plugins)
-BUILD_DEPS := \
-    Nuitka \
-    ordered-set \
-    Nuitka[onefile]
 
 # Optional Linux apt packages needed for the Nuitka build chain
 APT_BUILD_DEPS := gcc g++ clang lld make patchelf python3-dev ccache
@@ -118,21 +88,13 @@ venv: ## Create a local virtualenv at $(VENV_DIR)
 .PHONY: install
 install: ## Install runtime dependencies into the active environment
 	$(PIP) install --upgrade pip
-	$(PIP) install -e .
-
-.PHONY: install-deps
-install-deps: ## Install runtime dependencies only (no package install)
-	$(PIP) install --upgrade pip
-	$(PIP) install $(RUNTIME_DEPS)
+	$(PIP) install -r requirements.txt
 
 .PHONY: install-dev
 install-dev: install ## Install dev dependencies (pytest, ruff, mypy, black, ...)
-	$(PIP) install $(DEV_DEPS)
+	$(PIP) install -r requirements-dev.txt
 	@echo "Pre-commit hooks: run 'pre-commit install' if you use them."
 
-.PHONY: install-build
-install-build: install ## Install Nuitka + build dependencies
-	$(PIP) install $(BUILD_DEPS)
 
 .PHONY: install-system
 install-system: ## Install OS-level build dependencies (Linux only — requires sudo)
@@ -141,7 +103,7 @@ install-system: ## Install OS-level build dependencies (Linux only — requires 
 	apt-get install -y $(APT_BUILD_DEPS)
 
 .PHONY: install-all
-install-all: install-dev install-build ## Install everything (runtime + dev + build)
+install-all: install-dev install-system ## Install everything (runtime + dev + build)
 
 # =============================================================================
 # Run (development)
@@ -219,6 +181,7 @@ build: ## Build a onefile binary with Nuitka into ./dist
 		--product-version="$(VERSION)" \
 		--noinclude-default-mode=allow \
 		--include-data-dir=$(SRC_DIR)/$(PACKAGE)/bash=bash \
+		--include-data-dir=$(SRC_DIR)/$(PACKAGE)/i18n/locales=i18n/locales \
 		--include-package=websockets \
 		--output-dir=$(DIST_DIR) \
 		--output-filename=$(PRODUCT_NAME) \

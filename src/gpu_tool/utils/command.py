@@ -3,7 +3,6 @@ import sys
 from _version import __version__
 from utils.tool import Tools
 from utils.show_xid import show_xid
-import time
 class GpuToolApi:
     def __init__(self):
         self.version = __version__

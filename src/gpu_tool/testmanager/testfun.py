@@ -1,6 +1,5 @@
 import json
 import os
-import signal
 import subprocess
 import time
 from typing import List
@@ -88,7 +87,7 @@ class TestFun:
         self.run_command(cmd, path, logname)
 
     def nvbandwidth(self):
-        cmd = f"./nvbandwidth"
+        cmd = "./nvbandwidth"
         path = f"{self.tool.get_bash_path()}"
         self.run_command(cmd, path, logname="auto_nvbandwidth")
 
@@ -99,29 +98,29 @@ class TestFun:
 
     def dcgmi_1(self):
         """dcgmi 1级"""
-        cmd = f"dcgmi diag -r 1"
+        cmd = "dcgmi diag -r 1"
         self.run_command(cmd, logname="auto_dcgmi_1")
 
     def dcgmi_2(self):
         """dcgmi 2级"""
-        cmd = f"dcgmi diag -r 2"
+        cmd = "dcgmi diag -r 2"
         self.run_command(cmd, logname="auto_dcgmi_2")
 
     def dcgmi_3(self):
         """dcgmi 3级"""
-        cmd = f"dcgmi diag -r 3"
+        cmd = "dcgmi diag -r 3"
         self.run_command(cmd, logname="auto_dcgmi_3")
 
     def dcgmi_4(self):
         """dcgmi 4级"""
-        cmd = f"dcgmi diag -r 4"
+        cmd = "dcgmi diag -r 4"
         self.run_command(cmd, logname="auto_dcgmi_4")
     def poweroff(self):
         """添加重启"""
         self.run_command("reboot")
     def cpu_test(self):
         """CPU 10分钟测试"""
-        cmd = f"stress-ng --cpu 0 --cpu-method all --cache 0 --matrix 0 --memcpy 0 --mq 0 --pipe 0 --fork 0 --switch 0 --vm 0 --vm-bytes 2G --iomix 4 --iomix-bytes 1g --timeout 600s  --metrics-brief --tz --perf --verify --times"
+        cmd = "stress-ng --cpu 0 --cpu-method all --cache 0 --matrix 0 --memcpy 0 --mq 0 --pipe 0 --fork 0 --switch 0 --vm 0 --vm-bytes 2G --iomix 4 --iomix-bytes 1g --timeout 600s  --metrics-brief --tz --perf --verify --times"
         self.run_command(cmd, logname="aotu_stress_ng.log")
 
     def disk_speed_test(self):
@@ -204,6 +203,6 @@ class TestFun:
             return_code = process.poll()
             self.log.info(f"{self.i18n.get('command_execution_completed')}, {self.i18n.get('return_code')} {return_code}")
             self.log.info(f"{self.i18n.get('log_path')}: {self.log.paths.root}/{logname}", console=True)
-            self.log.info(f"\n", console=True)
+            self.log.info("\n", console=True)
         except Exception as e:
             self.log.info(f"{self.i18n.get('ececution_failed')} {e}",console=True)

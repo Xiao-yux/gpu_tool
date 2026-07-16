@@ -4,10 +4,9 @@ import socket
 import concurrent.futures
 import urllib.request
 import ssl
-from urllib.parse import urlparse
 import threading
 import time
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 class ip_config:
     """扫描网段配置

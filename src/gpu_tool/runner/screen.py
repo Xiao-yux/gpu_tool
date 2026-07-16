@@ -191,7 +191,7 @@ class TerminalManager:
                     
                     # 情况2：文件变小了（可能是 screen 清空了日志或重启了）
                     elif current_size < _file_size:
-                        print(f"[Info] 检测到日志文件被重置或截断，重新开始监控...")
+                        print("[Info] 检测到日志文件被重置或截断，重新开始监控...")
                         try:
                             _file_size = os.path.getsize(log_file)
                         except FileNotFoundError:
