@@ -21,8 +21,6 @@ class sysInfo(BaseModel):
 class MenmoryInfo(BaseModel):
     """内存信息
     """
-    total: str = Field(default="", description="总内存")
-    
     slot: str = Field(default="", description="槽位")
     manufacturer: str = Field(default="", description="制造商")
     product_name: str = Field(default="", description="产品名称")
