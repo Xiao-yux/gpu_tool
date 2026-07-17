@@ -11,6 +11,7 @@ from core.terminal_manager import TerminalManager
 from config.model import PathConfig
 from utils.nvsmi import nvsmi
 from utils.ipmitool import ipmitools
+from bash.bash import InfoBash
 
 class Menu:
     def __init__(self, path: PathConfig):
@@ -32,7 +33,8 @@ class Menu:
         self.defcheckinfo = i18n.get('check_info')
         self.gpu = nvsmi()
         self.ipmi = ipmitools()
-        self.terminal_manager = TerminalManager() 
+        self.terminal_manager = TerminalManager()
+        self.info = InfoBash() 
 
     def main_menu(self):
         """主菜单"""
@@ -168,9 +170,21 @@ class Menu:
         if pro.data == "exit":
             self.main_menu()
         if pro.data == "1":
-            self.log.info(self.tool.get_sys_info(), console=True)
+            try:
+                a1 = self.info.get_sys_info()
+                a2 = self.info.get_cpu_info()
+                self.log.info(a1)
+                self.log.info(a2)
+            except Exception as e:
+                self.log.info(f"获取系统信息失败: {e}", console=True)
+                return
+            
         elif pro.data == "2":
-            self.log.info(self.tool.get_gpu_info(), console=True)
+            try:
+                self.log.info(f"{self.info.get_memory_info()}")
+            except Exception as e:
+                self.log.info(f"获取内存信息失败: {e}", console=True)
+                return
         elif pro.data == "3":
             self.log.info(self.tool.get_eth_info(), console=True)
         elif pro.data == "4":
@@ -179,7 +193,7 @@ class Menu:
             self.log.info(self.ipmi.lan(), console=True)
         self.log.info(f'用户选择: {pro}')
         self.tool.input_chick()
-        self.main_menu()
+        return
 
     def dcgmi_menu(self):
         """DCGMI测试菜单"""

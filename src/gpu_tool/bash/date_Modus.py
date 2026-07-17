@@ -1,7 +1,9 @@
 from __future__ import annotations
+import json
 import re
 
 from pydantic import BaseModel, Field
+from pydantic.types import Json
 
 
 class sysInfo(BaseModel):
@@ -44,6 +46,86 @@ class PoweInfo(BaseModel):
     plugged: str = Field(default="", description="是否插电")
     hot_replaceable: str = Field(default="", description="是否热插拔")
     
+class GPUInfo(BaseModel):
+    """GPU信息
+    """
+    bus_id: str = Field(default="", description="总线ID")
+    GPU_ID : str = Field(default="", description="GPU ID")
+    Product_Name : str = Field(default="", description="产品名称")
+    Product_Architecture: str = Field(default="", description="产品架构")
+    Serial_Number: str = Field(default="", description="序列号")
+    GPU_UUID: str = Field(default="", description="GPU UUID")
+    Vbios_Version: str = Field(default="", description="Vbios版本")
+    PCIe_Generation: str = Field(default="", description="PCIe 代数")
+    Link_Width: str = Field(default="", description="链路宽度")
+    Memory_Usage: list = Field(default=[], description="内存使用情况(总大小/使用大小)")
+    ECC_Mode:bool = Field(default=False, description="ECC模式")
+    ECC_Errors:dict = Field(default={}, description="ECC错误")
+    GPU_Current_Temp: str = Field(default="", description="GPU当前温度")
+    GPU_Power:list = Field(default=[], description="GPU功率(最大功率/使用功率)")
+    
+def _coerce_scalar(value: str):
+    value = value.strip()
+    if not value:
+        return ""
+    if re.fullmatch(r"-?\d+", value):
+        return int(value)
+    if re.fullmatch(r"-?\d+\.\d+", value):
+        return float(value)
+    return value
+
+
+def nvidia_to_json(nvidia: str) -> dict:
+    """将 nvidia-smi 输出转换为 JSON 格式。"""
+    if not nvidia:
+        return {}
+
+    root: dict[str, object] = {}
+    stack: list[tuple[int, dict[str, object]]] = [(-1, root)]
+
+    for raw_line in nvidia.splitlines():
+        line = raw_line.rstrip()
+        stripped = line.strip()
+        if not stripped:
+            continue
+
+        if stripped.startswith("==============") and stripped.endswith("=============="):
+            continue
+
+        indent = len(line) - len(line.lstrip(" \t"))
+
+        while len(stack) > 1 and indent <= stack[-1][0]:
+            stack.pop()
+
+        current = stack[-1][1]
+
+        if re.match(r"^.+\s:\s.+$", stripped):
+            key, value = stripped.split(":", 1)
+            key = key.strip()
+            value = value.strip()
+            if key:
+                current[key] = _coerce_scalar(value)
+        else:
+            child: dict[str, object] = {}
+            current[stripped] = child
+            stack.append((indent, child))
+
+    gpus: list[dict[str, object]] = []
+    normalized: dict[str, object] = {}
+
+    for key, value in root.items():
+        if isinstance(key, str) and key.startswith("GPU ") and isinstance(value, dict):
+            gpu_data = dict(value)
+            gpu_data["bus_id"] = key[len("GPU "):].strip()
+            gpus.append(gpu_data)
+        else:
+            normalized[key] = value
+
+    if gpus:
+        normalized["gpus"] = gpus
+
+    return normalized
+
 def dmicode_to_json(dmidecode: str) -> dict:
     """将dmidecode数据转换为json格式。"""
     if not dmidecode:

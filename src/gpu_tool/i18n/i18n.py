@@ -39,5 +39,5 @@ def init_i18n():
 
 def get_i18n():
     if __i18n__ is None:
-        raise RuntimeError("I18n not initialized. Call init_i18n() first.")
+        return init_i18n()
     return __i18n__
