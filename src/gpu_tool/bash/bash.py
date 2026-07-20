@@ -1,16 +1,20 @@
+from bisect import insort
+import json
+from pdb import run
 from turtle import title
 from i18n.i18n import get_i18n
 from tabulate import tabulate
 import re
-from bash.date_Modus import dmicode_to_json,nvidia_to_json,create_pci_info_dict
-from bash.date_Modus import sysInfo,MenmoryInfo,GPUInfo,PoweInfo
+from bash.date_Modus import dmicode_to_json,nvidia_to_json,create_pci_info_dict,parse_smartctl_output
+from bash.date_Modus import sysInfo,MenmoryInfo,GPUInfo,PoweInfo,DiskInfo
 from runner.local import run_command
 
 class InfoBash:
     def __init__(self):
-        self.dmidecode = {}
-        self.nvidia_smi = {}
-        self.lspci = {}
+        self.dmidecode = dmicode_to_json(self.get_dmidecode())
+        self.nvidia_smi = nvidia_to_json(self.get_nvidia_smi())
+        self.lspci = self._get_lspci()
+        self.disk = self._get_disk_dict()
         self.i18n = get_i18n()
 
     def get_sys_info(self):
@@ -42,6 +46,12 @@ class InfoBash:
         """获取CPU信息"""
         try:
             return self._get_cpu_info()
+        except Exception as e:
+            return f"{e}"
+    def get_disk_info(self):
+        """获取磁盘信息"""
+        try:
+            return self._get_disk_info()
         except Exception as e:
             return f"{e}"
  
@@ -82,6 +92,7 @@ class InfoBash:
         ]
         date = self.tab_format(tmp)
         # print(date)
+        self.refresh_dmi() # 刷新数据
         return date
     def _get_gpu_info(self):
         """GPU信息"""
@@ -93,6 +104,7 @@ class InfoBash:
                f"{self.i18n.get('gpu_power')}",f"{self.i18n.get('gpu_temp')}"]
         date = []
         slot = self.get_slot()
+        # print(self.nvidia_smi['gpus'][0])
         for i in self.nvidia_smi['gpus']:
             gpu.bus_id = i['PCI'].get("Bus Id")
             gpu.GPU_ID = f"{i['Minor Number']}"
@@ -108,13 +120,13 @@ class InfoBash:
             gpu.ECC_Errors = i['ECC Errors']
             gpu.GPU_Current_Temp = i['Temperature']['GPU Current Temp']
             gpu.GPU_Power = [i['GPU Power Readings']['Max Power Limit'],i['GPU Power Readings']['Average Power Draw']]
-            date.append([gpu.GPU_ID,f"{slot[gpu.bus_id[4:].lower()]}",gpu.Product_Name,
+            date.append([gpu.GPU_ID,f"{slot.get(gpu.bus_id[4:].lower())}",gpu.Product_Name,
                          gpu.Product_Architecture,gpu.Serial_Number,
                          f"*****{gpu.GPU_UUID[-9:]}",gpu.Vbios_Version,
                          f"Pcie {gpu.PCIe_Generation}/{gpu.Link_Width}",f"{gpu.Memory_Usage[1]}/{gpu.Memory_Usage[0]}",
                          f"{gpu.GPU_Power[1]}/{gpu.GPU_Power[0]}",gpu.GPU_Current_Temp])
         ss = tabulate(date, headers=title, tablefmt='rounded_outline',stralign="center",numalign="center")
-        # print(ss)
+        self.refresh_nvidia() # 刷新数据
         return ss
 
     def _get_cpu_info(self):
@@ -130,6 +142,7 @@ class InfoBash:
             sysdate.cpuinfo.append(f"CPU{self.i18n.get('socket')}:{tmp.get('Socket Designation')}   SN:{tmp.get('Serial Number')}\nCPU{self.i18n.get('ver')}:{tmp.get('Version')}  CPU{self.i18n.get('core_count')}:{tmp.get('Core Count')}  CPU{self.i18n.get('thread_count')}:{tmp.get('Thread Count')} \nCPU{self.i18n.get('clock')}:{tmp.get('Max Speed')}  {self.i18n.get('L1_cache')}:{self.find_type_by_handle(tmp.get('L1 Cache Handle'))['fields']['Maximum Size']}  {self.i18n.get('L2_cache')}:{self.find_type_by_handle(tmp.get('L2 Cache Handle'))['fields']['Maximum Size']}  {self.i18n.get('L3_cache')}:{self.find_type_by_handle(tmp.get('L3 Cache Handle'))['fields']['Maximum Size']}")
         date = self.tab_format([sysdate.cpuinfo])
         # print(date)
+        self.refresh_dmi() # 刷新数据
         return date
     
     def _get_memory_info(self):
@@ -159,7 +172,65 @@ class InfoBash:
         date = tabulate(str, tablefmt="rounded_outline",headers=title,stralign="center",numalign="center")
         # print(date)
         return date
-      
+    
+    def _get_smart_info(self):
+        tmp = []
+        tran = ['null','usb',None]
+        for i in self.disk['blockdevices']:
+            # print(i)
+            if i['tran'] not in tran:
+                a = run_command(f"smartctl --all {i['path']}")
+                tmp.append(parse_smartctl_output(a))
+        return tmp
+    
+    
+    def _get_disk_info(self):
+        a = self._get_smart_info()
+        title = [self.i18n.get('disk_name'), self.i18n.get('serial_number'), self.i18n.get('capacity'),
+                 self.i18n.get('firmware_version'), self.i18n.get('nvme_version'),
+                 self.i18n.get('temperature'), self.i18n.get('warning'), self.i18n.get('total_read_size'),
+                 self.i18n.get('total_write_size'), self.i18n.get('power_cycles'), self.i18n.get('power_on_hours'),
+                 self.i18n.get('unsafe_shutdowns'), self.i18n.get('smart_test')]
+        date = DiskInfo()
+        tmp = []
+        size =""
+        # with open("bash/nvme", "r", encoding="utf-8") as f:
+        #     s = f.read()
+        # a = [parse_smartctl_output(s)]
+        def get_size(date):
+            match = re.search(r'\[(.*?)\]', date)
+            if match:
+                # group(1) 获取第一个括号内捕获的内容
+                result = match.group(1)
+                return result
+            else:
+                return "None"
+                
+        for i in a:
+            date.modu_name = i['disk_info'].get('Model Number')
+            date.serial_number = i['disk_info'].get('Serial Number')
+            date.size = get_size(i['disk_info'].get('Total NVM Capacity'))
+            date.firmware_version = i['disk_info'].get('Firmware Version')
+            date.nvme_version = i['disk_info'].get('NVMe Version')
+            date.temper = i['smart_info'].get('Temperature')
+            date.critical_warning = i['smart_info'].get('Critical Warning')
+            date.date_units_read  = get_size(i['smart_info'].get('Data Units Read'))
+            date.date_units_written  = get_size(i['smart_info'].get('Data Units Written'))
+            date.power_cycles = i['smart_info'].get('Power Cycles')
+            date.power_on_hours = i['smart_info'].get('Power On Hours')
+            date.unsafe_shutdowns = i['smart_info'].get('Unsafe Shutdowns')
+            date.smart_test = i['smart_info'].get('SMART overall-health self-assessment test result')
+            tmp.append([date.modu_name,date.serial_number,date.size,
+                   date.firmware_version,date.nvme_version,date.temper,date.critical_warning,
+                   date.date_units_read,date.date_units_written,date.power_cycles,date.power_on_hours,
+                   date.unsafe_shutdowns,date.smart_test])
+        
+        if tmp == []:
+            tmp.append([self.i18n.get("no_disk_info")])
+        return tabulate(tmp,headers=title,tablefmt="rounded_outline",stralign="center",numalign="center")
+    
+    
+    
     def _get_power_info(self):
         power = PoweInfo()
         title = [f"{self.i18n.get('slot')}",f"{self.i18n.get('name')}",f"{self.i18n.get('manufacturer')}",
@@ -288,14 +359,15 @@ class InfoBash:
                 
     def _get_lspci(self):
         """获取lspci数据"""
-        with open("bash/lspci.log", "r", encoding="utf-8") as f:
-            date = f.read()
-        self.lspci = create_pci_info_dict(date)
+        # with open("bash/lspci.log", "r", encoding="utf-8") as f:
+        #     date = f.read()
+        date = run_command("lspci -vvv")
+        return create_pci_info_dict(date)
         
     def _get_net_pci(self):
         """获取网络设备的pci id信息
         """
-        self._get_lspci()
+        # self._get_lspci()
         net = ['ethernet','infiniband','network']
         pattern = re.compile(r'\b(' + '|'.join(net) + r')\b', re.IGNORECASE)
         matched_bus_ids = []
@@ -313,3 +385,12 @@ class InfoBash:
         
         primary_bus_ids = [bid for bid in matched_bus_ids if bid.endswith('.0')]   
         return primary_bus_ids
+    
+    
+    def _get_disk_dict(self):
+        """获取磁盘信息"""
+        a = run_command("lsblk -d -o NAME,TYPE,TRAN,PATH,SIZE,SERIAL,MODEL -J")
+        date = json.loads(a)
+        if not isinstance(date, dict):
+            return {}
+        return date

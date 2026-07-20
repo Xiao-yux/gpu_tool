@@ -14,11 +14,15 @@ class MenuChess:
     ]
 
     _SYSTEM: ClassVar[List[Choice]] = [
-        Choice("查看CPU 内存信息", "1"),
-        Choice("查看GPU信息", "2"),
-        Choice("查看硬盘网卡信息", "3"),
-        Choice("查看nvlink拓扑", "4"),
-        Choice("查看impi ip设置信息", "5"),
+        Choice("查看系统全部信息", "1"),
+        Choice("查看系统信息", "2"),
+        Choice("查看CPU信息", "3"),
+        Choice("查看内存信息", "4"),
+        Choice("查看硬盘信息", "5"),
+        Choice("查看网卡信息", "6"),
+        Choice("查看GPU信息", "7"),
+        Choice("查看BMC Lan信息", "8"),
+        Choice("查看BMC Fru信息", "9"),
         Choice("返回", "exit"),
     ]
 

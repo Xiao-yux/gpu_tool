@@ -7,7 +7,7 @@ from i18n.i18n import get_i18n
 from utils.installpack import InstallPack
 from utils.tool import Tools
 from log.logger import get_logger
-from core.terminal_manager import TerminalManager
+from runner.screen import TerminalManager
 from config.model import PathConfig
 from utils.nvsmi import nvsmi
 from utils.ipmitool import ipmitools
@@ -38,31 +38,32 @@ class Menu:
 
     def main_menu(self):
         """主菜单"""
-        pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.main_menu,allow_filter=False,
-                          error_message=self.i18n.get('not_implemented')).prompt()
-        if pro.data == "exit":
-            os._exit(0)
-        elif pro.data == "1":
-            # self.autotest.runmenu()
-            return
-        elif pro.data == "2":
-            self.sys_info_menu()
-        elif pro.data == "3":
-            self.gpu_test_menu()
-        elif pro.data == "4":
-            self.system_test_menu()
-        elif pro.data == "5":
-            self.system_set_menu()
-        elif pro.data == "6":
-            self.tool.run_command("poweroff")
+        while True:
+            pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.main_menu,allow_filter=False,
+                            error_message=self.i18n.get('not_implemented')).prompt()
+            if pro.data == "exit":
+                os._exit(0)
+            elif pro.data == "1":
+                # self.autotest.runmenu()
+                return
+            elif pro.data == "2":
+                self.sys_info_menu()
+            elif pro.data == "3":
+                self.gpu_test_menu()
+            elif pro.data == "4":
+                self.system_test_menu()
+            elif pro.data == "5":
+                self.system_set_menu()
+            elif pro.data == "6":
+                self.tool.run_command("poweroff")
 
-        self.log.info(f'用户选择: {pro}')
-        self.main_menu()
+            self.log.info(f'用户选择: {pro}')
+        return
     def system_set_menu(self):
-        """BMC用户设置菜单"""
+        """设置菜单"""
         pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.setsystem_menu, error_message=self.i18n.get('not_implemented')).prompt()
         if pro.data == "exit":
-            self.main_menu()
+            return
         elif pro.data == "1":
             self.apt_install_menu()
         elif pro.data == "2":
@@ -72,7 +73,7 @@ class Menu:
         elif pro.data == "4":
             self.rtt_memu()
         self.log.info(f'用户选择BMC用户设置菜单: {pro}')
-        self.main_menu()
+        return
     def rtt_memu(self):
         fd = f"\'{self.log.paths.run}/fd\'"
         p = ListPrompt(self.i18n.get('select_option'),choices=self.menu_chess.sys_tool_menu).prompt()
@@ -81,23 +82,23 @@ class Menu:
             self.log.info(f"{fd} is exist {a} \n",console=True)
             self.tool.check_fd_log(fd)
 
-        self.main_menu()
+        return
 
     def bmc_set_menu(self):
         pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.bmc_set_menu,
                          validator=lambda x: x != self.menu_chess.bmc_set_menu[1], error_message=self.i18n.get('not_implemented')).prompt()
         if pro.data == "exit":
-            self.main_menu()
+            return
         elif pro.data == "1":
             self.tool.set_bmc_dhcp()
         cmd = f"ipmitool user {pro.data}"
         self.log.info(f'用户选择BMC用户设置菜单: {pro}')
-        self.main_menu()
+        return
 
     def download_gpu(self):
         pro = ListPrompt(self.i18n.get('select_option'),choices=self.menu_chess.download_gpu).prompt()
         if pro.data == "exit":
-            self.main_menu()
+            return
         if pro.data == "1":
             self.install.download_gpu_burn(self.path.download)
         if pro.data == "2":
@@ -110,106 +111,121 @@ class Menu:
 
 
     def apt_install_menu(self):
-        pro = ListPrompt(self.i18n.get('select_option'),choices=self.menu_chess.apt_menu,allow_filter=False).prompt()
-        if pro.data == "exit":
-            self.main_menu()
-        if pro.data == "1":
-            self.log.info("安装cuda_keyring")
-            self.install.apt_install_cuda_keyring()
-        if pro.data == "2":
-            self.log.info("安装nvidia驱动和cuda")
-            self.install.apt_install_nvidia_pack()
-        if pro.data == "3":
-            self.log.info("安装mlnx 驱动")
-            self.install.apt_install_mlnx_ofed_linux()
-        if pro.data == "4":
-            self.log.info("安装DOCA")
-            self.install.apt_install_doca()
-        if pro.data == "5":
-            self.log.info("安装DCGMI")
-            self.install.apt_install_dcgm()
-        if pro.data == "6":
-            self.log.info("安装libnccl")
-            self.install.apt_install_libnccl()
-        if pro.data == "7":
-            self.install.apt_install_systest()
-        self.apt_install_menu()
+        while True:
+            pro = ListPrompt(self.i18n.get('select_option'),choices=self.menu_chess.apt_menu,allow_filter=False).prompt()
+            if pro.data == "exit":
+                break
+            if pro.data == "1":
+                self.log.info("安装cuda_keyring")
+                self.install.apt_install_cuda_keyring()
+            if pro.data == "2":
+                self.log.info("安装nvidia驱动和cuda")
+                self.install.apt_install_nvidia_pack()
+            if pro.data == "3":
+                self.log.info("安装mlnx 驱动")
+                self.install.apt_install_mlnx_ofed_linux()
+            if pro.data == "4":
+                self.log.info("安装DOCA")
+                self.install.apt_install_doca()
+            if pro.data == "5":
+                self.log.info("安装DCGMI")
+                self.install.apt_install_dcgm()
+            if pro.data == "6":
+                self.log.info("安装libnccl")
+                self.install.apt_install_libnccl()
+            if pro.data == "7":
+                self.install.apt_install_systest()
+        return
     def gpu_test_menu(self):
         """GPU测试菜单"""
-        pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.gpu_test_menu).prompt()
-        if pro.data == "exit":
-            return
-        if pro.data == "1":
-            self.fd_menu()
-        elif pro.data == "2":
-            self.gpu_burn_menu()
-        elif pro.data == "3":
-            self.dcgmi_menu()
-        elif pro.data == "4":
-            a = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.nvband_menu).prompt()
-            cmd = "./nvbandwidth"
-            path = f"{self.tool.get_bash_path()}"
-            if a.data == "-1":
-                self.run_command(cmd, path, logname="nvband_test")
-            else:
-                cmd += f" {a.data}"
-                self.run_command(cmd, path, logname="nvband_test")
-        elif pro.data == "5":
-            self.nccl_menu()
-        elif pro.data == "6":
-            cmd = "./p2pBandwidthLatencyTest"
-            path = f"{self.tool.get_bash_path()}"
-            logname = "p2pBandwidthLatencyTest_test"
-            self.run_command(cmd, path, logname)
-        self.log.info(f'用户选择GPU测试菜单: {pro}')
-        self.main_menu()
+        while True:
+            pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.gpu_test_menu).prompt()
+            if pro.data == "exit":
+                break
+            if pro.data == "1":
+                self.fd_menu()
+            elif pro.data == "2":
+                self.gpu_burn_menu()
+            elif pro.data == "3":
+                self.dcgmi_menu()
+            elif pro.data == "4":
+                a = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.nvband_menu).prompt()
+                cmd = "./nvbandwidth"
+                path = f"{self.tool.get_bash_path()}"
+                if a.data == "-1":
+                    self.run_command(cmd, path, logname="nvband_test")
+                else:
+                    cmd += f" {a.data}"
+                    self.run_command(cmd, path, logname="nvband_test")
+            elif pro.data == "5":
+                self.nccl_menu()
+            elif pro.data == "6":
+                cmd = "./p2pBandwidthLatencyTest"
+                path = f"{self.tool.get_bash_path()}"
+                logname = "p2pBandwidthLatencyTest_test"
+                self.run_command(cmd, path, logname)
+            self.log.info(f'用户选择GPU测试菜单: {pro}')
+        return
 
     def sys_info_menu(self):
         """系统信息菜单"""
-        pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.system_menu,allow_filter=False).prompt()
-        if pro.data == "exit":
-            self.main_menu()
-        if pro.data == "1": #全部信息
-            self.log.info("系统信息")
-            self.log.info(self.info.get_sys_info(), console=True)
-            self.log.info("CPU信息")
-            self.log.info(self.info.get_cpu_info(), console=True)
-            input(f"{self.i18n.get('press_enter_continue')}")
-            self.log.info("内存信息")
-            self.log.info(self.info.get_memory_info(), console=True)
-            input(f"{self.i18n.get('press_enter_continue')}")
-            self.log.info("硬盘信息")
-            # self.log.info(self.info.get_disk_info(), console=True) #待实现
-            input(f"{self.i18n.get('press_enter_continue')}")
-            self.log.info("网卡信息")
-            self.log.info(self.info.get_net_info(), console=True)
-            input(f"{self.i18n.get('press_enter_continue')}")
-            self.log.info("GPU信息")
-            self.log.info(self.gpu.get_gpu_info(), console=True)
-            
-            
-        elif pro.data == "2":  #信息信息
-            self.log.info(self.info.get_sys_info(), console=True)
-        elif pro.data == "3":  #CPU 信息
-            self.log.info(self.tool.get_eth_info(), console=True)
-        elif pro.data == "4":  # 内存信息
-            self.log.info(self.gpu.get_gpu_topo(), console=True)
-        elif pro.data == "5": # 硬盘信息
-            self.log.info(self.ipmi.lan(), console=True)
-        elif pro.data == "6":  # 网卡信息
-            self.log.info(self.gpu.get_gpu_topo(), console=True)
-        elif pro.data == "7":  # GPU信息
-            self.log.info(self.gpu.get_gpu_topo(), console=True)
-        
-        self.log.info(f'用户选择: {pro}')
-        self.tool.input_chick()
+        a =0
+        while True:
+            pro = ListPrompt(self.i18n.get('select_option'),default_select=a, choices=self.menu_chess.system_menu,allow_filter=False).prompt()
+            if pro.data == "exit":
+                break
+            if pro.data == "1": #全部信息
+                self.log.info(f"系统信息\n{self.info.get_sys_info()}", console=True)
+                self.log.info(f"CPU信息\n{self.info.get_cpu_info()}", console=True)
+                input(f"{self.i18n.get('press_enter_continue')}")
+                self.log.info(f"内存信息\n{self.info.get_memory_info()}", console=True)
+                input(f"{self.i18n.get('press_enter_continue')}")
+                self.log.info(f"硬盘信息\n{self.info.get_disk_info()}", console=True)
+                input(f"{self.i18n.get('press_enter_continue')}")
+                self.log.info(f"网卡信息\n{self.info.get_net_info()}", console=True)
+                input(f"{self.i18n.get('press_enter_continue')}")
+                self.log.info(f"GPU信息\n{self.info.get_gpu_info()}", console=True)
+            elif pro.data == "2":  #系统信息
+                a=1
+                self.log.info(f"系统信息\n{self.info.get_sys_info()}", console=True)
+                input(f"{self.i18n.get('press_enter_continue')}")
+            elif pro.data == "3":  #CPU 信息
+                a=2
+                self.log.info(f"CPU信息\n{self.info.get_cpu_info()}", console=True)
+                input(f"{self.i18n.get('press_enter_continue')}")
+            elif pro.data == "4":  # 内存信息
+                a=3
+                self.log.info(f"内存信息\n{self.info.get_memory_info()}", console=True)
+                input(f"{self.i18n.get('press_enter_continue')}")
+            elif pro.data == "5": # 硬盘信息
+                a=4
+                self.log.info(f"硬盘信息\n{self.info.get_disk_info()}", console=True)
+                input(f"{self.i18n.get('press_enter_continue')}")
+            elif pro.data == "6":  # 网卡信息
+                a=5
+                self.log.info(f"网卡信息\n{self.info.get_net_info()}", console=True)
+                input(f"{self.i18n.get('press_enter_continue')}")
+            elif pro.data == "7":  # GPU信息
+                a=6
+                self.log.info(f"GPU信息\n{self.info.get_gpu_info()}", console=True)
+                input(f"{self.i18n.get('press_enter_continue')}")
+            elif pro.data == "8": # IPMIlan信息
+                a=7
+                self.log.info(self.ipmi.lan(), console=True)
+                input(f"{self.i18n.get('press_enter_continue')}")
+            elif pro.data == "9": # fru
+                a=8
+                self.log.info(self.ipmi.fru(), console=True)
+                input(f"{self.i18n.get('press_enter_continue')}")
+            self.log.info(f'用户选择: {pro}')
+
         return
 
     def dcgmi_menu(self):
         """DCGMI测试菜单"""
         pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.dcgm_menu,allow_filter=False).prompt()
         if pro.data == "exit":
-            self.gpu_test_menu()
+            return
         cmd = f"dcgmi {pro.data}"
         self.log.info(f'用户选择DCGMI测试菜单: {pro}')
         self.run_command(cmd, logname="dcgmi_test",path=self.log.paths.run)
@@ -219,7 +235,6 @@ class Menu:
         """GPU烧机测试菜单"""
         pro = InputPrompt(self.i18n.get('input_time_gpu_burn'),default_text="0").prompt()
         if pro == "0":
-            self.gpu_test_menu()
             return
         
         # 解析时间输入
@@ -251,7 +266,7 @@ class Menu:
         logname = "fd_test"
         pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.fd_menu,allow_filter=False).prompt()
         if pro.data == "exit":
-            self.gpu_test_menu()
+            return
         if pro.data == "1":
             cmd += f"--no_bmc --level1 --log '{self.log.paths.run}/fd'"
             self.run_command(cmd, path, logname)
@@ -335,7 +350,7 @@ class Menu:
     def system_test_menu(self):
         pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.sys_test_menu,allow_filter=False).prompt()
         if pro.data == "exit":
-            self.main_menu()
+            return
         if pro.data == "1":
             a = InputPrompt("输入测试时间(秒),默认300秒:").prompt()
             if not a:
@@ -345,12 +360,12 @@ class Menu:
         if pro.data == "2":
 
             a = int(os.popen("export LC_ALL=C.UTF-8 && free -m | grep Mem | awk '{print ($2)}'").read())
-            cmd = f"memtester {a - 4096}M 1"
+            cmd = f"memtester {a - 2048}M 1"
             self.log.info(cmd)
             self.run_command(cmd, logname="memtester_test")
         if pro.data == "3":
             self.disk_speed_test_menu()
-        self.main_menu()
+        return
 
     def disk_speed_test_menu(self):
         """硬盘速度测试"""
@@ -408,7 +423,6 @@ class Menu:
             self.run_command(cmd3, logname=f"disk_speed_test_{disk.data[1]}")
             self.log.info("正在测试 混合读写\n", console=True)
             self.run_command(cmd4, logname=f"disk_speed_test_{disk.data[1]}")
-        self.system_test_menu()
         return None
 
     def job(self) -> None:

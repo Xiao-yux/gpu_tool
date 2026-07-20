@@ -1,9 +1,8 @@
 from __future__ import annotations
 import json
 import re
-
 from pydantic import BaseModel, Field
-from pydantic.types import Json
+
 
 
 class sysInfo(BaseModel):
@@ -63,6 +62,24 @@ class GPUInfo(BaseModel):
     ECC_Errors:dict = Field(default={}, description="ECC错误")
     GPU_Current_Temp: str = Field(default="", description="GPU当前温度")
     GPU_Power:list = Field(default=[], description="GPU功率(最大功率/使用功率)")
+    
+
+class DiskInfo(BaseModel):
+    """磁盘信息"""
+    modu_name: str = Field(default="", description="磁盘名称")
+    serial_number: str = Field(default="", description="序列号")
+    size: str = Field(default="", description="大小")
+    firmware_version: str = Field(default="", description="固件版本")
+    nvme_version: str = Field(default="", description="NVMe版本")
+    temper : str = Field(default="", description="温度")
+    critical_warning : str = Field(default="", description="严重警告")
+    date_units_read : str = Field(default="", description="总读取大小")
+    date_units_written : str = Field(default="", description="总写入大小")
+    power_cycles : str = Field(default="", description="通电次数")
+    power_on_hours : str = Field(default="", description="通电小时数")
+    unsafe_shutdowns : str = Field(default="", description="非正常关机次数")
+    smart_test: str = Field(default="", description="SMART测试")
+    
     
 def _coerce_scalar(value: str):
     value = value.strip()
@@ -253,3 +270,63 @@ def create_pci_info_dict(pci_data: str) -> dict:
         pci_dict[current_bus_id] = '\n'.join(current_info_lines).strip()
         
     return pci_dict
+
+
+
+def parse_smartctl_output(text):
+    """
+    解析 smartctl 输出文本，返回包含磁盘信息和 SMART 信息的字典。
+    
+    Args:
+        text (str): smartctl 命令的完整输出文本
+        
+    Returns:
+        dict: {"disk_info": {...}, "smart_info": {...}}
+    """
+    result = {
+        "disk_info": {},
+        "smart_info": {}
+    }
+    
+    # 将文本按行分割
+    lines = text.split('\n')
+    
+    # 状态标记，用于记录当前正在解析哪个部分
+    # 0: 其他区域, 1: Information Section, 2: SMART Data Section
+    current_section = 0 
+    
+    # 预编译正则，用于匹配 "Key: Value" 格式
+    # 解释：
+    # ^\s*       : 行首允许有空格
+    # (.+?)      : 匹配 Key (非贪婪模式，直到遇到冒号)
+    # \s*:\s*    : 匹配冒号及其周围可能存在的空格
+    # (.+)       : 匹配 Value (冒号后的剩余内容)
+    pattern = re.compile(r'^\s*(.+?)\s*:\s*(.+)')
+    
+    for line in lines:
+        # 1. 判断当前进入哪个 Section
+        if "=== START OF INFORMATION SECTION ===" in line:
+            current_section = 1
+            continue
+        elif "=== START OF SMART DATA SECTION ===" in line:
+            current_section = 2
+            continue
+        elif line.startswith("===") and "END" in line:
+            # 如果遇到结束标记，停止解析
+            current_section = 0
+            continue
+            
+        # 2. 根据当前状态解析数据
+        if current_section > 0:
+            match = pattern.match(line)
+            if match:
+                key = match.group(1).strip()  # 去除 Key 两端空格
+                value = match.group(2).strip() # 去除 Value 两端空格
+                
+                # 将解析出的数据存入对应的字典
+                if current_section == 1:
+                    result["disk_info"][key] = value
+                elif current_section == 2:
+                    result["smart_info"][key] = value
+                    
+    return result

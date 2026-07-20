@@ -1,6 +1,6 @@
 import os
 from typing import ClassVar
-
+from bash.bash import InfoBash
 from utils.tool import Tools
 from log.logger import get_logger
 from i18n.i18n import get_i18n
@@ -27,6 +27,7 @@ class CheckSystem:
         self.log = get_logger()
         self.path = config
         self.tool = Tools()
+        self.info = InfoBash()
         # 获取i18n实例
         self.i18n = get_i18n()
 
@@ -111,10 +112,14 @@ class CheckSystem:
         """收集系统信息"""
         a = "system_info"
         self.log.info(f"{self.i18n.get('gpu_cont')} {self.tool.get_gpu_count()}\n",console=True,file_name=a)
-        self.log.info(self.tool.get_sys_info(), file_name=a)
-        self.log.info(self.tool.get_eth_info(), file_name=a)
+        self.log.info(f"系统信息\n{self.info.get_sys_info()}", file_name=a)
+        self.log.info(f"CPU信息\n{self.info.get_cpu_info()}", file_name=a)  
+        self.log.info(f"内存信息\n{self.info.get_memory_info()}", file_name=a)
+        self.log.info(f"硬盘信息\n{self.info.get_disk_info()}", file_name=a)
+        self.log.info(f"网卡信息\n{self.info.get_net_info()}", file_name=a)
+        
         if GPU == 1:
-            self.log.info(self.tool.get_gpu_info(), file_name=a)
+            self.log.info(f"GPU信息\n{self.info.get_gpu_info()}", file_name=a)
         self.save_def_info()
         self.tool.get_nvidia_bug_report(f"{self.log.paths.system}")
     def save_def_info(self):

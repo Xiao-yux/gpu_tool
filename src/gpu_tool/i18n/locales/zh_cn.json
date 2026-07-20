@@ -98,6 +98,18 @@
     "memory_interface":"内存接口",
     "mu_ma":"MUMA 节点",
     "memory_type":"内存类型",
-    "lnkstat":"链路状态"
-
+    "lnkstat":"链路状态",
+    "disk_name":"磁盘名称",
+    "capacity":"容量",
+    "firmware_version":"固件版本",
+    "nvme_version":"NVMe版本",
+    "temperature":"温度",
+    "warning":"警告",
+    "total_read_size":"总读取大小",
+    "total_write_size":"总写入大小",
+    "power_cycles":"通电次数",
+    "power_on_hours":"通电时长",
+    "unsafe_shutdowns":"不正常关机次数",
+    "smart_test":"Smart测试",
+    "no_disk_info":"无磁盘信息"
 }

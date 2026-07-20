@@ -1,3 +1,4 @@
+from pathlib import Path
 import subprocess
 import os
 import shlex
@@ -83,7 +84,7 @@ class TerminalManager:
         # 返回新的会话名称，id为最大值+1
         return f"{logname}_{max_id + 1}"
 
-    def execute_command(self, command: str, logname: str = "command", path: str = "/tmp") -> str:
+    def execute_command(self, command: str, logname: str = "command", path: str | Path= "/tmp") -> str:
         """在 screen 会话中执行命令
 
         Args:
@@ -198,7 +199,7 @@ class TerminalManager:
                             _file_size = 0
                     
                     # 情况3：文件大小没变，休眠一下减少 CPU 占用
-                    time.sleep(0.05)
+                    time.sleep(0.01)
 
                 except KeyboardInterrupt:
                     print("\n[Info] 用户停止监控。")
