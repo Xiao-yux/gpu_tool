@@ -1,7 +1,4 @@
-from bisect import insort
 import json
-from pdb import run
-from turtle import title
 from i18n.i18n import get_i18n
 from tabulate import tabulate
 import re
@@ -193,7 +190,6 @@ class InfoBash:
                  self.i18n.get('unsafe_shutdowns'), self.i18n.get('smart_test')]
         date = DiskInfo()
         tmp = []
-        size =""
         # with open("bash/nvme", "r", encoding="utf-8") as f:
         #     s = f.read()
         # a = [parse_smartctl_output(s)]

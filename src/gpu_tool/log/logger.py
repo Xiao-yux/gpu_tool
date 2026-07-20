@@ -10,7 +10,6 @@ The format:
 from __future__ import annotations
 
 
-from ast import Str
 import inspect
 import logging
 from pathlib import Path

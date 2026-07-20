@@ -2,7 +2,7 @@ import sys
 import os
 import threading
 
-from art import text2art
+
 
 def is_root():
     if os.popen("whoami").read().strip() == "root":
@@ -13,7 +13,10 @@ def is_root():
 
 
 class Core:
-    def __init__(self):
+    def __init__(self) -> None:
+        pass
+    
+    def init(self):
         # print("计时开始{}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
         is_root()
 
@@ -26,8 +29,7 @@ class Core:
         # 初始化国际化
         # print("config tiem:{}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
         self.i18n = init_i18n()
-        print(text2art(self.i18n.get('app_name'), chr_ignore=True))
-        print(f"\033[92m{self.config.version}\033[0m")
+        
         # 初始化全局日志实例
         # print("i18 tiem:{}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
         self.log = init_logger(self.config.log)
@@ -60,6 +62,7 @@ class Core:
 
     def run(self):
         try:
+            self.init()
             if self.menu is None:
                 from menu.menu import Menu
                 self.menu = Menu(self.config.paths)

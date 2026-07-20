@@ -26,7 +26,7 @@ class WebSocketServer:
         self.app = app
 
     async def handle_client(self, websocket: ServerConnection) -> None:
-        path = websocket.request.path  # 想要 URI 从这里拿  # pyright: ignore[reportAttributeAccessIssue]
+        # path = websocket.request.path  # 想要 URI 从这里拿  # pyright: ignore[reportAttributeAccessIssue]
         client_ip = websocket.remote_address[0] if websocket.remote_address else "unknown"  # pyright: ignore[reportAttributeAccessIssue]
         self.clients.add(websocket)
         client_id = str(id(websocket))

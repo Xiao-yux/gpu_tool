@@ -91,7 +91,7 @@ class Menu:
             return
         elif pro.data == "1":
             self.tool.set_bmc_dhcp()
-        cmd = f"ipmitool user {pro.data}"
+        # cmd = f"ipmitool user {pro.data}"
         self.log.info(f'用户选择BMC用户设置菜单: {pro}')
         return
 

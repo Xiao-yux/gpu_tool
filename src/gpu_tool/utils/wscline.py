@@ -185,7 +185,7 @@ class Cline:
     async def ttyget(self):
         "建立ssh连接"
         TTY_DEV = "/dev/tty4"  # 按实际改
-        BAUD = 115200
+        # BAUD = 115200
         try:
             # aiofiles 支持异步 read
             async with aiofiles.open(TTY_DEV, "rb", buffering=0) as tty:
