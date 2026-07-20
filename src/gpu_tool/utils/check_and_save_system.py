@@ -117,7 +117,6 @@ class CheckSystem:
             self.log.info(self.tool.get_gpu_info(), file_name=a)
         self.save_def_info()
         self.tool.get_nvidia_bug_report(f"{self.log.paths.system}")
-        self.log.info(run_command(f"{self.tool.get_tmp_path()}/bash/nic_info"),file_name="system/nic_info")
     def save_def_info(self):
         """收集系统原始数据 DEFAULT_COMMANDS 内的命令
         """

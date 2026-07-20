@@ -169,28 +169,38 @@ class Menu:
         pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.system_menu,allow_filter=False).prompt()
         if pro.data == "exit":
             self.main_menu()
-        if pro.data == "1":
-            try:
-                a1 = self.info.get_sys_info()
-                a2 = self.info.get_cpu_info()
-                self.log.info(a1)
-                self.log.info(a2)
-            except Exception as e:
-                self.log.info(f"获取系统信息失败: {e}", console=True)
-                return
+        if pro.data == "1": #全部信息
+            self.log.info("系统信息")
+            self.log.info(self.info.get_sys_info(), console=True)
+            self.log.info("CPU信息")
+            self.log.info(self.info.get_cpu_info(), console=True)
+            input(f"{self.i18n.get('press_enter_continue')}")
+            self.log.info("内存信息")
+            self.log.info(self.info.get_memory_info(), console=True)
+            input(f"{self.i18n.get('press_enter_continue')}")
+            self.log.info("硬盘信息")
+            # self.log.info(self.info.get_disk_info(), console=True) #待实现
+            input(f"{self.i18n.get('press_enter_continue')}")
+            self.log.info("网卡信息")
+            self.log.info(self.info.get_net_info(), console=True)
+            input(f"{self.i18n.get('press_enter_continue')}")
+            self.log.info("GPU信息")
+            self.log.info(self.gpu.get_gpu_info(), console=True)
             
-        elif pro.data == "2":
-            try:
-                self.log.info(f"{self.info.get_memory_info()}")
-            except Exception as e:
-                self.log.info(f"获取内存信息失败: {e}", console=True)
-                return
-        elif pro.data == "3":
+            
+        elif pro.data == "2":  #信息信息
+            self.log.info(self.info.get_sys_info(), console=True)
+        elif pro.data == "3":  #CPU 信息
             self.log.info(self.tool.get_eth_info(), console=True)
-        elif pro.data == "4":
+        elif pro.data == "4":  # 内存信息
             self.log.info(self.gpu.get_gpu_topo(), console=True)
-        elif pro.data == "5":
+        elif pro.data == "5": # 硬盘信息
             self.log.info(self.ipmi.lan(), console=True)
+        elif pro.data == "6":  # 网卡信息
+            self.log.info(self.gpu.get_gpu_topo(), console=True)
+        elif pro.data == "7":  # GPU信息
+            self.log.info(self.gpu.get_gpu_topo(), console=True)
+        
         self.log.info(f'用户选择: {pro}')
         self.tool.input_chick()
         return

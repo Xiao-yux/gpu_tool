@@ -220,4 +220,36 @@ def dmicode_to_json(dmidecode: str) -> dict:
             result[key] = [existing, parsed_block]
 
     return result
+
+def create_pci_info_dict(pci_data: str) -> dict:
+    """
+    解析原始PCI信息文本，返回一个 {bus_id: pci_info} 的字典
+    """
+    pci_dict = {}
+    # 使用换行符分割整段文本
+    lines = pci_data.split('\n')
     
+    current_bus_id = None
+    current_info_lines = []
+    
+    for line in lines:
+        # 检测非空且不是以空白字符（制表符或空格）开头的行，即为新的设备块起始行
+        if line.strip() and not line.startswith((' ', '\t')):
+            # 如果之前已经记录了设备，则将其存入字典
+            if current_bus_id is not None:
+                pci_dict[current_bus_id] = '\n'.join(current_info_lines).strip()
+            
+            # 提取 Bus ID (格式通常为 XX:XX.X)
+            # 假设 Bus ID 是该行的第一个单词
+            current_bus_id = line.split()[0]
+            current_info_lines = [line]
+        else:
+            # 属于当前设备的详细信息行，追加进去
+            if current_bus_id is not None:
+                current_info_lines.append(line)
+                
+    # 处理最后一个设备块（循环结束时还没有存入字典）
+    if current_bus_id is not None:
+        pci_dict[current_bus_id] = '\n'.join(current_info_lines).strip()
+        
+    return pci_dict
