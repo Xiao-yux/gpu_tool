@@ -1,0 +1,23 @@
+# negpu development / CI dependencies
+# Install:  pip install -r requirements.txt -r requirements-dev.txt
+-r requirements.txt
+
+# testing
+pytest
+pytest-asyncio
+pytest-mock
+pytest-cov
+
+# lint / format / types
+ruff
+mypy
+black
+
+# type stubs
+types-toml>=0.10,<1.0; python_version < "3.11"
+types-aiofiles>=23.0
+
+# build
+nuitka
+ordered-set
+Nuitka[onefile]

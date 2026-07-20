@@ -1,0 +1,17 @@
+# negpu runtime dependencies
+# Kept in sync with pyproject.toml [project.dependencies]
+# Install:  pip install -r requirements.txt
+
+
+pydantic>=2.5,<3.0
+noneprompt #菜单
+tomli
+websockets
+# asyncssh>=2.14,<3.0
+aiofiles
+openpyxl
+tqdm
+art
+tabulate  # 表格输出
+Nuitka[onefile]
+Nuitka #打包

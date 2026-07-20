@@ -1,4 +1,5 @@
 *.txt
+!requirements*.txt
 /.venv
 /log
 nuitka-crash-report.xml
