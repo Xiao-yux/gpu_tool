@@ -2,12 +2,14 @@ import argparse
 import sys
 from _version import __version__
 from utils.tool import Tools
+from bash.bash import InfoBash
 from art import text2art
 from utils.show_xid import show_xid
 class GpuToolApi:
     def __init__(self):
         self.version = __version__
         self.tool = Tools()
+        self.info = InfoBash()
         self.xid_path = f"{self.tool.get_bash_path()}/Xid-Catalog.zh-CN.xlsx"
         self.run()
 
@@ -17,13 +19,17 @@ class GpuToolApi:
         if args.disp_name:
             tx1 = args.disp_name
         if args.get_gpu_info:
-            print(self.tool.get_gpu_info())
+            print(self.info.get_gpu_info())
             sys.exit(0)
         if args.get_sys_info:
-            print(self.tool.get_sys_info())
+            print(self.info.get_sys_info())
+            print(self.info.get_cpu_info())
+            print(self.info.get_memory_info())
             sys.exit(0)
         if args.get_eth_info:
-            print(self.tool.get_eth_info())
+            print(self.info.get_net_info())
+            print(self.info.get_disk_info())
+            print(self.info.get_power_info())
             sys.exit(0)
         if args.check_fd_log:
             self.tool.fd_log_print(args.check_fd_log)
@@ -50,8 +56,8 @@ class GpuToolApi:
 
         # 添加参数
         parser.add_argument('--get_gpu_info', action='store_true', help='获取GPU信息')
-        parser.add_argument('--get_sys_info', action='store_true', help='获取CPU和内存信息')
-        parser.add_argument('--get_eth_info', action='store_true', help='获取网卡和硬盘信息')
+        parser.add_argument('--get_sys_info', action='store_true', help='获取系统,cpu,内存信息')
+        parser.add_argument('--get_eth_info', action='store_true', help='获取网卡和硬盘,电源信息')
         parser.add_argument('--version', action='version', version=f'{ver}', help='显示版本信息')
         parser.add_argument('--disp_name', action='store', help='自定义颜文字')
         parser.add_argument('--check_fd_log', metavar='FD_LOG_PATH',help='分析fd日志')
