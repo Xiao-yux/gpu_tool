@@ -111,5 +111,6 @@
     "power_on_hours":"通电时长",
     "unsafe_shutdowns":"不正常关机次数",
     "smart_test":"Smart测试",
-    "no_disk_info":"无磁盘信息"
+    "no_disk_info":"无磁盘信息",
+    "no_power_info":"无电源信息"
 }

@@ -119,7 +119,9 @@ class CheckSystem:
         self.log.info(f"网卡信息\n{self.info.get_net_info()}", file_name=a)
         
         if GPU == 1:
-            self.log.info(f"GPU信息\n{self.info.get_gpu_info()}", file_name=a)
+            gpu ,ecc =self.info.get_gpu_info()
+            self.log.info(f"GPU信息\n{gpu}", file_name=a)
+            self.log.info(f"ECC信息\n{ecc}", file_name=a)
         self.save_def_info()
         self.tool.get_nvidia_bug_report(f"{self.log.paths.system}")
     def save_def_info(self):

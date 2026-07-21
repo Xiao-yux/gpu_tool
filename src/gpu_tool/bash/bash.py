@@ -56,31 +56,15 @@ class InfoBash:
         """获取系统信息"""
         #系统信息模板
         sysdate = sysInfo()
-        sysdate.manufacturer = self.dmidecode["type_1"]['fields'].get("Manufacturer")
-        sysdate.product_name = self.dmidecode["type_1"]['fields'].get("Product Name","")
-        sysdate.sn = self.dmidecode["type_1"]['fields'].get("Serial Number","")
-        sysdate.hight = self.dmidecode["type_3"]['fields'].get("Height","")
-        sysdate.type = self.dmidecode["type_3"]['fields'].get("Type","")
-        sysdate.bios_release_date = self.dmidecode["type_0"]['fields'].get("Release Date","")
-        sysdate.bios_vendor = self.dmidecode["type_0"]['fields'].get("Vendor","")
-        sysdate.bios_version = self.dmidecode["type_0"]['fields'].get("Version","")
-        sysdate.bios_revision = self.dmidecode["type_0"]['fields'].get("BIOS Revision","")
-        if self.dmidecode['type_4'] and len(self.dmidecode['type_4']) > 0:
-            for cpu in self.dmidecode['type_4']:
-                tmp = cpu['fields']
-                a = [f"CPU{self.i18n.get('socket')}:{tmp.get('Socket Designation')}1   \
-                    SN:{tmp.get('core_count')}\nCPU{self.i18n.get('ver')}:{tmp.get('Version')}  \
-                        CPU{self.i18n.get('ver')}:{tmp.get('Core Count')}  CPU线程数:{tmp.get('Thread Count')} \n\
-                        CPU频率:{tmp.get('Max Speed')}  \
-                            L1缓存:{self.find_type_by_handle(tmp.get('L1 Cache Handle'))['fields']['Maximum Size']}  \
-                                L2缓存:{self.find_type_by_handle(tmp.get('L2 Cache Handle'))['fields']['Maximum Size']}  \
-                                    L3缓存:{self.find_type_by_handle(tmp.get('L3 Cache Handle'))['fields']['Maximum Size']}"]
-
-                sysdate.cpuinfo.append(a)
-        else:
-            tmp = self.dmidecode['type_4']['fields']
-            sysdate.cpuinfo =  [f"CPU槽位:{tmp.get('Socket Designation')} SN:{tmp.get('Serial Number')}\nCPU型号:{tmp.get('Version')}  CPU核心数:{tmp.get('Core Count')}  CPU线程数:{tmp.get('Thread Count')} \nCPU频率:{tmp.get('Max Speed')}  L1缓存:{self.find_type_by_handle(tmp.get('L1 Cache Handle'))['fields']['Maximum Size']}  L2缓存:{self.find_type_by_handle(tmp.get('L2 Cache Handle'))['fields']['Maximum Size']}  L3缓存:{self.find_type_by_handle(tmp.get('L3 Cache Handle'))['fields']['Maximum Size']}"]
-        
+        sysdate.manufacturer = self.dmidecode.get('type_1', {}).get('fields', {}).get('Manufacturer', 'Unknown')
+        sysdate.product_name = self.dmidecode.get('type_1', {}).get('fields', {}).get('Product Name', 'Unknown')
+        sysdate.sn = self.dmidecode.get('type_1', {}).get('fields', {}).get('Serial Number', 'Unknown')
+        sysdate.hight = self.dmidecode.get('type_3', {}).get('fields', {}).get('Height', 'Unknown')
+        sysdate.type = self.dmidecode.get('type_3', {}).get('fields', {}).get('Type', 'Unknown')
+        sysdate.bios_release_date = self.dmidecode.get('type_0', {}).get('fields', {}).get('Release Date', 'Unknown')
+        sysdate.bios_vendor = self.dmidecode.get('type_0', {}).get('fields', {}).get('Vendor', 'Unknown')
+        sysdate.bios_version = self.dmidecode.get('type_0', {}).get('fields', {}).get('Version', 'Unknown')
+        sysdate.bios_revision = self.dmidecode.get('type_0', {}).get('fields', {}).get('BIOS Revision', 'Unknown')
         tmp = [
             [f"{self.i18n.get('vendor')}", sysdate.manufacturer,f"{self.i18n.get('product_name')}", sysdate.product_name,f"{self.i18n.get('serial_number')}",
              sysdate.sn,f"{self.i18n.get('type')}", sysdate.type,f"{self.i18n.get('hight')}", sysdate.hight],
@@ -92,7 +76,7 @@ class InfoBash:
         self.refresh_dmi() # 刷新数据
         return date
     def _get_gpu_info(self):
-        """GPU信息"""
+        """GPU信息 返回 GPU,ECC  信息"""
         gpu = GPUInfo()
         title=[f"{self.i18n.get('gpu_id')}",f"{self.i18n.get('slot')}",f"{self.i18n.get('gpu_name')}"
                ,f"{self.i18n.get('product_architecture')}", f"GPU{self.i18n.get('serial_number')}",
@@ -101,6 +85,11 @@ class InfoBash:
                f"{self.i18n.get('gpu_power')}",f"{self.i18n.get('gpu_temp')}"]
         date = []
         slot = self.get_slot()
+        ecc_title= [f"{self.i18n.get('gpu_id')}","ECC Mode",
+                    "Volatile CE","UE","UE","CE","UE",
+                    "Aggregate CE","UE","UE","CE","UE",
+                    "SRAM Sources","","","",""]
+        ecc_error = []
         # print(self.nvidia_smi['gpus'][0])
         for i in self.nvidia_smi['gpus']:
             gpu.bus_id = i['PCI'].get("Bus Id")
@@ -122,13 +111,22 @@ class InfoBash:
                          f"*****{gpu.GPU_UUID[-9:]}",gpu.Vbios_Version,
                          f"Pcie {gpu.PCIe_Generation}/{gpu.Link_Width}",f"{gpu.Memory_Usage[1]}/{gpu.Memory_Usage[0]}",
                          f"{gpu.GPU_Power[1]}/{gpu.GPU_Power[0]}",gpu.GPU_Current_Temp])
+            ecc_error.append([gpu.GPU_ID,gpu.ECC_Mode,gpu.ECC_Errors['Volatile']['SRAM Correctable'],gpu.ECC_Errors['Volatile']['SRAM Uncorrectable Parity'],
+                              gpu.ECC_Errors['Volatile']['SRAM Uncorrectable SEC-DED'],gpu.ECC_Errors['Volatile']['DRAM Correctable'],gpu.ECC_Errors['Volatile']['DRAM Uncorrectable'],
+                              gpu.ECC_Errors['Aggregate']['SRAM Correctable'],gpu.ECC_Errors['Aggregate']['SRAM Uncorrectable Parity'],
+                              gpu.ECC_Errors['Aggregate']['SRAM Uncorrectable SEC-DED'],gpu.ECC_Errors['Aggregate']['DRAM Correctable'],
+                              gpu.ECC_Errors['Aggregate']['DRAM Uncorrectable'],gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM L2'],
+                              gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM SM'],gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM Microcontroller'],
+                              gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM PCIE'],gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM Other']
+                              ])
         ss = tabulate(date, headers=title, tablefmt='rounded_outline',stralign="center",numalign="center")
+        ecc = tabulate(ecc_error, headers=ecc_title, tablefmt='rounded_outline',stralign="center",numalign="center")
         self.refresh_nvidia() # 刷新数据
-        return ss
+        return ss,ecc
 
     def _get_cpu_info(self):
         sysdate = sysInfo()
-        if self.dmidecode['type_4'] and len(self.dmidecode['type_4']) > 0:
+        if self.dmidecode['type_4'] == []:
             for cpu in self.dmidecode['type_4']:
                 tmp = cpu['fields']
                 a = f"CPU{self.i18n.get('socket')}:{tmp.get('Socket Designation')}   SN:{tmp.get('Serial Number')}\nCPU{self.i18n.get('ver')}:{tmp.get('Version')}  CPU{self.i18n.get('core_count')}:{tmp.get('Core Count')}  CPU{self.i18n.get('thread_count')}:{tmp.get('Thread Count')} \nCPU{self.i18n.get('clock')}:{tmp.get('Max Speed')}  {self.i18n.get('L1_cache')}:{self.find_type_by_handle(tmp.get('L1 Cache Handle'))['fields']['Maximum Size']}  {self.i18n.get('L2_cache')}:{self.find_type_by_handle(tmp.get('L2 Cache Handle'))['fields']['Maximum Size']}  {self.i18n.get('L3_cache')}:{self.find_type_by_handle(tmp.get('L3 Cache Handle'))['fields']['Maximum Size']}"
@@ -234,6 +232,9 @@ class InfoBash:
                  f"{self.i18n.get('max_power')}",f"{self.i18n.get('status')}",f"{self.i18n.get('plugged')}",
                  f"{self.i18n.get('hot_replaceable')}"]
         date =[]
+        if self.dmidecode.get('type_39',[]) == []:
+            date.append([self.i18n.get("no_power_info")])
+            return tabulate(date,headers=title,tablefmt="rounded_outline",stralign="center",numalign="center")
         for i in self.dmidecode['type_39']:
             power.location = i['fields'].get("Location")
             power.name = i['fields'].get("Name")
@@ -252,6 +253,8 @@ class InfoBash:
         return ss
     def get_slot(self):
         date ={}
+        if self.dmidecode.get('type_9',[]) == []:
+            return {}
         for i in self.dmidecode['type_9']:
             # print(f"{i['fields']['Bus Address']} : {i['fields']['Designation']}")
             date[i['fields']['Bus Address']] = i['fields']['Designation']

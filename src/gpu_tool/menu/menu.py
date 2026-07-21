@@ -184,7 +184,9 @@ class Menu:
                 input(f"{self.i18n.get('press_enter_continue')}")
                 self.log.info(f"网卡信息\n{self.info.get_net_info()}", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
-                self.log.info(f"GPU信息\n{self.info.get_gpu_info()}", console=True)
+                gpu ,ecc =self.info.get_gpu_info()
+                self.log.info(f"GPU信息\n{gpu}", console=True)
+                self.log.info(f"ECC信息\n{ecc}", console=True)
             elif pro.data == "2":  #系统信息
                 a=1
                 self.log.info(f"系统信息\n{self.info.get_sys_info()}", console=True)
