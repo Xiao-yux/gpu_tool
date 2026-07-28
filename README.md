@@ -10,8 +10,8 @@
 
 ## 系统要求
 - Linux（推荐 Ubuntu/CentOS，部分脚本依赖 `lshw`、`pciutils` 等）
-- Python 3.6+   (项目使用 3.10)
-- 已安装 GPU 驱动与 CUDA（如需要运行 NCCL/gpu-burn）
+- Python 3.10+   (项目使用 3.10)
+
 
 ## 快速开始
 克隆仓库并编译（示例）：
