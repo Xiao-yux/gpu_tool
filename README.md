@@ -14,13 +14,13 @@
 - 已安装 GPU 驱动与 CUDA（如需要运行 NCCL/gpu-burn）
 
 ## 快速开始
-克隆仓库并安装（示例）：
+克隆仓库并编译（示例）：
 
 ```bash
 git clone https://github.com/Xiao-yux/gpu_tool.git
 cd gpu_tool
-make install
-make build
+make install   #可选 创建虚拟环境 python -m venv venv
+make build  #编译
 ```
 
 构建后可执行文件会放在 `dist/` 目录（取决于 Makefile 配置）。
@@ -28,61 +28,60 @@ make build
 项目也可以直接通过 Python 运行（用于开发或调试）：
 
 ```bash
-python main.py
+python src/gpu_tool/main.py
 # 或者运行 web 界面
-python webserver/main.py
+python src/webserver/main.py
 ```
 
 ## 配置
-程序会读取一个 TOML 格式的配置文件，默认路径建议为 `/etc/gpu_tool/config.toml`。你可以在运行前或首次运行后编辑该文件来配置工具路径和日志目录。
+程序会读取一个 TOML 格式的配置文件，默认路径建议为 `/etc/gpu_tool/config.toml`。你可以在运行前或首次运行后编辑该文件来配置工具路径和日志目录。(如果没有会自己生成一个默认的)
 
 示例 `config.toml`：
 
-```toml
+```toml  
+#需要手动配置的项目
 [PATH]
-config_file = "/etc/gpu_tool/config.toml"
-fd_path = "/home/path/fd"
-gpu_burn_path = "/home/path/gpu-burn"
-nccl_path = "/home/path/nccl-tests/build"
-fd_exe = "fieldiag.sh"
-gpu_burn_exe = "gpu_burn"
-nccl_exe = "all_reduce_perf"
+config_file = "/etc/gpu_tool/config.toml"  #默认配置文件路径
+fd_path = "/home/path/fd"  #fieldiag 路径    #配置的路径会成为该程序的运行路径
+gpu_burn_path = "/home/path/gpu-burn"  #gpu_burn 路径
+nccl_path = "/home/path/nccl-tests/build"  #nccl 路径
+fd_exe = "fieldiag.sh"  #fieldiag 脚本名
+gpu_burn_exe = "gpu_burn" #gpu_burn 程序名称
+nccl_exe = "all_reduce_perf" #nccl 程序名称
 
 [LOG]
-log_path = "/home/path/log"
+log_path = "/home/path/log"  #保存的日志路径
 log_file = "gpu_tool_debug.log"
 ```
 
-注意：Windows 路径格式与权限与 Linux 不同，本项目以 Linux 环境为主。
+注意：本项目以 Linux 环境为主。
 
-## 目录概览
-- `core/`：核心逻辑、配置解析、日志模块
+## gpu_tool目录概览
+- `core/`：核心加载逻辑
 - `menu/`：菜单交互与命令行参数解析
-- `webserver/`：提供简单的 Web 界面与静态资源
-- `bash/`：收集的 Shell 脚本与测试脚本
+- `config/`：配置文件解析与路径管理
+- `bash/`：系统信息显示脚本
+- `i18n/`：国际化支持
+- `log/`：日志模块
+- `runner/`：screen会话管理与程序执行模块
+- `testmanager/`：自动测试模块 (未完成)
+- `utils/`：工具函数与辅助模块
+
 
 具体实现与入口：
-- [main.py](main.py) — 程序主入口
-- [menu/menu.py](menu/menu.py) — 菜单逻辑
-- [webserver/main.py](webserver/main.py) — Web 服务入口（若启用）
+- [main.py](src/gpu_tool/main.py) — 程序主入口
+- [menu/menu.py](src/gpu_tool/menu/menu.py) — 菜单逻辑
 
-## 常见命令
-- 安装依赖 / 构建（项目自带 Makefile）：
 
-```bash
-make install
-make build
-```
-
-- 直接运行（开发调试）：
-
-```bash
-python main.py
-python webserver/main.py
-```
 
 ## 日志与结果
-日志与测试结果按配置保存到 `log` 或 `fdlog/` 等目录中，`fdlog/` 下有已整理的真/假数据示例结构，便于查看输出格式。
+日志与测试结果按配置保存到 'log_path' 中, 命名格式 `log_path/<SN>/time/*`
+- `system` : 收集的系统原始命令信息，如 lspci -vvv,dmicode等,具体收集命令在 [check_and_save_system.py](src/gpu_tool/utils/check_and_save_system.py) 中
+- `script` : 经过脚本整理后的信息,脚本结果样例可以查看 [doc/gpu_tool1.png](doc/gpu_tool1.png) 
+- `run` : 测试程序运行中输出的信息.
+- `report`: 测试结果汇总信息.(待实现)
+
+
 
 ## 贡献与反馈
 欢迎提交 Issue 或 PR 来建议功能、修复 bug 或补充新测试脚本。请在贡献前先打开 Issue 讨论。

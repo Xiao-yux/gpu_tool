@@ -202,6 +202,7 @@ class Menu:
             elif pro.data == "5": # 硬盘信息
                 a=4
                 self.log.info(f"硬盘信息\n{self.info.get_disk_info()}", console=True)
+                self.log.info(f"电源信息\n{self.info.get_power_info()}", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "6":  # 网卡信息
                 a=5

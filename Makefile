@@ -110,7 +110,7 @@ install-all: install-dev install-system ## Install everything (runtime + dev + b
 # =============================================================================
 .PHONY: run
 run: ## Run the gpu_tool CLI from source
-	$(PY) -m $(PACKAGE)
+	$(PY) src/gpu_tool/main.py
 
 .PHONY: run-web
 run-web: ## Run the Flask webserver from source (src/webserver/main.py)
@@ -153,9 +153,6 @@ format-check: ## Verify formatting without writing changes
 	$(PY) -m ruff format --check src $(TESTS_DIR)
 	$(PY) -m black --check src $(TESTS_DIR)
 
-.PHONY: typecheck
-typecheck: ## Run mypy in strict mode
-	$(PY) -m mypy src
 
 .PHONY: check
 check: lint typecheck test ## Run lint + typecheck + tests
@@ -211,34 +208,6 @@ build-module: ## Build a Python module (not onefile) — faster, for testing
 		--remove-output \
 		$(SRC_DIR)/$(PACKAGE)/__main__.py
 
-# =============================================================================
-# Distribution helpers
-# =============================================================================
-.PHONY: sdist
-sdist: ## Build a source distribution (sdist + wheel) into ./dist
-	$(PY) -m pip install --upgrade build
-	$(PY) -m build --outdir $(DIST_DIR)
-
-.PHONY: publish-test
-publish-test: sdist ## Upload to TestPyPI
-	$(PY) -m pip install --upgrade twine
-	$(PY) -m twine upload --repository testpypi $(DIST_DIR)/*
-
-.PHONY: publish
-publish: sdist ## Upload to PyPI
-	$(PY) -m pip install --upgrade twine
-	$(PY) -m twine upload $(DIST_DIR)/*
-
-# =============================================================================
-# Run built artifacts
-# =============================================================================
-.PHONY: run-built
-run-built: ## Run the binary produced by `make build`
-	@if [ ! -x "$(OUTPUT_BIN)" ]; then \
-		echo "Binary not found: $(OUTPUT_BIN) — run 'make build' first."; \
-		exit 1; \
-	fi
-	$(OUTPUT_BIN)
 
 # =============================================================================
 # Cleaning
@@ -263,10 +232,7 @@ distclean: clean ## Also remove virtualenvs and the local config cache
 	find . -type f -name '*.pyc' -delete 2>/dev/null || true
 	find . -type f -name 'nuitka-crash-report.xml' -delete 2>/dev/null || true
 
-.PHONY: clean-logs
-clean-logs: ## Remove runtime log directories
-	$(RM) log fdlog src/webserver/log src/webserver/utils/log
-	$(RM) src/gpu_tool/log/*.log 2>/dev/null || true
+
 
 # =============================================================================
 # Documentation
@@ -277,16 +243,6 @@ docs: ## Build documentation into $(DOC_DIR)/build (placeholder — configure sp
 	@echo "Add sphinx/mkdocs configuration to enable this target."
 	@mkdir -p $(DOC_DIR)
 
-.PHONY: tree
-tree: ## Print a high-level directory tree (skipping caches/build artifacts)
-	@find . -maxdepth 4 \
-		-not -path '*/\.*' \
-		-not -path '*/__pycache__*' \
-		-not -path '*/dist*' \
-		-not -path '*/build*' \
-		-not -path '*/.venv*' \
-		-not -path '*/node_modules*' \
-		| sort
 
 # =============================================================================
 # Meta

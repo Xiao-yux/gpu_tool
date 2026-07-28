@@ -62,13 +62,17 @@ class MenuChessEn:
     ]
 
     _SYSTEM: ClassVar[List[Choice]] = [
-        Choice("View CPU and Memory Information", "1"),
-        Choice("View GPU Information", "2"),
-        Choice("View Disk and Network Information", "3"),
-        Choice("View NVLink Topology", "4"),
-        Choice("View IMPI IP Settings", "5"),
-        Choice("Back", "exit"),
-    ]
+            Choice("System all Information", "1"),
+            Choice("system info", "2"),
+            Choice("CPU info", "3"),
+            Choice("memory info", "4"),
+            Choice("disk power info", "5"),
+            Choice("net info", "6"),
+            Choice("gpu info", "7"),
+            Choice("BMC Lan info", "8"),
+            Choice("BMC Fru info", "9"),
+            Choice("exit", "exit"),
+        ]
 
     _GPU_TEST: ClassVar[List[Choice]] = [
         Choice("FD Stress Test", "1"),
