@@ -65,7 +65,7 @@ class Manager:
 
 
     def runmenu(self):
-        chin = self.menu.aotu_test_menu
+        chin = self.menu.get_aotu_test_menu()
         p = ListPrompt(self.i18n.get('select_option'),chin).prompt()
         if p.data == "exit" :
             return

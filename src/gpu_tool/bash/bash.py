@@ -56,13 +56,13 @@ class InfoBash:
         """获取系统信息"""
         #系统信息模板
         sysdate = sysInfo()
-        sysdate.manufacturer = self.dmidecode.get('type_1', {}).get('fields', {}).get('Manufacturer', 'Unknown')
-        sysdate.product_name = self.dmidecode.get('type_1', {}).get('fields', {}).get('Product Name', 'Unknown')
+        sysdate.manufacturer = self.retlace_txt(self.dmidecode.get('type_1', {}).get('fields', {}).get('Manufacturer', 'Unknown'))
+        sysdate.product_name = self.retlace_txt(self.dmidecode.get('type_1', {}).get('fields', {}).get('Product Name', 'Unknown'))
         sysdate.sn = self.dmidecode.get('type_1', {}).get('fields', {}).get('Serial Number', 'Unknown')
-        sysdate.hight = self.dmidecode.get('type_3', {}).get('fields', {}).get('Height', 'Unknown')
-        sysdate.type = self.dmidecode.get('type_3', {}).get('fields', {}).get('Type', 'Unknown')
+        sysdate.hight = self.retlace_txt(self.dmidecode.get('type_3', {}).get('fields', {}).get('Height', 'Unknown'))
+        sysdate.type = self.retlace_txt(self.dmidecode.get('type_3', {}).get('fields', {}).get('Type', 'Unknown'))
         sysdate.bios_release_date = self.dmidecode.get('type_0', {}).get('fields', {}).get('Release Date', 'Unknown')
-        sysdate.bios_vendor = self.dmidecode.get('type_0', {}).get('fields', {}).get('Vendor', 'Unknown')
+        sysdate.bios_vendor = self.retlace_txt(self.retlace_txt(self.dmidecode.get('type_0', {}).get('fields', {}).get('Vendor', 'Unknown')))
         sysdate.bios_version = self.dmidecode.get('type_0', {}).get('fields', {}).get('Version', 'Unknown')
         sysdate.bios_revision = self.dmidecode.get('type_0', {}).get('fields', {}).get('BIOS Revision', 'Unknown')
         tmp = [
@@ -73,7 +73,7 @@ class InfoBash:
         ]
         date = self.tab_format(tmp)
         # print(date)
-        self.refresh_dmi() # 刷新数据
+        # self.refresh_dmi() # 刷新数据
         return date
     def _get_gpu_info(self):
         """GPU信息 返回 GPU,ECC  信息"""
@@ -126,7 +126,8 @@ class InfoBash:
 
     def _get_cpu_info(self):
         sysdate = sysInfo()
-        if self.dmidecode['type_4'] == []:
+        # print(self.dmidecode['type_4'][1])
+        if isinstance(self.dmidecode['type_4'],list):
             for cpu in self.dmidecode['type_4']:
                 tmp = cpu['fields']
                 a = f"CPU{self.i18n.get('socket')}:{tmp.get('Socket Designation')}   SN:{tmp.get('Serial Number')}\nCPU{self.i18n.get('ver')}:{tmp.get('Version')}  CPU{self.i18n.get('core_count')}:{tmp.get('Core Count')}  CPU{self.i18n.get('thread_count')}:{tmp.get('Thread Count')} \nCPU{self.i18n.get('clock')}:{tmp.get('Max Speed')}  {self.i18n.get('L1_cache')}:{self.find_type_by_handle(tmp.get('L1 Cache Handle'))['fields']['Maximum Size']}  {self.i18n.get('L2_cache')}:{self.find_type_by_handle(tmp.get('L2 Cache Handle'))['fields']['Maximum Size']}  {self.i18n.get('L3_cache')}:{self.find_type_by_handle(tmp.get('L3 Cache Handle'))['fields']['Maximum Size']}"
@@ -297,6 +298,15 @@ class InfoBash:
         self.nvidia_smi = nvidia_to_json(self.get_nvidia_smi())
     def tab_format(self,data,tablefmt="rounded_grid"):
         return tabulate(data, tablefmt=tablefmt,stralign="center",numalign="center")
+        
+    def retlace_txt(self,str: str):
+        """ 替换文本"""
+        txt = {
+            "American Megatrends International, LLC.":"美商安迈有限公司",
+            "Rack Mount Chassis":"机架式服务器",
+            "Supermicro":"超微"
+        }
+        return txt.get(str,str)
         
     def get_net_info(self):
         """获取网络设备信息"""

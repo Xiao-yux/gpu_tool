@@ -39,13 +39,13 @@ class Menu:
     def main_menu(self):
         """主菜单"""
         while True:
-            pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.main_menu,allow_filter=False,
+            pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_main_menu(),allow_filter=False,
                             error_message=self.i18n.get('not_implemented')).prompt()
             if pro.data == "exit":
                 os._exit(0)
-            elif pro.data == "1":
-                # self.autotest.runmenu()
-                return
+            # elif pro.data == "1":
+            #     # self.autotest.runmenu()
+            #     return
             elif pro.data == "2":
                 self.sys_info_menu()
             elif pro.data == "3":
@@ -61,7 +61,7 @@ class Menu:
         return
     def system_set_menu(self):
         """设置菜单"""
-        pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.setsystem_menu, error_message=self.i18n.get('not_implemented')).prompt()
+        pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_setsystem_menu(), error_message=self.i18n.get('not_implemented')).prompt()
         if pro.data == "exit":
             return
         elif pro.data == "1":
@@ -76,7 +76,7 @@ class Menu:
         return
     def rtt_memu(self):
         fd = f"\'{self.log.paths.run}/fd\'"
-        p = ListPrompt(self.i18n.get('select_option'),choices=self.menu_chess.sys_tool_menu).prompt()
+        p = ListPrompt(self.i18n.get('select_option'),choices=self.menu_chess.get_sys_tool_menu()).prompt()
         if p.data == "1":
             a = os.path.exists(fd)
             self.log.info(f"{fd} is exist {a} \n",console=True)
@@ -85,8 +85,8 @@ class Menu:
         return
 
     def bmc_set_menu(self):
-        pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.bmc_set_menu,
-                         validator=lambda x: x != self.menu_chess.bmc_set_menu[1], error_message=self.i18n.get('not_implemented')).prompt()
+        pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_bmc_set_menu(),
+                         validator=lambda x: x != self.menu_chess.get_bmc_set_menu()[1], error_message=self.i18n.get('not_implemented')).prompt()
         if pro.data == "exit":
             return
         elif pro.data == "1":
@@ -96,7 +96,7 @@ class Menu:
         return
 
     def download_gpu(self):
-        pro = ListPrompt(self.i18n.get('select_option'),choices=self.menu_chess.download_gpu).prompt()
+        pro = ListPrompt(self.i18n.get('select_option'),choices=self.menu_chess.get_download_gpu()).prompt()
         if pro.data == "exit":
             return
         if pro.data == "1":
@@ -112,7 +112,7 @@ class Menu:
 
     def apt_install_menu(self):
         while True:
-            pro = ListPrompt(self.i18n.get('select_option'),choices=self.menu_chess.apt_menu,allow_filter=False).prompt()
+            pro = ListPrompt(self.i18n.get('select_option'),choices=self.menu_chess.get_apt_menu(),allow_filter=False).prompt()
             if pro.data == "exit":
                 break
             if pro.data == "1":
@@ -139,7 +139,7 @@ class Menu:
     def gpu_test_menu(self):
         """GPU测试菜单"""
         while True:
-            pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.gpu_test_menu).prompt()
+            pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_gpu_test_menu()).prompt()
             if pro.data == "exit":
                 break
             if pro.data == "1":
@@ -149,7 +149,7 @@ class Menu:
             elif pro.data == "3":
                 self.dcgmi_menu()
             elif pro.data == "4":
-                a = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.nvband_menu).prompt()
+                a = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_nvband_menu()).prompt()
                 cmd = "./nvbandwidth"
                 path = f"{self.tool.get_bash_path()}"
                 if a.data == "-1":
@@ -171,7 +171,7 @@ class Menu:
         """系统信息菜单"""
         a =0
         while True:
-            pro = ListPrompt(self.i18n.get('select_option'),default_select=a, choices=self.menu_chess.system_menu,allow_filter=False).prompt()
+            pro = ListPrompt(self.i18n.get('select_option'),default_select=a, choices=self.menu_chess.get_system_menu(),allow_filter=False).prompt()
             if pro.data == "exit":
                 break
             if pro.data == "1": #全部信息
@@ -209,7 +209,9 @@ class Menu:
                 input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "7":  # GPU信息
                 a=6
-                self.log.info(f"GPU信息\n{self.info.get_gpu_info()}", console=True)
+                gpu ,ecc =self.info.get_gpu_info()
+                self.log.info(f"GPU信息\n{gpu}", console=True)
+                self.log.info(f"ECC信息\n{ecc}", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "8": # IPMIlan信息
                 a=7
@@ -225,7 +227,7 @@ class Menu:
 
     def dcgmi_menu(self):
         """DCGMI测试菜单"""
-        pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.dcgm_menu,allow_filter=False).prompt()
+        pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_dcgm_menu(),allow_filter=False).prompt()
         if pro.data == "exit":
             return
         cmd = f"dcgmi {pro.data}"
@@ -266,7 +268,7 @@ class Menu:
         path = f"{self.path.fd_path}"
         self.tool.check_fd_path(f"\'{self.log.paths.run}/fd\'")
         logname = "fd_test"
-        pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.fd_menu,allow_filter=False).prompt()
+        pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_fd_menu(),allow_filter=False).prompt()
         if pro.data == "exit":
             return
         if pro.data == "1":
@@ -276,7 +278,7 @@ class Menu:
             cmd += f"--no_bmc --level2 --log '{self.log.paths.run}/fd'"
             self.run_command(cmd, path, logname)
         elif pro.data == "3":
-            a = CheckboxPrompt(self.i18n.get('select_option'), choices=self.menu_chess.fd_test_arg_menu,annotation=self.defcheckinfo).prompt()
+            a = CheckboxPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_fd_test_arg_menu(),annotation=self.defcheckinfo).prompt()
             if not a:
                 self.gpu_test_menu()
             cmd += f"--no_bmc {self.tool.fd_arg_chines(a)} --log '{self.log.paths.run}/fd'"
@@ -350,7 +352,7 @@ class Menu:
         self.run_command(cmd, path, logname)
 
     def system_test_menu(self):
-        pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.sys_test_menu,allow_filter=False).prompt()
+        pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_sys_test_menu(),allow_filter=False).prompt()
         if pro.data == "exit":
             return
         if pro.data == "1":

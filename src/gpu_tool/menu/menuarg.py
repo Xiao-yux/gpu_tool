@@ -3,16 +3,63 @@ from noneprompt import Choice
 
 
 class MenuChess:
-    _MAIN: ClassVar[List[Choice]] = [
-        Choice("一键测试", "1"),
-        Choice("系统信息", "2"),
-        Choice("GPU测试", "3"),
-        Choice("系统其他测试", "4"),
-        Choice("设置", "5"),
-        Choice("关机", "6"),
-        Choice("退出", "exit"),
-    ]
+    def get_main_menu(self) -> List[Choice]:
+        return self._MAIN
 
+    def get_system_menu(self) -> List[Choice]:
+        return self._SYSTEM
+
+    def get_fd_menu(self) -> List[Choice]:
+        return self._FD
+
+    def get_fd_args_menu(self) -> List[Choice]:
+        return [Choice(k, v) for k, v in self._FD40212_ARGS_MAP.items()]
+
+    def get_gpu_burn_menu(self) -> List[Choice]:
+        return self._GPU_BURN
+
+    def get_dcgm_menu(self) -> List[Choice]:
+        return self._DCGM
+
+    def get_nvband_menu(self) -> List[Choice]:
+        return [Choice("全部测试", "-1")] + [Choice(k, v) for k, v in self._NVBAND_MAP.items()]
+
+    def get_download_gpu(self) -> List[Choice]:
+        return self._GPU_DOWNLOAD
+
+    def get_setsystem_menu(self) -> List[Choice]:
+        return self._SET_SYSTEM
+
+    def get_apt_menu(self) -> List[Choice]:
+        return [Choice(k, v) for k, v in self._APT_INSTALL_MENU_MAP.items()]
+
+    def get_fd_test_arg_menu(self) -> List[Choice]:
+        return [Choice(k, v) for k, v in self._FD40212_TEST_ARG_MAP.items()]
+
+    def get_aotu_test_menu(self) -> List[Choice]:
+        return self._AOTU_TEST
+
+    def get_gpu_test_menu(self) -> List[Choice]:
+        return self._GPU_TEST
+
+    def get_sys_test_menu(self) -> List[Choice]:
+        return self._SYS_TEST
+
+    def get_bmc_set_menu(self) -> List[Choice]:
+        return self._BMC_SET
+
+    def get_sys_tool_menu(self) -> List[Choice]:
+        return self._SYS_TOOL
+    
+    _MAIN: ClassVar[List[Choice]] = [
+                    # Choice("一键测试", "1"),
+                    Choice("系统信息", "2"),
+                    Choice("GPU测试", "3"),
+                    Choice("系统其他测试", "4"),
+                    Choice("设置", "5"),
+                    Choice("关机", "6"),
+                    Choice("退出", "exit"),
+                ]
     _SYSTEM: ClassVar[List[Choice]] = [
         Choice("查看系统全部信息", "1"),
         Choice("查看系统信息", "2"),
@@ -192,26 +239,3 @@ class MenuChess:
         "返回": "exit",
     }
 
-    # ------------------------------------------------------------------
-    # 2. 构造方法里直接赋值
-    # ------------------------------------------------------------------
-    def __init__(self) -> None:
-        """构造方法，初始化菜单选项为 Choice 列表"""
-        self.main_menu: List[Choice] = self._MAIN
-        self.system_menu: List[Choice] = self._SYSTEM
-        self.fd_menu: List[Choice] = self._FD
-        self.fd_args_menu: List[Choice] = [Choice(k, v) for k, v in self._FD40212_ARGS_MAP.items()]
-        self.gpu_burn_menu: List[Choice] = self._GPU_BURN
-        self.dcgm_menu: List[Choice] = self._DCGM
-        self.nvband_menu: List[Choice] = [Choice("全部测试", "-1")] + [
-            Choice(k, v) for k, v in self._NVBAND_MAP.items()
-        ]
-        self.download_gpu:List[Choice] = self._GPU_DOWNLOAD
-        self.setsystem_menu: List[Choice] = self._SET_SYSTEM
-        self.apt_menu: List[Choice] = [Choice(k,v) for k,v in self._APT_INSTALL_MENU_MAP.items()]
-        self.fd_test_arg_menu: List[Choice] = [Choice(k, v) for k, v in self._FD40212_TEST_ARG_MAP.items()]
-        self.aotu_test_menu: List[Choice] = self._AOTU_TEST
-        self.gpu_test_menu: List[Choice] = self._GPU_TEST
-        self.sys_test_menu: List[Choice] = self._SYS_TEST
-        self.bmc_set_menu: List[Choice] = self._BMC_SET
-        self.sys_tool_menu: List[Choice] = self._SYS_TOOL
