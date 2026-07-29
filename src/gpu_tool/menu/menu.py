@@ -152,6 +152,8 @@ class Menu:
                 a = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_nvband_menu()).prompt()
                 cmd = "./nvbandwidth"
                 path = f"{self.tool.get_bash_path()}"
+                if a.data == "exit":
+                    return
                 if a.data == "-1":
                     self.run_command(cmd, path, logname="nvband_test")
                 else:
@@ -164,9 +166,22 @@ class Menu:
                 path = f"{self.tool.get_bash_path()}"
                 logname = "p2pBandwidthLatencyTest_test"
                 self.run_command(cmd, path, logname)
+            elif pro.data == "7":
+                self.cuda_band_test()
             self.log.info(f'用户选择GPU测试菜单: {pro}')
         return
 
+    def cuda_band_test(self):
+        gpucount = self.tool.get_gpu_count()
+        logname = "cuda_Bandwidth_test"
+        path = f"{self.tool.get_bash_path()}"
+        cmd = "./bandwidthTest"
+        for i in range(int(gpucount)):
+            cc= ""
+            cc = f"{cmd} --device={i}"
+            self.run_command(cc, path, logname)
+        self.run_command(f"{cmd} --device=all", path, logname)
+        return
     def sys_info_menu(self):
         """系统信息菜单"""
         a =0

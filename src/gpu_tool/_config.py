@@ -34,10 +34,8 @@ log_file = "gpu_tool_debug.log"
 console_output = false
 
 [report]
-# Phase 5: report layer settings.
 tester = "operator"
 generate_html = true
 generate_pdf = true
 no_report = false
-
 """

@@ -36,7 +36,7 @@ class Core:
         # print("log tiem:{}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
 
         self.log.info('Core initialized.§§')
-
+        self.log.info(f'版本号:{self.config.version}')
         self.wscline = None
         if self.config.update.wsenable:
             from utils.wscline import Cline

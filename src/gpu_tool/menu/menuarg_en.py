@@ -81,6 +81,7 @@ class MenuChessEn:
         Choice("NVBandwidth Test", "4"),
         Choice("NCCL Test", "5"),
         Choice("P2P Bandwidth Latency Test", "6"),
+        Choice("CUDA Bandwidth Test", "7"),
         Choice("Back", "exit"),
     ]
 

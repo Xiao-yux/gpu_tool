@@ -22,7 +22,7 @@ class InfoBash:
         except Exception as e:
             return f"{e}"
     def get_gpu_info(self):
-        """获取GPU信息"""
+        """获取GPU信息,返回 gpuinfo,eccinfo"""
         try:
             return self._get_gpu_info()
         except Exception as e:
@@ -138,14 +138,14 @@ class InfoBash:
             sysdate.cpuinfo.append(f"CPU{self.i18n.get('socket')}:{tmp.get('Socket Designation')}   SN:{tmp.get('Serial Number')}\nCPU{self.i18n.get('ver')}:{tmp.get('Version')}  CPU{self.i18n.get('core_count')}:{tmp.get('Core Count')}  CPU{self.i18n.get('thread_count')}:{tmp.get('Thread Count')} \nCPU{self.i18n.get('clock')}:{tmp.get('Max Speed')}  {self.i18n.get('L1_cache')}:{self.find_type_by_handle(tmp.get('L1 Cache Handle'))['fields']['Maximum Size']}  {self.i18n.get('L2_cache')}:{self.find_type_by_handle(tmp.get('L2 Cache Handle'))['fields']['Maximum Size']}  {self.i18n.get('L3_cache')}:{self.find_type_by_handle(tmp.get('L3 Cache Handle'))['fields']['Maximum Size']}")
         date = self.tab_format([sysdate.cpuinfo])
         # print(date)
-        self.refresh_dmi() # 刷新数据
+        # self.refresh_dmi() # 刷新数据
         return date
     
     def _get_memory_info(self):
         info = MenmoryInfo()
         title = [f"{self.i18n.get('slot')}",f"{self.i18n.get('vendor')}",
                  f"{self.i18n.get('product_name')}",f"{self.i18n.get('size')}",f"{self.i18n.get('type')}",
-                 f"{self.i18n.get('clock')}",f"{self.i18n.get('max_clock')}",f"{self.i18n.get('serial_number')}",""]
+                 f"{self.i18n.get('m_dlock')}",f"{self.i18n.get('max_clock')}",f"{self.i18n.get('serial_number')}",""]
         str = []
         count = 0
         date = self.dmidecode['type_17']

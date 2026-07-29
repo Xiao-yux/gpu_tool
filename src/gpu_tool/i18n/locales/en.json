@@ -89,6 +89,7 @@
     "min_clock":"Minimum Clock",
     "max_clock":"Maximum Clock",
     "clock":"Clock",
+    "m_dlock":"Memory Clock",
     "max_power":"Max Power",
     "power":"Power",
     "max_memory_clock":"Max Memory Clock",

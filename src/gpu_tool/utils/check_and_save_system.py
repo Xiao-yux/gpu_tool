@@ -22,6 +22,7 @@ class CheckSystem:
         "ipmitool-lan": ("ipmitool", "lan", "print"),
         "ipmitool-sdr": ("ipmitool", "sdr"),
         "ipmitool-fru": ("ipmitool", "fru"),
+        "ipmitool-info":("ipmitool","mc","info"),
     }
     def __init__(self, config: PathConfig):
         self.log = get_logger()
@@ -117,20 +118,23 @@ class CheckSystem:
         self.log.info(f"内存信息\n{self.info.get_memory_info()}", file_name=a)
         self.log.info(f"硬盘信息\n{self.info.get_disk_info()}", file_name=a)
         self.log.info(f"网卡信息\n{self.info.get_net_info()}", file_name=a)
-        
-        if GPU == 1:
-            gpu ,ecc =self.info.get_gpu_info()
-            self.log.info(f"GPU信息\n{gpu}", file_name=a)
-            self.log.info(f"ECC信息\n{ecc}", file_name=a)
         self.save_def_info()
-        self.tool.get_nvidia_bug_report(f"{self.log.paths.system}")
+        try:
+            if GPU == 1:
+                gpu ,ecc =self.info.get_gpu_info()
+                self.log.info(f"GPU信息\n{gpu}", file_name=a)
+                self.log.info(f"ECC信息\n{ecc}", file_name=a)
+            self.tool.get_nvidia_bug_report(f"{self.log.paths.system}")
+        except Exception as e:
+            self.log.info(f"{self.i18n.get('system_info_failed').format(e)}")
     def save_def_info(self):
         """收集系统原始数据 DEFAULT_COMMANDS 内的命令
         """
         for cmd_name, cmd in self.DEFAULT_COMMANDS.items():
             try:
+                # print(" ".join(cmd))
                 output = run_command(" ".join(cmd))
                 self.log.info(output, file_name=f"system/{cmd_name}")
             except Exception as e:
-                self.log.info(f"{self.i18n.get('command_execution_failed').format(' '.join(cmd), e)}", console=True)
+                self.log.info(f"{self.i18n.get('command_execution_failed').format(' '.join(cmd), e)}")
         

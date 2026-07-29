@@ -89,6 +89,7 @@
     "min_clock":"最小频率",
     "max_clock":"最大频率",
     "clock":"频率",
+    "m_dlock":"系统内频率",
     "max_power":"最大功率",
     "power":"功率",
     "max_memory_clock":"最大内存频率",

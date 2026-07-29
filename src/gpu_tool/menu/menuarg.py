@@ -80,6 +80,7 @@ class MenuChess:
         Choice("Nvbandwidth测试", "4"),
         Choice("Nccl测试", "5"),
         Choice("p2pBandwidthLatencyTest测试", "6"),
+        Choice("CUDA Bandwidth Test", "7"),
         Choice("返回", "exit"),
     ]
 
