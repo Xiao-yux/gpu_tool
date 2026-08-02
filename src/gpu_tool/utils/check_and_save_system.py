@@ -118,12 +118,13 @@ class CheckSystem:
         self.log.info(f"内存信息\n{self.info.get_memory_info()}", file_name=a)
         self.log.info(f"硬盘信息\n{self.info.get_disk_info()}", file_name=a)
         self.log.info(f"网卡信息\n{self.info.get_net_info()}", file_name=a)
+        self.log.info(f"SMART信息\n{self.info._get_smart_info()}", file_name="system/smart_info")
         self.save_def_info()
         try:
             if GPU == 1:
                 gpu ,ecc =self.info.get_gpu_info()
-                self.log.info(f"GPU信息\n{gpu}", file_name=a)
-                self.log.info(f"ECC信息\n{ecc}", file_name=a)
+                self.log.info(f"GPU信息\n{gpu}", file_name="system_info")
+                self.log.info(f"ECC信息\n{ecc}", file_name="system_info")
             self.tool.get_nvidia_bug_report(f"{self.log.paths.system}")
         except Exception as e:
             self.log.info(f"{self.i18n.get('system_info_failed').format(e)}")

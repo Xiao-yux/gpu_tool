@@ -13,6 +13,7 @@ class ip_config:
     ip :  ["str","str",,,]
     """
     ip = ["192.168.9.1/24"]
+    off_scan = ["192.168.9.1","192.168.9.2","192.168.9.2","192.168.9.9","192.168.9.10"]
     prot = ["80","443"]
     time = 30   #扫描间隔
 
@@ -89,14 +90,17 @@ class WebScanner:
         """扫描指定网段"""
         try:
             network_obj = ipaddress.ip_network(network, strict=False)
+            skip_ips = {ip.strip() for ip in ip_config.off_scan if ip.strip()}
             all_results = []
 
             with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-                # 提交所有IP的扫描任务
-                future_to_ip = {
-                    executor.submit(self._scan_ip, str(ip), ports): str(ip)
-                    for ip in network_obj.hosts()
-                }
+                # 提交所有IP的扫描任务，跳过屏蔽列表中的IP
+                future_to_ip = {}
+                for ip in network_obj.hosts():
+                    ip_str = str(ip)
+                    if ip_str in skip_ips:
+                        continue
+                    future_to_ip[executor.submit(self._scan_ip, ip_str, ports)] = ip_str
 
                 # 收集结果
                 for future in concurrent.futures.as_completed(future_to_ip):
@@ -176,14 +180,17 @@ class IPPingScanner:
         """扫描指定网段的所有IP"""
         try:
             network_obj = ipaddress.ip_network(network, strict=False)
+            skip_ips = {ip.strip() for ip in ip_config.off_scan if ip.strip()}
             ip_results = {}
 
             with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-                # 提交所有IP的ping任务
-                future_to_ip = {
-                    executor.submit(self._ping_ip, str(ip)): str(ip)
-                    for ip in network_obj.hosts()
-                }
+                # 提交所有IP的ping任务，跳过屏蔽列表中的IP
+                future_to_ip = {}
+                for ip in network_obj.hosts():
+                    ip_str = str(ip)
+                    if ip_str in skip_ips:
+                        continue
+                    future_to_ip[executor.submit(self._ping_ip, ip_str)] = ip_str
 
                 # 收集结果
                 for future in concurrent.futures.as_completed(future_to_ip):

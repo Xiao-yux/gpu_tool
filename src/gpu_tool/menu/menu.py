@@ -179,7 +179,7 @@ class Menu:
         for i in range(int(gpucount)):
             cc= ""
             cc = f"{cmd} --device={i}"
-            self.run_command(cc, path, logname)
+            self.run_command(cc, path, logname,input_user=False)
         self.run_command(f"{cmd} --device=all", path, logname)
         return
     def sys_info_menu(self):

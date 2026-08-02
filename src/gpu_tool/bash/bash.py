@@ -171,12 +171,15 @@ class InfoBash:
     
     def _get_smart_info(self):
         tmp = []
+        c:int = 0
         tran = ['null','usb',None]
         for i in self.disk['blockdevices']:
             # print(i)
             if i['tran'] not in tran:
                 a = run_command(f"smartctl --all {i['path']}")
                 tmp.append(parse_smartctl_output(a))
+                tmp[c]['disk_type'] = i['tran']
+                c += 1
         return tmp
     
     
@@ -189,9 +192,10 @@ class InfoBash:
                  self.i18n.get('unsafe_shutdowns'), self.i18n.get('smart_test')]
         date = DiskInfo()
         tmp = []
-        # with open("bash/nvme", "r", encoding="utf-8") as f:
+        # with open("bash/sma1", "r", encoding="utf-8") as f:
         #     s = f.read()
         # a = [parse_smartctl_output(s)]
+        # print(a)
         def get_size(date):
             match = re.search(r'\[(.*?)\]', date)
             if match:
@@ -202,19 +206,21 @@ class InfoBash:
                 return "None"
                 
         for i in a:
-            date.modu_name = i['disk_info'].get('Model Number')
-            date.serial_number = i['disk_info'].get('Serial Number')
-            date.size = get_size(i['disk_info'].get('Total NVM Capacity'))
-            date.firmware_version = i['disk_info'].get('Firmware Version')
-            date.nvme_version = i['disk_info'].get('NVMe Version')
-            date.temper = i['smart_info'].get('Temperature')
-            date.critical_warning = i['smart_info'].get('Critical Warning')
-            date.date_units_read  = get_size(i['smart_info'].get('Data Units Read'))
-            date.date_units_written  = get_size(i['smart_info'].get('Data Units Written'))
-            date.power_cycles = i['smart_info'].get('Power Cycles')
-            date.power_on_hours = i['smart_info'].get('Power On Hours')
-            date.unsafe_shutdowns = i['smart_info'].get('Unsafe Shutdowns')
-            date.smart_test = i['smart_info'].get('SMART overall-health self-assessment test result')
+            if i['disk_type'] != 'nvme':
+                continue
+            date.modu_name = i['disk_info'].get('Model Number',"")
+            date.serial_number = i['disk_info'].get('Serial Number',"")
+            date.size = get_size(i['disk_info'].get('Total NVM Capacity',""))
+            date.firmware_version = i['disk_info'].get('Firmware Version',"")
+            date.nvme_version = i['disk_info'].get('NVMe Version',"")
+            date.temper = i['smart_info'].get('Temperature',"")
+            date.critical_warning = i['smart_info'].get('Critical Warning',"")
+            date.date_units_read  = get_size(i['smart_info'].get('Data Units Read',""))
+            date.date_units_written  = get_size(i['smart_info'].get('Data Units Written',""))
+            date.power_cycles = i['smart_info'].get('Power Cycles',"")
+            date.power_on_hours = i['smart_info'].get('Power On Hours',"")
+            date.unsafe_shutdowns = i['smart_info'].get('Unsafe Shutdowns',"")
+            date.smart_test = i['smart_info'].get('SMART overall-health self-assessment test result',"")
             tmp.append([date.modu_name,date.serial_number,date.size,
                    date.firmware_version,date.nvme_version,date.temper,date.critical_warning,
                    date.date_units_read,date.date_units_written,date.power_cycles,date.power_on_hours,
