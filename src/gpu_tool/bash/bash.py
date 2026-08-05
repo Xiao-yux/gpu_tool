@@ -169,7 +169,18 @@ class InfoBash:
         # print(date)
         return date
     
-    def _get_smart_info(self):
+    
+    def get_smart_txt(self) -> str:
+            tran = ['null','usb',None]
+            txt =""
+            for i in self.disk['blockdevices']:
+                # print(i)
+                if i['tran'] not in tran:
+                    a = run_command(f"smartctl --all {i['path']}")
+                    txt += f"{a}\n\n"
+            return txt
+        
+    def _get_smart_info(self) -> list[dict]:
         tmp = []
         c:int = 0
         tran = ['null','usb',None]

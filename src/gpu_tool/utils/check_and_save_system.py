@@ -118,7 +118,8 @@ class CheckSystem:
         self.log.info(f"内存信息\n{self.info.get_memory_info()}", file_name=a)
         self.log.info(f"硬盘信息\n{self.info.get_disk_info()}", file_name=a)
         self.log.info(f"网卡信息\n{self.info.get_net_info()}", file_name=a)
-        self.log.info(f"SMART信息\n{self.info._get_smart_info()}", file_name="system/smart_info")
+        self.log.info(f"电源信息\n{self.info.get_power_info()}", file_name=a)
+        self.log.info(f"SMART信息\n{self.info.get_smart_txt()}", file_name="system/smart_info")
         self.save_def_info()
         try:
             if GPU == 1:
