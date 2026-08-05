@@ -78,9 +78,10 @@ class InfoBash:
     def _get_gpu_info(self):
         """GPU信息 返回 GPU,ECC  信息"""
         gpu = GPUInfo()
-        title=[f"{self.i18n.get('gpu_id')}",f"{self.i18n.get('slot')}",f"{self.i18n.get('gpu_name')}"
+        title=[f"{self.i18n.get('gpu_id')}","Bus ID",f"{self.i18n.get('slot')}"
+               ,f"{self.i18n.get('gpu_name')}"
                ,f"{self.i18n.get('product_architecture')}", f"GPU{self.i18n.get('serial_number')}",
-            f"{self.i18n.get('gpu_uuid')}", f"{self.i18n.get('vbios_version')}",
+             f"{self.i18n.get('vbios_version')}",
                f"{self.i18n.get('pcie_gen')}",f"{self.i18n.get('gpu_memory_usage')}",
                f"{self.i18n.get('gpu_power')}",f"{self.i18n.get('gpu_temp')}"]
         date = []
@@ -106,10 +107,10 @@ class InfoBash:
             gpu.ECC_Errors = i['ECC Errors']
             gpu.GPU_Current_Temp = i['Temperature']['GPU Current Temp']
             gpu.GPU_Power = [i['GPU Power Readings']['Max Power Limit'],i['GPU Power Readings']['Average Power Draw']]
-            date.append([gpu.GPU_ID,f"{slot.get(gpu.bus_id[4:].lower())}",gpu.Product_Name,
+            date.append([gpu.GPU_ID,gpu.bus_id[4:].lower(),f"{slot.get(gpu.bus_id[4:].lower())}",gpu.Product_Name,
                          gpu.Product_Architecture,gpu.Serial_Number,
-                         f"*****{gpu.GPU_UUID[-9:]}",gpu.Vbios_Version,
-                         f"Pcie {gpu.PCIe_Generation}/{gpu.Link_Width}",f"{gpu.Memory_Usage[1]}/{gpu.Memory_Usage[0]}",
+                         gpu.Vbios_Version,
+                         f"Pcie {gpu.PCIe_Generation} {gpu.Link_Width}",f"{gpu.Memory_Usage[1]}/{gpu.Memory_Usage[0]}",
                          f"{gpu.GPU_Power[1]}/{gpu.GPU_Power[0]}",gpu.GPU_Current_Temp])
             ecc_error.append([gpu.GPU_ID,gpu.ECC_Mode,gpu.ECC_Errors['Volatile']['SRAM Correctable'],gpu.ECC_Errors['Volatile']['SRAM Uncorrectable Parity'],
                               gpu.ECC_Errors['Volatile']['SRAM Uncorrectable SEC-DED'],gpu.ECC_Errors['Volatile']['DRAM Correctable'],gpu.ECC_Errors['Volatile']['DRAM Uncorrectable'],

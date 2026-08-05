@@ -19,7 +19,9 @@ class GpuToolApi:
         if args.disp_name:
             tx1 = args.disp_name
         if args.get_gpu_info:
-            print(self.info.get_gpu_info())
+            gpu,ecc = self.info.get_gpu_info()
+            print(gpu)
+            print(ecc)
             sys.exit(0)
         if args.get_sys_info:
             print(self.info.get_sys_info())
