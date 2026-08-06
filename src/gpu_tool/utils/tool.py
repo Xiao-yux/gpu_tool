@@ -169,6 +169,11 @@ class Tools:
     def get_gpu_info(self,arg='')-> str:
         """返回GPU信息"""
         return os.popen(f"bash {self.get_tmp_path()}/bash/nvidia_info.sh {arg}").read()
+    
+    
+    def get_query_gpu(self):
+        return os.popen(f"bash {self.get_tmp_path()}/bash/deviceQuery").read()
+        
     def get_sys_info(self,arg='') -> str:
         """# 返回系统信息"""
         return os.popen(f'bash {self.get_tmp_path()}/bash/sys_info.sh {arg}').read()
