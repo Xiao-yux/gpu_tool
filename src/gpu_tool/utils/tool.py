@@ -1,11 +1,13 @@
 import glob
 import inspect
 import os
-import sys
-import subprocess
-import threading
 import re
+import subprocess
+import sys
+import threading
 from pathlib import Path
+
+
 class Tools:
     def __init__(self):
         pass
@@ -176,7 +178,6 @@ class Tools:
     def input_chick(self):
         """输入回车继续"""
         input("按下回车键继续...")
-        return
     @staticmethod
     def run_command(command: str, cmd = "1", out = False,path="/tmp") -> int | None | str:
         """执行命令并返回输出
@@ -261,7 +262,7 @@ class Tools:
             cmd = "rmmod nvidia"
             subprocess.run(cmd, shell=True)
         except subprocess.CalledProcessError as e:
-            print("Failed to remove NVIDIA modules: {}".format(e))
+            print(f"Failed to remove NVIDIA modules: {e}")
         
     def rm_switch_mod(self):
         """移除交换机模块"""
@@ -277,7 +278,7 @@ class Tools:
             cmd = "rmmod nf_conntrack"
             subprocess.run(cmd, shell=True)
         except subprocess.CalledProcessError as e:
-            print("Failed to remove switch modules: {}".format(e))
+            print(f"Failed to remove switch modules: {e}")
 
     def stop_openvswitch(self):
         """停止openvswitch服务"""
@@ -305,7 +306,7 @@ class Tools:
         if not os.popen('nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits | grep -i nvidia').read():
             return os.popen('nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits').read().split('\n')[0]
         else:
-            return "NaN"
+            return 0
 
     @staticmethod
     def fd_arg_chines(chines):

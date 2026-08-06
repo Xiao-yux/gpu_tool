@@ -190,52 +190,54 @@ class Menu:
             if pro.data == "exit":
                 break
             if pro.data == "1": #全部信息
-                self.log.info(f"系统信息\n{self.info.get_sys_info()}", console=True)
-                self.log.info(f"CPU信息\n{self.info.get_cpu_info()}", console=True)
+                self.log.info(f"系统信息\n{self.info.get_sys_info()}", file_name=f"{self.log.paths.script}/sys_info" ,console=True)
+                self.log.info(f"CPU信息\n{self.info.get_cpu_info()}", file_name=f"{self.log.paths.script}/cpu_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
-                self.log.info(f"内存信息\n{self.info.get_memory_info()}", console=True)
+                self.log.info(f"内存信息\n{self.info.get_memory_info()}", file_name=f"{self.log.paths.script}/memory_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
-                self.log.info(f"硬盘信息\n{self.info.get_disk_info()}", console=True)
+                self.log.info(f"硬盘信息\n{self.info.get_disk_info()}", file_name=f"{self.log.paths.script}/disk_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
-                self.log.info(f"网卡信息\n{self.info.get_net_info()}", console=True)
+                self.log.info(f"网卡信息\n{self.info.get_net_info()}", file_name=f"{self.log.paths.script}/net_info", console=True)
+                input(f"{self.i18n.get('press_enter_continue')}")
+                self.log.info(f"电源信息\n{self.info.get_power_info()}", file_name=f"{self.log.paths.script}/power_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
                 gpu ,ecc =self.info.get_gpu_info()
-                self.log.info(f"GPU信息\n{gpu}", console=True)
-                self.log.info(f"ECC信息\n{ecc}", console=True)
+                self.log.info(f"GPU信息\n{gpu}", file_name=f"{self.log.paths.script}/gpu_info", console=True)
+                self.log.info(f"ECC信息\n{ecc}", file_name=f"{self.log.paths.script}/ecc_info", console=True)
             elif pro.data == "2":  #系统信息
                 a=1
-                self.log.info(f"系统信息\n{self.info.get_sys_info()}", console=True)
+                self.log.info(f"系统信息\n{self.info.get_sys_info()}", file_name=f"{self.log.paths.script}/sys_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "3":  #CPU 信息
                 a=2
-                self.log.info(f"CPU信息\n{self.info.get_cpu_info()}", console=True)
+                self.log.info(f"CPU信息\n{self.info.get_cpu_info()}", file_name=f"{self.log.paths.script}/cpu_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "4":  # 内存信息
                 a=3
-                self.log.info(f"内存信息\n{self.info.get_memory_info()}", console=True)
+                self.log.info(f"内存信息\n{self.info.get_memory_info()}", file_name=f"{self.log.paths.script}/memory_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "5": # 硬盘信息
                 a=4
-                self.log.info(f"硬盘信息\n{self.info.get_disk_info()}", console=True)
-                self.log.info(f"电源信息\n{self.info.get_power_info()}", console=True)
+                self.log.info(f"硬盘信息\n{self.info.get_disk_info()}", file_name=f"{self.log.paths.script}/disk_info", console=True)
+                self.log.info(f"电源信息\n{self.info.get_power_info()}", file_name=f"{self.log.paths.script}/power_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "6":  # 网卡信息
                 a=5
-                self.log.info(f"网卡信息\n{self.info.get_net_info()}", console=True)
+                self.log.info(f"网卡信息\n{self.info.get_net_info()}", file_name=f"{self.log.paths.script}/net_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "7":  # GPU信息
                 a=6
                 gpu ,ecc =self.info.get_gpu_info()
-                self.log.info(f"GPU信息\n{gpu}", console=True)
-                self.log.info(f"ECC信息\n{ecc}", console=True)
+                self.log.info(f"GPU信息\n{gpu}", file_name=f"{self.log.paths.script}/gpu_info", console=True)
+                self.log.info(f"ECC信息\n{ecc}", file_name=f"{self.log.paths.script}/ecc_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "8": # IPMIlan信息
                 a=7
-                self.log.info(self.ipmi.lan(), console=True)
+                self.log.info(self.ipmi.lan(), file_name=f"{self.log.paths.script}/ipmi_lan_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "9": # fru
                 a=8
-                self.log.info(self.ipmi.fru(), console=True)
+                self.log.info(self.ipmi.fru(), file_name=f"{self.log.paths.script}/ipmi_fru_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             self.log.info(f'用户选择: {pro}')
 
@@ -363,8 +365,15 @@ class Menu:
     def nccl_menu(self):
         cmd = f"./{self.path.nccl_exe} "
         path = f"{self.path.nccl_path}"
+        gpu_mem = int(self.tool.get_gpu_memory())
+        if gpu_mem == 0:
+            self.log.info("无法获取GPU显存信息，跳过NCCL测试。", console=True)
+            return
+        c = int(gpu_mem) / 256
+        gpu_mem = int(c) * 256
+        
         logname = "nccl_test"
-        cmd += f"-b 256M -e {self.tool.get_gpu_memory()} -f 2 -g {self.tool.get_gpu_count()}"
+        cmd += f"-b 256M -e {gpu_mem} -f 2 -g {self.tool.get_gpu_count()}"
         self.run_command(cmd, path, logname)
 
     def system_test_menu(self):

@@ -1,7 +1,9 @@
-from config.loader import load
-import locale
 import json
+import locale
+
+from config.loader import load
 from utils.tool import Tools
+
 __i18n__ = None
 
 

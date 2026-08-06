@@ -1,14 +1,15 @@
 import inspect
-from typing import List
-from noneprompt import ListPrompt, Choice
 import os
+
+from i18n.i18n import get_i18n
+from log.logger import get_logger
 from menu.menuarg import MenuChess
 from menu.menuarg_en import MenuChessEn
-from utils.tool import Tools
-from utils.jsonDB import JsonDB
-from log.logger import get_logger
+from noneprompt import Choice, ListPrompt
 from testmanager.testfun import TestFun
-from i18n.i18n import get_i18n
+from utils.jsonDB import JsonDB
+from utils.tool import Tools
+
 
 class Manager:
     def __init__(self,path,i18n=None):
@@ -78,7 +79,7 @@ class Manager:
         self.run()
     def testarg(self):
         exclude = {'run_command', '__init__','test1','test2','nvbandwidth_test'}
-        choices : List[Choice] = []
+        choices : list[Choice] = []
         a: int=0
         for name, method in inspect.getmembers(self.testfunc,
                                                predicate=inspect.ismethod):

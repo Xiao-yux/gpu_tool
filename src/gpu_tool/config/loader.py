@@ -15,6 +15,7 @@ Implements REFACTORING_TASK [1]B / [2]C / [4]A / [14]C:
 """
 
 from __future__ import annotations
+
 __all__: list[str] = ["load"]
 import os
 import sys
@@ -24,14 +25,14 @@ from typing import Final, cast
 # ``tomllib`` is stdlib in Python 3.11+.  For 3.10 we use the
 # ``tomli`` backport (already in requirements.txt for py<3.11).
 try:
-    import tomllib    # pyright: ignore[reportMissingImports]
+    import tomllib  # pyright: ignore[reportMissingImports]
 except ImportError:  
-    import tomli as tomllib  
+    import tomli as tomllib
 
+from _config import DEFAULT_CONFIG
 from _version import __version__
 from config.model import gpuConfig
 from config.paths import current_user
-from _config import DEFAULT_CONFIG
 
 # ---------------------------------------------------------------------------
 # Search paths

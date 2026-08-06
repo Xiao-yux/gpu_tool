@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from config.paths import (  # noqa: F401
+from config.paths import (
     REPORT_SUBDIR,
     RUN_SUBDIR,
     SCRIPT_SUBDIR,

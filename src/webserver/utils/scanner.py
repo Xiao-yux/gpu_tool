@@ -1,12 +1,12 @@
 
+import concurrent.futures
 import ipaddress
 import socket
-import concurrent.futures
-import urllib.request
 import ssl
 import threading
 import time
-from typing import List, Dict
+import urllib.request
+
 
 class ip_config:
     """扫描网段配置
@@ -69,7 +69,7 @@ class WebScanner:
             print(f"获取 {url} 标题失败: {e}")
         return "Web服务"
 
-    def _scan_ip(self, ip: str, ports: List[int]) -> List[Dict]:
+    def _scan_ip(self, ip: str, ports: list[int]) -> list[dict]:
         """扫描单个IP的所有指定端口"""
         results = []
         for port in ports:
@@ -86,7 +86,7 @@ class WebScanner:
                 })
         return results
 
-    def scan_network(self, network: str, ports: List[int], max_workers: int = 50) -> List[Dict]:
+    def scan_network(self, network: str, ports: list[int], max_workers: int = 50) -> list[dict]:
         """扫描指定网段"""
         try:
             network_obj = ipaddress.ip_network(network, strict=False)
@@ -147,7 +147,7 @@ class WebScanner:
         if self.scan_thread:
             self.scan_thread.join(timeout=5)
 
-    def get_results(self) -> List[Dict]:
+    def get_results(self) -> list[dict]:
         """获取扫描结果"""
         with self.lock:
             return self.results.copy()
@@ -176,7 +176,7 @@ class IPPingScanner:
             print(f"Ping {ip} 失败: {e}")
             return False
 
-    def scan_network(self, network: str, max_workers: int = 50) -> Dict[str, bool]:
+    def scan_network(self, network: str, max_workers: int = 50) -> dict[str, bool]:
         """扫描指定网段的所有IP"""
         try:
             network_obj = ipaddress.ip_network(network, strict=False)
@@ -235,7 +235,7 @@ class IPPingScanner:
         if self.scan_thread:
             self.scan_thread.join(timeout=5)
 
-    def get_results(self) -> Dict[str, Dict[str, bool]]:
+    def get_results(self) -> dict[str, dict[str, bool]]:
         """获取扫描结果"""
         with self.lock:
             return self.results.copy()

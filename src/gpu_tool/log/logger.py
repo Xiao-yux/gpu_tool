@@ -9,12 +9,10 @@ The format:
 
 from __future__ import annotations
 
-
 import inspect
 import logging
 from pathlib import Path
 from typing import Literal
-
 
 from config.model import LogConfig
 from config.paths import LogPaths
@@ -116,6 +114,8 @@ class gpuLogger:
         """Shared implementation behind every public log method."""
         text = clean(message) if message is not None else ""
         frame = inspect.stack()[2]
+        if file_name is None:
+            file_name = self.config.log_file
         caller_module = frame.frame.f_globals.get("__name__", "unknown")
         logger, _ = self._get_logger(caller_module, file_name)
 

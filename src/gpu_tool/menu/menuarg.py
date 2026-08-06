@@ -1,57 +1,58 @@
-from typing import ClassVar, Dict, List
+from typing import ClassVar
+
 from noneprompt import Choice
 
 
 class MenuChess:
-    def get_main_menu(self) -> List[Choice]:
+    def get_main_menu(self) -> list[Choice]:
         return self._MAIN
 
-    def get_system_menu(self) -> List[Choice]:
+    def get_system_menu(self) -> list[Choice]:
         return self._SYSTEM
 
-    def get_fd_menu(self) -> List[Choice]:
+    def get_fd_menu(self) -> list[Choice]:
         return self._FD
 
-    def get_fd_args_menu(self) -> List[Choice]:
+    def get_fd_args_menu(self) -> list[Choice]:
         return [Choice(k, v) for k, v in self._FD40212_ARGS_MAP.items()]
 
-    def get_gpu_burn_menu(self) -> List[Choice]:
+    def get_gpu_burn_menu(self) -> list[Choice]:
         return self._GPU_BURN
 
-    def get_dcgm_menu(self) -> List[Choice]:
+    def get_dcgm_menu(self) -> list[Choice]:
         return self._DCGM
 
-    def get_nvband_menu(self) -> List[Choice]:
+    def get_nvband_menu(self) -> list[Choice]:
         return [Choice("全部测试", "-1")] + [Choice(k, v) for k, v in self._NVBAND_MAP.items()]
 
-    def get_download_gpu(self) -> List[Choice]:
+    def get_download_gpu(self) -> list[Choice]:
         return self._GPU_DOWNLOAD
 
-    def get_setsystem_menu(self) -> List[Choice]:
+    def get_setsystem_menu(self) -> list[Choice]:
         return self._SET_SYSTEM
 
-    def get_apt_menu(self) -> List[Choice]:
+    def get_apt_menu(self) -> list[Choice]:
         return [Choice(k, v) for k, v in self._APT_INSTALL_MENU_MAP.items()]
 
-    def get_fd_test_arg_menu(self) -> List[Choice]:
+    def get_fd_test_arg_menu(self) -> list[Choice]:
         return [Choice(k, v) for k, v in self._FD40212_TEST_ARG_MAP.items()]
 
-    def get_aotu_test_menu(self) -> List[Choice]:
+    def get_aotu_test_menu(self) -> list[Choice]:
         return self._AOTU_TEST
 
-    def get_gpu_test_menu(self) -> List[Choice]:
+    def get_gpu_test_menu(self) -> list[Choice]:
         return self._GPU_TEST
 
-    def get_sys_test_menu(self) -> List[Choice]:
+    def get_sys_test_menu(self) -> list[Choice]:
         return self._SYS_TEST
 
-    def get_bmc_set_menu(self) -> List[Choice]:
+    def get_bmc_set_menu(self) -> list[Choice]:
         return self._BMC_SET
 
-    def get_sys_tool_menu(self) -> List[Choice]:
+    def get_sys_tool_menu(self) -> list[Choice]:
         return self._SYS_TOOL
     
-    _MAIN: ClassVar[List[Choice]] = [
+    _MAIN: ClassVar[list[Choice]] = [
                     # Choice("一键测试", "1"),
                     Choice("系统信息", "2"),
                     Choice("GPU测试", "3"),
@@ -60,7 +61,7 @@ class MenuChess:
                     Choice("关机", "6"),
                     Choice("退出", "exit"),
                 ]
-    _SYSTEM: ClassVar[List[Choice]] = [
+    _SYSTEM: ClassVar[list[Choice]] = [
         Choice("查看系统全部信息", "1"),
         Choice("查看系统信息", "2"),
         Choice("查看CPU信息", "3"),
@@ -73,7 +74,7 @@ class MenuChess:
         Choice("返回", "exit"),
     ]
 
-    _GPU_TEST: ClassVar[List[Choice]] = [
+    _GPU_TEST: ClassVar[list[Choice]] = [
         Choice("FD压测", "1"),
         Choice("GPUburn压测", "2"),
         Choice("Dcgmi测试", "3"),
@@ -84,37 +85,37 @@ class MenuChess:
         Choice("返回", "exit"),
     ]
 
-    _SYS_TEST: ClassVar[List[Choice]] = [
+    _SYS_TEST: ClassVar[list[Choice]] = [
         Choice("cpu 压测", "1"),
         Choice("内存压测", "2"),
         Choice("硬盘速度测试", "3"),
         Choice("返回", "exit"),
     ]
-    _SYS_TOOL: ClassVar[List[Choice]] = [
+    _SYS_TOOL: ClassVar[list[Choice]] = [
         Choice("fd日志总结", "1"),
 
         Choice("返回", "exit"),
     ]
-    _GPU_DOWNLOAD: ClassVar[List[Choice]] = [
+    _GPU_DOWNLOAD: ClassVar[list[Choice]] = [
         Choice("下载Gpu_burn", "1"),
         Choice("下载nccl-tests", "2"),
         Choice("下载nvbandwidth", "3"),
         Choice("下载p2pBandwidthLatencyTest", "4"),
         Choice("返回", "exit"),
     ]
-    _SET_SYSTEM: ClassVar[List[Choice]] = [
+    _SET_SYSTEM: ClassVar[list[Choice]] = [
         Choice("安装依赖", "1"),
         Choice("设置BMC", "2"),
         Choice("部分GPU测试工具下载", "3"),
         Choice("其他功能", "4"),
         Choice("返回", "exit"),
     ]
-    _BMC_SET: ClassVar[List[Choice]] = [
+    _BMC_SET: ClassVar[list[Choice]] = [
         Choice("设置BMC为DHCP获取", "1"),
         Choice("设置BMC用户密码", "2"),
         Choice("返回", "exit"),
     ]
-    _AOTU_TEST: ClassVar[List[Choice]] = [
+    _AOTU_TEST: ClassVar[list[Choice]] = [
         Choice("测试1(dcgm4,nncl,p2p,nvbandwidth,fd2)", "1"),
         Choice("测试2(dcgm3,p2p,fd2)", "2"),
         Choice("全部带宽测试(nvbandwidth,nccl,p2p)", "4"),
@@ -122,7 +123,7 @@ class MenuChess:
         Choice("返回", "exit"),
     ]
 
-    _FD: ClassVar[List[Choice]] = [
+    _FD: ClassVar[list[Choice]] = [
         Choice("运行Level1 测试", "1"),
         Choice("运行Level2 测试", "2"),
         Choice("单项测试", "3"),
@@ -130,7 +131,7 @@ class MenuChess:
         Choice("返回", "exit"),
     ]
 
-    _GPU_BURN: ClassVar[List[Choice]] = [
+    _GPU_BURN: ClassVar[list[Choice]] = [
         Choice("10分钟", "600"),
         Choice("30分钟", "1800"),
         Choice("1小时", "3600"),
@@ -143,7 +144,7 @@ class MenuChess:
         Choice("返回", "exit"),
     ]
 
-    _DCGM: ClassVar[List[Choice]] = [
+    _DCGM: ClassVar[list[Choice]] = [
         Choice("DCGMI 1级测试(系统验证，约几秒钟)", "diag -r 1 -v"),
         Choice("DCGMI 2级测试(扩展系统验证，约 2-8分钟)", "diag -r 2 -v"),
         Choice("DCGMI 3级测试(系统硬件诊断，约 15-30 分钟)", "diag -r 3 -v"),
@@ -154,7 +155,7 @@ class MenuChess:
     ]
 
     # 下面两个菜单项太多，用字典先存，再统一转 Choice
-    _FD40212_ARGS_MAP: ClassVar[Dict[str, str]] = {
+    _FD40212_ARGS_MAP: ClassVar[dict[str, str]] = {
         "运行系统集成测试(--sit)": "--sit",
         "不运行任何BMC相关任务(--no_bmc)": "--no_bmc",
         "跳过运行测试前的操作系统检查(--skip_os_check)": "--skip_os_check",
@@ -177,7 +178,7 @@ class MenuChess:
         "返回": "exit",
     }
 
-    _APT_INSTALL_MENU_MAP: ClassVar[Dict[str, str]] = {
+    _APT_INSTALL_MENU_MAP: ClassVar[dict[str, str]] = {
         "安装cuda-keyring":"1",
         "安装NVIDIA-580驱动和cuda13(如果没有软件源，请先执行1)": "2",
         "安装MLNX驱动(网卡驱动)": "3",
@@ -188,7 +189,7 @@ class MenuChess:
         "返回": "exit"
     }
 
-    _FD40212_TEST_ARG_MAP: ClassVar[Dict[str, str]] = {
+    _FD40212_TEST_ARG_MAP: ClassVar[dict[str, str]] = {
         "checkinforom(验证 InfoROM 数据的完整性和正确性。)": "checkinforom",
         "inventory   (清点系统中所有 GPU 设备及其基本信息。)": "inventory",
         "connectivity(检查 GPU 与主板、电源、NVLink 等物理连接是否正常。)": "connectivity",
@@ -201,7 +202,7 @@ class MenuChess:
         "返回": "exit",
     }
 
-    _NVBAND_MAP: ClassVar[Dict[str, str]] = {
+    _NVBAND_MAP: ClassVar[dict[str, str]] = {
         "使用 cuMemcpyAsync 进行主机到设备的 CE 内存拷贝": "0",
         "使用 cuMemcpyAsync 进行设备到主机的 CE 内存拷贝": "1",
         "在设备到主机拷贝同时运行时，测量主机到设备的拷贝（仅报告主机到设备的拷贝带宽）": "2",

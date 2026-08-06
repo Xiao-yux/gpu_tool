@@ -1,7 +1,4 @@
 from bash.bash import InfoBash
-from bash.date_Modus import dmicode_to_json,nvidia_to_json,create_pci_info_dict
-
-
 
 if __name__ == '__main__':
     info = InfoBash()

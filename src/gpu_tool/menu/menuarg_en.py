@@ -1,57 +1,58 @@
-from typing import ClassVar, Dict, List
+from typing import ClassVar
+
 from noneprompt import Choice
 
 
 class MenuChessEn:
-    def get_main_menu(self) -> List[Choice]:
+    def get_main_menu(self) -> list[Choice]:
         return self._MAIN
 
-    def get_system_menu(self) -> List[Choice]:
+    def get_system_menu(self) -> list[Choice]:
         return self._SYSTEM
 
-    def get_fd_menu(self) -> List[Choice]:
+    def get_fd_menu(self) -> list[Choice]:
         return self._FD
 
-    def get_fd_args_menu(self) -> List[Choice]:
+    def get_fd_args_menu(self) -> list[Choice]:
         return [Choice(k, v) for k, v in self._FD40212_ARGS_MAP.items()]
 
-    def get_gpu_burn_menu(self) -> List[Choice]:
+    def get_gpu_burn_menu(self) -> list[Choice]:
         return self._GPU_BURN
 
-    def get_dcgm_menu(self) -> List[Choice]:
+    def get_dcgm_menu(self) -> list[Choice]:
         return self._DCGM
 
-    def get_nvband_menu(self) -> List[Choice]:
+    def get_nvband_menu(self) -> list[Choice]:
         return [Choice("All Tests", "-1")] + [Choice(k, v) for k, v in self._NVBAND_MAP.items()]
 
-    def get_download_gpu(self) -> List[Choice]:
+    def get_download_gpu(self) -> list[Choice]:
         return self._GPU_DOWNLOAD
 
-    def get_setsystem_menu(self) -> List[Choice]:
+    def get_setsystem_menu(self) -> list[Choice]:
         return self._SET_SYSTEM
 
-    def get_apt_menu(self) -> List[Choice]:
+    def get_apt_menu(self) -> list[Choice]:
         return [Choice(k, v) for k, v in self._APT_INSTALL_MENU_MAP.items()]
 
-    def get_fd_test_arg_menu(self) -> List[Choice]:
+    def get_fd_test_arg_menu(self) -> list[Choice]:
         return [Choice(k, v) for k, v in self._FD40212_TEST_ARG_MAP.items()]
 
-    def get_aotu_test_menu(self) -> List[Choice]:
+    def get_aotu_test_menu(self) -> list[Choice]:
         return self._AOTU_TEST
 
-    def get_gpu_test_menu(self) -> List[Choice]:
+    def get_gpu_test_menu(self) -> list[Choice]:
         return self._GPU_TEST
 
-    def get_sys_test_menu(self) -> List[Choice]:
+    def get_sys_test_menu(self) -> list[Choice]:
         return self._SYS_TEST
 
-    def get_bmc_set_menu(self) -> List[Choice]:
+    def get_bmc_set_menu(self) -> list[Choice]:
         return self._BMC_SET
 
-    def get_sys_tool_menu(self) -> List[Choice]:
+    def get_sys_tool_menu(self) -> list[Choice]:
         return self._SYS_TOOL
 
-    _MAIN: ClassVar[List[Choice]] = [
+    _MAIN: ClassVar[list[Choice]] = [
         # Choice("One-Click Test", "1"),
         Choice("System Information", "2"),
         Choice("GPU Test", "3"),
@@ -61,7 +62,7 @@ class MenuChessEn:
         Choice("Exit", "exit"),
     ]
 
-    _SYSTEM: ClassVar[List[Choice]] = [
+    _SYSTEM: ClassVar[list[Choice]] = [
             Choice("System all Information", "1"),
             Choice("system info", "2"),
             Choice("CPU info", "3"),
@@ -74,7 +75,7 @@ class MenuChessEn:
             Choice("exit", "exit"),
         ]
 
-    _GPU_TEST: ClassVar[List[Choice]] = [
+    _GPU_TEST: ClassVar[list[Choice]] = [
         Choice("FD Stress Test", "1"),
         Choice("GPU Burn Stress Test", "2"),
         Choice("DCGMI Test", "3"),
@@ -85,36 +86,36 @@ class MenuChessEn:
         Choice("Back", "exit"),
     ]
 
-    _SYS_TEST: ClassVar[List[Choice]] = [
+    _SYS_TEST: ClassVar[list[Choice]] = [
         Choice("CPU Stress Test", "1"),
         Choice("Memory Stress Test", "2"),
         Choice("Disk Speed Test", "3"),
         Choice("Back", "exit"),
     ]
-    _SYS_TOOL: ClassVar[List[Choice]] = [
+    _SYS_TOOL: ClassVar[list[Choice]] = [
         Choice("FD Log Summary", "1"),
         Choice("Back", "exit"),
     ]
-    _GPU_DOWNLOAD: ClassVar[List[Choice]] = [
+    _GPU_DOWNLOAD: ClassVar[list[Choice]] = [
         Choice("Download GPU Burn", "1"),
         Choice("Download NCCL Tests", "2"),
         Choice("Download NVBandwidth", "3"),
         Choice("Download P2P Bandwidth Latency Test", "4"),
         Choice("Back", "exit"),
     ]
-    _SET_SYSTEM: ClassVar[List[Choice]] = [
+    _SET_SYSTEM: ClassVar[list[Choice]] = [
         Choice("Install Dependencies", "1"),
         Choice("BMC Settings", "2"),
         Choice("Download GPU Test Tools", "3"),
         Choice("Other Functions", "4"),
         Choice("Back", "exit"),
     ]
-    _BMC_SET: ClassVar[List[Choice]] = [
+    _BMC_SET: ClassVar[list[Choice]] = [
         Choice("Set BMC to DHCP", "1"),
         Choice("Set BMC User Password", "2"),
         Choice("Back", "exit"),
     ]
-    _AOTU_TEST: ClassVar[List[Choice]] = [
+    _AOTU_TEST: ClassVar[list[Choice]] = [
         Choice("Test 1 (dcgm4, nccl, p2p, nvbandwidth, fd2)", "1"),
         Choice("Test 2 (dcgm3, p2p, fd2)", "2"),
         Choice("All Bandwidth Tests (nvbandwidth, nccl, p2p)", "4"),
@@ -122,7 +123,7 @@ class MenuChessEn:
         Choice("Back", "exit"),
     ]
 
-    _FD: ClassVar[List[Choice]] = [
+    _FD: ClassVar[list[Choice]] = [
         Choice("Run Level 1 Test", "1"),
         Choice("Run Level 2 Test", "2"),
         Choice("Single Item Test", "3"),
@@ -130,7 +131,7 @@ class MenuChessEn:
         Choice("Back", "exit"),
     ]
 
-    _GPU_BURN: ClassVar[List[Choice]] = [
+    _GPU_BURN: ClassVar[list[Choice]] = [
         Choice("10 Minutes", "600"),
         Choice("30 Minutes", "1800"),
         Choice("1 Hour", "3600"),
@@ -143,7 +144,7 @@ class MenuChessEn:
         Choice("Back", "exit"),
     ]
 
-    _DCGM: ClassVar[List[Choice]] = [
+    _DCGM: ClassVar[list[Choice]] = [
         Choice("DCGMI Level 1 Test (System verification, a few seconds)", "diag -r 1 -v"),
         Choice("DCGMI Level 2 Test (Extended system verification, about 2-8 minutes)", "diag -r 2 -v"),
         Choice("DCGMI Level 3 Test (System hardware diagnostics, about 15-30 minutes)", "diag -r 3 -v"),
@@ -154,7 +155,7 @@ class MenuChessEn:
     ]
 
     # The following two menu items are too many, stored in a dictionary first, then uniformly converted to Choice
-    _FD40212_ARGS_MAP: ClassVar[Dict[str, str]] = {
+    _FD40212_ARGS_MAP: ClassVar[dict[str, str]] = {
         "Run system integration test (--sit)": "--sit",
         "Do not run any BMC related tasks (--no_bmc)": "--no_bmc",
         "Skip OS check before running tests (--skip_os_check)": "--skip_os_check",
@@ -177,7 +178,7 @@ class MenuChessEn:
         "Back": "exit",
     }
 
-    _APT_INSTALL_MENU_MAP: ClassVar[Dict[str, str]] = {
+    _APT_INSTALL_MENU_MAP: ClassVar[dict[str, str]] = {
         "Install cuda-keyring": "1",
         "Install NVIDIA-580 driver and cuda13 (If no software source, please execute 1 first)": "2",
         "Install MLNX driver (Network card driver)": "3",
@@ -188,7 +189,7 @@ class MenuChessEn:
         "Back": "exit"
     }
 
-    _FD40212_TEST_ARG_MAP: ClassVar[Dict[str, str]] = {
+    _FD40212_TEST_ARG_MAP: ClassVar[dict[str, str]] = {
         "checkinforom (Verify the integrity and correctness of InfoROM data.)": "checkinforom",
         "inventory   (Inventory all GPU devices in the system and their basic information.)": "inventory",
         "connectivity (Check if GPU physical connections to motherboard, power, NVLink, etc. are normal.)": "connectivity",
@@ -201,7 +202,7 @@ class MenuChessEn:
         "Back": "exit",
     }
 
-    _NVBAND_MAP: ClassVar[Dict[str, str]] = {
+    _NVBAND_MAP: ClassVar[dict[str, str]] = {
         "Use cuMemcpyAsync for host-to-device CE memory copy": "0",
         "Use cuMemcpyAsync for device-to-host CE memory copy": "1",
         "Measure host-to-device copy while device-to-host copy is running (only report host-to-device copy bandwidth)": "2",

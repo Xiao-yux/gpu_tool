@@ -24,7 +24,6 @@ when the default config is first copied to ``/etc/gpu/config.toml``.
 
 from __future__ import annotations
 
-
 from pydantic import BaseModel, ConfigDict, Field
 
 # ---------------------------------------------------------------------------
@@ -115,7 +114,7 @@ class gpuConfig(BaseModel):
 
     # ---- helpers ----
 
-    def with_overrides(self, **overrides: object) -> "gpuConfig":
+    def with_overrides(self, **overrides: object) -> gpuConfig:
         """Return a shallow copy with the given fields replaced.
 
         >>> c = gpuConfig().with_overrides(log=LogConfig(log_level="DEBUG"))

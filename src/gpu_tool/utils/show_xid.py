@@ -6,7 +6,6 @@ from typing import Any
 
 from openpyxl import load_workbook
 
-
 SHEET_NAME = "Xids"
 GREEN = "\033[32m"
 RESET = "\033[0m"

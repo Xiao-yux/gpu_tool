@@ -1,19 +1,20 @@
-from pathlib import Path
-import subprocess
 import os
 import shlex
+import subprocess
 import sys
 import time
-from typing import Dict
-from log.logger import get_logger
+from pathlib import Path
+
 import utils.tool as utils
+from log.logger import get_logger
+
 
 class TerminalManager:
     """使用 screen 命令管理持久化的终端会话"""
 
     def __init__(self):
         self.log = get_logger()
-        self.screens: Dict[str, Dict] = {}  # 存储所有 screen 会话信息
+        self.screens: dict[str, dict] = {}  # 存储所有 screen 会话信息
         self.last_progress_line = ""
         self.last_size= 0
         self.progress_active = False
@@ -76,8 +77,7 @@ class TerminalManager:
                 try:
                     id_part = session.split("_")[-1]
                     id_num = int(id_part)
-                    if id_num > max_id:
-                        max_id = id_num
+                    max_id = max(max_id, id_num)
                 except (ValueError, IndexError):
                     continue
         
@@ -188,7 +188,7 @@ class TerminalManager:
                                 # 实时输出到屏幕，去掉末尾的换行符再 print，避免双换行
                                 sys.stdout.write(line)
                                 sys.stdout.flush() # 强制刷新缓冲区，确保立即显示
-                                self.log.info(line, file_name=log_name) # 也记录到日志中
+                                self.log.info(line, file_name=f"{self.log.paths.run}/{log_name}") # 也记录到日志中
                     
                     # 情况2：文件变小了（可能是 screen 清空了日志或重启了）
                     elif current_size < _file_size:

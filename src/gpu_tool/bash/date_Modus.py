@@ -1,7 +1,8 @@
 from __future__ import annotations
-import re
-from pydantic import BaseModel, Field
 
+import re
+
+from pydantic import BaseModel, Field
 
 
 class sysInfo(BaseModel):

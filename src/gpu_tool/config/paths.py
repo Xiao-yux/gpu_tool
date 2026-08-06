@@ -161,7 +161,7 @@ class LogPaths:
     # ---- factory ----
 
     @classmethod
-    def for_session(cls, log_path_template: str, *, sn: str | None = None) -> "LogPaths":
+    def for_session(cls, log_path_template: str, *, sn: str | None = None) -> LogPaths:
         return cls(
             user=current_user(),
             sn=sn or serial_number(),

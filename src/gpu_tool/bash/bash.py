@@ -1,10 +1,21 @@
 import json
-from i18n.i18n import get_i18n
-from tabulate import tabulate
 import re
-from bash.date_Modus import dmicode_to_json,nvidia_to_json,create_pci_info_dict,parse_smartctl_output
-from bash.date_Modus import sysInfo,MenmoryInfo,GPUInfo,PoweInfo,DiskInfo
+
+from bash.date_Modus import (
+    DiskInfo,
+    GPUInfo,
+    MenmoryInfo,
+    PoweInfo,
+    create_pci_info_dict,
+    dmicode_to_json,
+    nvidia_to_json,
+    parse_smartctl_output,
+    sysInfo,
+)
+from i18n.i18n import get_i18n
 from runner.local import run_command
+from tabulate import tabulate
+
 
 class InfoBash:
     def __init__(self):

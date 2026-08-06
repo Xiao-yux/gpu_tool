@@ -1,14 +1,15 @@
 import json
 import os
-from typing import Any, Dict, Union, Optional
 from pathlib import Path
+from typing import Any, Union
+
 
 class JsonDB:
     def __init__(self, file_path: str, auto_save: bool = False):
         self.file_path = os.path.abspath(file_path)
         self.ensure_file(self.file_path)
         self.auto_save = auto_save
-        self._data: Dict[str, Any] = {}
+        self._data: dict[str, Any] = {}
         self._load()
 
     # ---------- 内部工具 ----------
@@ -30,13 +31,13 @@ class JsonDB:
     PathLike = Union[str, bytes, os.PathLike]
 
     @staticmethod
-    def ensure_file(path: Union[str, os.PathLike[str]], 
+    def ensure_file(path: str | os.PathLike[str], 
                     *,
                     mkdir: bool = True,
-                    content: Optional[str] = None,
+                    content: str | None = None,
                     encoding: str = "utf-8",
                     mode: str = "w",  # "w" / "a" / "x"  或 None（只创建空文件）
-                    permissions: Optional[int] = None
+                    permissions: int | None = None
                     ) -> tuple[bool, str]:
         """
         创建文件并写入内容（可选）。

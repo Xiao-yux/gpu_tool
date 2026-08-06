@@ -81,7 +81,11 @@ log_file = "gpu_tool_debug.log"
 - `run` : 测试程序运行中输出的信息.
 - `report`: 测试结果汇总信息.(待实现)
 
-
+## 部分测试软件地址
+- [gpu-burn](https://github.com/wilicc/gpu-burn)
+- [nccl-tests](https://github.com/NVIDIA/nccl-tests)
+- [cuda-samples](https://github.com/nvidia/cuda-samples)
+- [nvbandwidth](https://github.com/NVIDIA/nvbandwidth)
 
 ## 贡献与反馈
 欢迎提交 Issue 或 PR 来建议功能、修复 bug 或补充新测试脚本。请在贡献前先打开 Issue 讨论。

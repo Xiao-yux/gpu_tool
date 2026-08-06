@@ -2,10 +2,10 @@ import json
 import os
 import subprocess
 import time
-from typing import List
+
+from i18n.i18n import get_i18n
 from log.logger import get_logger
 from utils.tool import Tools
-from i18n.i18n import get_i18n
 
 
 class TestFun:
@@ -135,7 +135,7 @@ class TestFun:
             return []
         self.log.info(f"diskdata3:{data}")
 
-        disk : List = []
+        disk : list = []
         for dev in data.get("blockdevices", []):
             self.log.info(f"diskdata2:{dev}")
             if dev.get("type") == "disk":

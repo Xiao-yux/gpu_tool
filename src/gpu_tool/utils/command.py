@@ -1,10 +1,13 @@
 import argparse
 import sys
+
 from _version import __version__
-from utils.tool import Tools
-from bash.bash import InfoBash
 from art import text2art
+from bash.bash import InfoBash
 from utils.show_xid import show_xid
+from utils.tool import Tools
+
+
 class GpuToolApi:
     def __init__(self):
         self.version = __version__
@@ -41,7 +44,6 @@ class GpuToolApi:
             sys.exit(0)
         print(text2art(tx1, chr_ignore=True))
         print(f"\033[92mv{__version__}\033[0m")
-        return
     @staticmethod
     def parse_arguments(ver=None):
         """

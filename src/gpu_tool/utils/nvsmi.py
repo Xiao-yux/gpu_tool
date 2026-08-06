@@ -1,5 +1,6 @@
-from runner.local import run_command
 from i18n.i18n import get_i18n
+from runner.local import run_command
+
 
 class nvsmi:
     def __init__(self):

@@ -1,6 +1,7 @@
 import os
 import subprocess
 
+
 class FRPRun:
     def __init__(self):
         self.con = []

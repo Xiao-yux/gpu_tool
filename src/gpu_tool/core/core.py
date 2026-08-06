@@ -1,7 +1,6 @@
-import sys
 import os
+import sys
 import threading
-
 
 
 def is_root():
@@ -37,6 +36,9 @@ class Core:
 
         self.log.info('Core initialized.§§')
         self.log.info(f'版本号:{self.config.version}')
+        self.log.info('项目地址:https://github.com/Xiao-yux/gpu_tool')
+        self.log.info('XiaoYu build')
+        self.log.info('𝑪𝒊𝒂𝒍𝒍𝒐～(∠・ω< )⌒☆')
         self.wscline = None
         if self.config.update.wsenable:
             from utils.wscline import Cline

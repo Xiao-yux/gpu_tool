@@ -1,10 +1,10 @@
-from flask import Flask, render_template
-import threading
 import asyncio
+import threading
 
-from utils.ws import WebSocketServer
+from flask import Flask, render_template
 from utils import routws
 from utils.db import init_db
+from utils.ws import WebSocketServer
 
 app = Flask(__name__)
 
@@ -65,4 +65,3 @@ if __name__ == "__main__":
         app.run(debug=False, host="0.0.0.0", port=88)
     except KeyboardInterrupt:
         print("服务器已关闭")
-        pass

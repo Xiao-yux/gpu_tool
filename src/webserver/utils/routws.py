@@ -1,8 +1,9 @@
-from flask import jsonify, request
 import asyncio
+
+from flask import jsonify, request
 from utils.db import Clineinfo, TaskList, db
-from utils.scanner import scanner, ip_scanner
 from utils.frprun import FRPRun
+from utils.scanner import ip_scanner, scanner
 
 # 创建全局FRPRun实例
 frp_runner = FRPRun()
@@ -31,7 +32,7 @@ def register_routes(app):
         except Exception as e:
             return jsonify({
                 "success": False,
-                "message": f"获取扫描结果失败: {str(e)}"
+                "message": f"获取扫描结果失败: {e!s}"
             }), 500
 
     @app.route("/api/ipscan/results")
@@ -46,7 +47,7 @@ def register_routes(app):
         except Exception as e:
             return jsonify({
                 "success": False,
-                "message": f"获取IP扫描结果失败: {str(e)}"
+                "message": f"获取IP扫描结果失败: {e!s}"
             }), 500
 
     @app.route("/api/remote/access", methods=["POST"])
@@ -74,7 +75,7 @@ def register_routes(app):
         except Exception as e:
             return jsonify({
                 "success": False,
-                "message": f"开启远程访问失败: {str(e)}"
+                "message": f"开启远程访问失败: {e!s}"
             }), 500
 
     @app.route("/api/remote/stop", methods=["POST"])
@@ -99,7 +100,7 @@ def register_routes(app):
         except Exception as e:
             return jsonify({
                 "success": False,
-                "message": f"停止远程访问失败: {str(e)}"
+                "message": f"停止远程访问失败: {e!s}"
             }), 500
 
     @app.route("/api/ws/clients")
@@ -186,7 +187,7 @@ def register_routes(app):
             except Exception as e:
                 return jsonify({
                     "success": False,
-                    "message": f"刷新失败: {str(e)}"
+                    "message": f"刷新失败: {e!s}"
                 }), 500
         return jsonify({
             "success": False,
@@ -220,7 +221,7 @@ def register_routes(app):
         except Exception as e:
             return jsonify({
                 "success": False,
-                "message": f"获取缓存客户端信息失败: {str(e)}"
+                "message": f"获取缓存客户端信息失败: {e!s}"
             }), 500
 
     @app.route("/api/ws/offline_clients")
@@ -238,7 +239,7 @@ def register_routes(app):
             # 提取在线客户端的SN列表
             online_sns = set()
             for client in online_clients:
-                if "sn" in client and client["sn"]:
+                if client.get("sn"):
                     online_sns.add(client["sn"])
             
             # 筛选出离线客户端（数据库中有记录但不在在线列表中）
@@ -261,7 +262,7 @@ def register_routes(app):
         except Exception as e:
             return jsonify({
                 "success": False,
-                "message": f"获取离线客户端信息失败: {str(e)}"
+                "message": f"获取离线客户端信息失败: {e!s}"
             }), 500
 
     @app.route("/api/tasks", methods=["GET"])
@@ -285,7 +286,7 @@ def register_routes(app):
         except Exception as e:
             return jsonify({
                 "success": False,
-                "message": f"获取任务列表失败: {str(e)}"
+                "message": f"获取任务列表失败: {e!s}"
             }), 500
 
     @app.route("/api/tasks", methods=["POST"])
@@ -332,7 +333,7 @@ def register_routes(app):
             db.session.rollback()
             return jsonify({
                 "success": False,
-                "message": f"添加任务失败: {str(e)}"
+                "message": f"添加任务失败: {e!s}"
             }), 500
 
     @app.route("/api/tasks/<int:task_id>", methods=["DELETE"])
@@ -357,7 +358,7 @@ def register_routes(app):
             db.session.rollback()
             return jsonify({
                 "success": False,
-                "message": f"删除任务失败: {str(e)}"
+                "message": f"删除任务失败: {e!s}"
             }), 500
 
     @app.route("/api/tasks/<int:task_id>", methods=["PUT"])
@@ -407,5 +408,5 @@ def register_routes(app):
             db.session.rollback()
             return jsonify({
                 "success": False,
-                "message": f"修改任务失败: {str(e)}"
+                "message": f"修改任务失败: {e!s}"
             }), 500
