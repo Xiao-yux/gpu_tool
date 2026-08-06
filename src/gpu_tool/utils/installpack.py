@@ -95,7 +95,7 @@ class InstallPack:
         a = [cmd,tar,cmd2,cmd3]
         for i in a:
             b= self.tool.run_command(i,out=True)
-            self.log.info(b, file_name=self.logname)
+            self.log.info(message=f"{b}", file_name=self.logname)
 
 
     def apt_update_package(self):

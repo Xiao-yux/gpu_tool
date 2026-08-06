@@ -116,6 +116,7 @@ class gpuLogger:
         frame = inspect.stack()[2]
         if file_name is None:
             file_name = self.config.log_file
+        # print(f"测试: {file_name}")
         caller_module = frame.frame.f_globals.get("__name__", "unknown")
         logger, _ = self._get_logger(caller_module, file_name)
 

@@ -14,6 +14,7 @@ class TerminalManager:
 
     def __init__(self):
         self.log = get_logger()
+        self.log.info("初始化 TerminalManager")
         self.screens: dict[str, dict] = {}  # 存储所有 screen 会话信息
         self.last_progress_line = ""
         self.last_size= 0
@@ -27,8 +28,7 @@ class TerminalManager:
             # 检查 screen 是否已安装
             result = subprocess.run(
                 ["which", "screen"],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                capture_output=True,
                 text=True
             )
             if result.returncode != 0:
@@ -54,7 +54,7 @@ class TerminalManager:
         Returns:
             str: screen 会话名称
         """
-        result = subprocess.run(f"screen -ls | grep {logname}", shell=True, text=True)
+        result = subprocess.run(f"screen -ls | grep {logname}", shell=True, text=True,capture_output=True)
         # 如果没有匹配的会话，直接返回 logname_1
         if result.returncode != 0 or not result.stdout.strip():
             return f"{logname}_1"
@@ -139,7 +139,6 @@ class TerminalManager:
 
     def fd_run(self, command: str, path: str = "/tmp"):
         cmd = f"python3 {self.tool.get_bash_path()}run_fd.py '{shlex.quote(path)}' {shlex.quote(command)}"
-        
         subprocess.run(cmd, shell=True,text=True)
         return True
         
@@ -153,8 +152,8 @@ class TerminalManager:
         screen_info = self.screens[screen_name]
         marker = screen_info.get('end_marker')
         log_file = screen_info.get('log_file')
-        log_name = screen_info.get('logname') or "unknown"
-
+        log_name = f"run" + "/" + (screen_info.get('logname') or "unknown")
+        # self.log.info(f"日志文件创建路径: {log_name}", file_name=log_name,console=True)
         if not log_file:
             self.log.info(f"Screen 会话 {screen_name} 的日志信息不完整", console=True)
             return False
@@ -188,7 +187,9 @@ class TerminalManager:
                                 # 实时输出到屏幕，去掉末尾的换行符再 print，避免双换行
                                 sys.stdout.write(line)
                                 sys.stdout.flush() # 强制刷新缓冲区，确保立即显示
-                                self.log.info(line, file_name=f"{self.log.paths.run}/{log_name}") # 也记录到日志中
+                                print("log"+log_name)
+                                self.log.info("log"+log_name, file_name=log_name)
+                                self.log.info(line, file_name=log_name) # 也记录到日志中
                     
                     # 情况2：文件变小了（可能是 screen 清空了日志或重启了）
                     elif current_size < _file_size:

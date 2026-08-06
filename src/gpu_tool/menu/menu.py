@@ -337,17 +337,17 @@ class Menu:
                     path=path
                 )
                 if logname != "fd_test":
-                    self.log.info(f"{self.i18n.get('screen_created')}: {screen_name}\n", file_name=logname, console=True)
+                    self.log.info(f"{self.i18n.get('screen_created')}: {screen_name}\n", console=True)
 
 
             except RuntimeError as e:
                 self.log.info(f"{self.i18n.get('screen_execution_failed')} {e}", file_name=logname, console=True)
                 os._exit(1)
 
-            self.log.info(self.i18n.get("screen_session_created") + "\n", file_name=logname)
+            self.log.info(self.i18n.get("screen_session_created") + "\n")
             self.log.info(f"{self.i18n.get('log_path')}: {self.log.paths.run}/{logname}\n", console=True)
             self.terminal_manager.wait_for_command_completion(screen_name)
-            self.log.info(self.i18n.get("command_end") + "\n", file_name=logname)
+            self.log.info(self.i18n.get("command_end") + "\n")
             if input_user:
                 input(self.i18n.get("press_enter_continue"))
             return

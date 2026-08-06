@@ -9,7 +9,7 @@ import subprocess
 
 def run_command(command,out=False):
     """运行命令"""
-    result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    result = subprocess.run(command, shell=True, capture_output=True, text=True)
     if out:
         print(result.stdout)
     return result.stdout

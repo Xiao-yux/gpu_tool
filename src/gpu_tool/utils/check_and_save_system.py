@@ -49,24 +49,15 @@ class CheckSystem:
 
     def check_ipmi(self) -> bool:
         """检查ipmi是否安装"""
-        if os.path.exists('/usr/bin/ipmitool'):
-            return True
-        else:
-            return False
+        return bool(os.path.exists('/usr/bin/ipmitool'))
 
     def check_gpu(self) -> bool:
         """检查gpu是否安装"""
-        if not os.popen("lspci | grep -i nvidia").read():
-            return False
-        else:
-            return True
+        return os.popen("lspci | grep -i nvidia").read() != ""
 
     def check_nvswitch(self) -> bool:
         """检查nvswitch是否安装"""
-        if os.path.exists('/usr/bin/nvidia-smi nvlink --status'):
-            return True
-        else:
-            return False
+        return bool(os.path.exists('/usr/bin/nvidia-smi nvlink --status'))
     def check_dcgmi(self) -> bool:
         if os.path.exists('/usr/bin/dcgmi'):
             self.log.info(self.i18n.get('no_dcgmi'))
