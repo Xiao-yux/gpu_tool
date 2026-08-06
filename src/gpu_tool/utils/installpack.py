@@ -21,8 +21,8 @@ class InstallPack:
 
     def apt_install_systest(self):
         """安装系统测试工具(fio,stress,memtester)"""
-        pack = ['fio','stress','stress-ng','memtester']
-        for pack in tqdm.tqdm(pack):
+        packs = ['fio','stress','stress-ng','memtester']
+        for pack in tqdm.tqdm(packs):
             cmd = f'sudo apt-get install -y {pack}'
             self.log.info(f"正在安装{cmd}", file_name=self.logname, console=True)
             self.log.info(run_command(cmd, out=True), file_name=self.logname)

@@ -170,7 +170,7 @@ class IPPingScanner:
             command = ['ping', param, '1', '-w', str(int(timeout * 1000)), str(ip)]
 
             import subprocess
-            result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            result = subprocess.run(command)
             return result.returncode == 0
         except Exception as e:
             print(f"Ping {ip} 失败: {e}")

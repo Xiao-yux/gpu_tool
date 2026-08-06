@@ -7,6 +7,7 @@ import websockets
 import websockets.asyncio
 from log.logger import get_logger
 from utils.tool import Tools
+from websockets.exceptions import WebSocketException
 from websockets.protocol import State  # 15.x 版本
 
 
@@ -81,7 +82,7 @@ class Cline:
 
             except websockets.exceptions.ConnectionClosed:
                 self.log.info("[Cline] 连接断开")
-            except Exception as e:
+            except WebSocketException as e:
                 self.log.info(f"[Cline] 错误: {e}")
             finally:
                 self.ws = None
@@ -101,7 +102,7 @@ class Cline:
                     await self.ws.send("{'info':'ping','info':'在线维持'}")
                 else:
                     break
-            except Exception as e:
+            except WebSocketException as e:
                 self.log.info(f"[Cline] 发送错误: {e}")
                 break
 
@@ -158,7 +159,7 @@ class Cline:
         """处理服务器消息"""
         self.log.info(f"[Cline] 收到: {message}")
         try:
-            # 1. 只解析一次，别再覆盖同名变量
+
             info_dict = json.loads(message)
             if self.ws is None:
                 self.log.info("[Cline] ws 未连接，无法处理消息")
@@ -178,7 +179,7 @@ class Cline:
             elif info_dict.get('info') == 'log':
                 self.log.info(f"[Cline] 收到: {info_dict.get('info')}")
 
-        except Exception as e:
+        except WebSocketException as e:
             import traceback
             self.log.info("hand错误: " + str(e))
             self.log.info("traceback:\n" + traceback.format_exc())  # ← 关键
@@ -194,7 +195,7 @@ class Cline:
                 # 简单设置 115200 8N1（ioctl 需要额外库，这里跳过）
                 data = await tty.read(4096)
             return {"tty": TTY_DEV, "data": data.decode(errors="ignore")}
-        except Exception as exc:
+        except FileNotFoundError as exc:
             return {"tty": TTY_DEV, "error": str(exc)}
 
 

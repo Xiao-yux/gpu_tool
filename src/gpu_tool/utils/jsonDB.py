@@ -1,7 +1,7 @@
 import json
 import os
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
 
 
 class JsonDB:
@@ -28,7 +28,7 @@ class JsonDB:
         with open(self.file_path, "w", encoding="utf-8") as f:
             json.dump(self._data, f, ensure_ascii=False, indent=2)
 
-    PathLike = Union[str, bytes, os.PathLike]
+    PathLike = str | bytes | os.PathLike
 
     @staticmethod
     def ensure_file(path: str | os.PathLike[str], 
@@ -74,7 +74,7 @@ class JsonDB:
 
             return True, f"文件已创建: {p}"
 
-        except Exception as e:
+        except OSError as e:
             return False, f"创建文件失败: {e}"
 
     def _maybe_save(self) -> None:

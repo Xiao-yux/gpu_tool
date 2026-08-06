@@ -1,17 +1,18 @@
-from pathlib import Path
-from typing import List
 import json
-from noneprompt import ListPrompt, Choice, InputPrompt, CheckboxPrompt
 import os
-from i18n.i18n import get_i18n
-from utils.installpack import InstallPack
-from utils.tool import Tools
-from log.logger import get_logger
-from runner.screen import TerminalManager
-from config.model import PathConfig
-from utils.nvsmi import nvsmi
-from utils.ipmitool import ipmitools
+from pathlib import Path
+
 from bash.bash import InfoBash
+from config.model import PathConfig
+from i18n.i18n import get_i18n
+from log.logger import get_logger
+from noneprompt import CheckboxPrompt, Choice, InputPrompt, ListPrompt
+from runner.screen import TerminalManager
+from utils.installpack import InstallPack
+from utils.ipmitool import ipmitools
+from utils.nvsmi import nvsmi
+from utils.tool import Tools
+
 
 class Menu:
     def __init__(self, path: PathConfig):
@@ -58,7 +59,6 @@ class Menu:
                 self.tool.run_command("poweroff")
 
             self.log.info(f'用户选择: {pro}')
-        return
     def system_set_menu(self):
         """设置菜单"""
         pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_setsystem_menu(), error_message=self.i18n.get('not_implemented')).prompt()
@@ -82,7 +82,6 @@ class Menu:
             self.log.info(f"{fd} is exist {a} \n",console=True)
             self.tool.check_fd_log(fd)
 
-        return
 
     def bmc_set_menu(self):
         pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_bmc_set_menu(),
@@ -135,7 +134,6 @@ class Menu:
                 self.install.apt_install_libnccl()
             if pro.data == "7":
                 self.install.apt_install_systest()
-        return
     def gpu_test_menu(self):
         """GPU测试菜单"""
         while True:
@@ -181,7 +179,6 @@ class Menu:
             cc = f"{cmd} --device={i}"
             self.run_command(cc, path, logname,input_user=False)
         self.run_command(f"{cmd} --device=all", path, logname)
-        return
     def sys_info_menu(self):
         """系统信息菜单"""
         a =0
@@ -241,7 +238,6 @@ class Menu:
                 input(f"{self.i18n.get('press_enter_continue')}")
             self.log.info(f'用户选择: {pro}')
 
-        return
 
     def dcgmi_menu(self):
         """DCGMI测试菜单"""
@@ -411,7 +407,7 @@ class Menu:
             return []
         self.log.info(f"diskdata3:{data}")
 
-        choices: List[Choice] = []
+        choices: list[Choice] = []
         for dev in data.get("blockdevices", []):
             self.log.info(f"diskdata2:{dev}")
             if dev.get("type") == "disk":

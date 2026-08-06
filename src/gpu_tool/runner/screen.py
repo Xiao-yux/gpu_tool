@@ -54,7 +54,7 @@ class TerminalManager:
         Returns:
             str: screen 会话名称
         """
-        result = subprocess.run(f"screen -ls | grep {logname}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        result = subprocess.run(f"screen -ls | grep {logname}", shell=True, text=True)
         # 如果没有匹配的会话，直接返回 logname_1
         if result.returncode != 0 or not result.stdout.strip():
             return f"{logname}_1"
@@ -204,7 +204,7 @@ class TerminalManager:
                 except KeyboardInterrupt:
                     print("\n[Info] 用户停止监控。")
                     break
-                except Exception as e:
+                except FileNotFoundError as e:
                     # 防止因为偶尔的文件锁定或权限问题导致程序退出
                     print(f"[Error] 读取日志发生错误: {e}")
                     time.sleep(1)

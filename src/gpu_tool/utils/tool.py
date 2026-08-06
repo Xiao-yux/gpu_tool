@@ -35,7 +35,7 @@ class Tools:
     @staticmethod
     def poweoff():
         """关机"""
-        os.system('sudo poweroff')
+        subprocess.run('poweroff', shell=True, check=True)
 
     @staticmethod
     def check_fd_log(logpath:str):
@@ -77,7 +77,7 @@ class Tools:
             pattern = os.path.join(tmppath, 'SXM[1-8]*', 'output.log')
             log_files = glob.glob(pattern, recursive=False)
             for f in log_files:
-                s = f[len(tmppath):].strip('output.log')
+                s = f[len(tmppath):].removesuffix('output.log')
                 ss = s.strip('/')
                 gp = ss[:4]   #SXM2_SN_********  取前四位
                 str1 = 'GPU' + gp.strip('SXM')  #去除前3位
@@ -246,7 +246,7 @@ class Tools:
         for s in ser:
             cmd = "systemctl stop " + s
             try:
-                subprocess.run(cmd, shell=True)
+                subprocess.run(cmd, shell=True, check=True)
             except subprocess.CalledProcessError:
                 pass
     
@@ -254,13 +254,13 @@ class Tools:
         """移除NVIDIA模块"""
         try:
             cmd = "rmmod nvidia_drm"
-            subprocess.run(cmd, shell=True)
+            subprocess.run(cmd, shell=True, check=True)
             cmd = "rmmod nvidia_uvm"
-            subprocess.run(cmd, shell=True)
+            subprocess.run(cmd, shell=True, check=True)
             cmd = "rmmod nvidia_modeset"
-            subprocess.run(cmd, shell=True)
+            subprocess.run(cmd, shell=True, check=True)
             cmd = "rmmod nvidia"
-            subprocess.run(cmd, shell=True)
+            subprocess.run(cmd, shell=True, check=True)
         except subprocess.CalledProcessError as e:
             print(f"Failed to remove NVIDIA modules: {e}")
         
@@ -268,15 +268,15 @@ class Tools:
         """移除交换机模块"""
         try:
             cmd = "rmmod openvswitch"
-            subprocess.run(cmd, shell=True)
+            subprocess.run(cmd, shell=True, check=True)
             cmd = "rmmod nsh"
-            subprocess.run(cmd, shell=True)
+            subprocess.run(cmd, shell=True, check=True)
             cmd = "rmmod nf_nat"
-            subprocess.run(cmd, shell=True)
+            subprocess.run(cmd, shell=True, check=True)
             cmd = "rmmod nf_conncount"
-            subprocess.run(cmd, shell=True)
+            subprocess.run(cmd, shell=True, check=True)
             cmd = "rmmod nf_conntrack"
-            subprocess.run(cmd, shell=True)
+            subprocess.run(cmd, shell=True, check=True)
         except subprocess.CalledProcessError as e:
             print(f"Failed to remove switch modules: {e}")
 
@@ -286,17 +286,16 @@ class Tools:
         for s in a:
             cmd = "systemctl stop " + s
             try:
-                subprocess.run(cmd, shell=True)
+                subprocess.run(cmd, shell=True, check=True)
             except subprocess.CalledProcessError:
                 pass
 
     @staticmethod
     def check_fd_path(path):
         """检查目录非空"""
-        if os.path.exists(path) and os.listdir(path):
-            # os.system(f"mv {path} {path}_{time.strftime('%Y-%m-%d-%H-%S', time.localtime())}_bak")
-            return True
-        return False
+        return bool(os.path.exists(path) and os.listdir(path))
+    
+    
     def get_gpu_memory(self):
         """返回GPU显存信息"""
         if not os.path.exists('/usr/bin/nvidia-smi'):
