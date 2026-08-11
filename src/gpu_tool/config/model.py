@@ -38,11 +38,10 @@ class PathConfig(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     config_file: str = "/etc/gpu_tool/config.toml"   # 配置存放文件路径
-    fd_path: str = "/home/{user}/fd-40946"          # fieldiag 路径
-    gpu_burn_path: str = "/home/{user}/gpu-burn"    # gpu_burn 路径
-    nccl_path: str = "/home/{user}/nccl-tests/build"# nccl-tests 路径
-    download: str = "/home/{user}"                  # 下载路径
-    fd_exe: str = "fieldiag.sh"                     # fieldiag 可执行文件名
+    fd_path: str = "/{user}/gpu-tests-tool/fieldiag"          # fieldiag 路径
+    gpu_burn_path: str = "/{user}/gpu-tests-tool/gpu-burn"    # gpu_burn 路径
+    nccl_path: str = "/{user}/gpu-tests-tool/nccl-tests/build"# nccl-tests 路径
+    download: str = "/{user}"                  # 下载路径
     gpu_burn_exe: str = "gpu_burn"                  # gpu_burn 可执行文件名
     nccl_exe: str = "all_reduce_perf"               # nccl-tests 可执行文件名
 
@@ -81,7 +80,7 @@ class LogConfig(BaseModel):
 
     model_config = ConfigDict(extra="ignore")
 
-    log_path: str = "/home/{user}/log"   # 日志文件夹路径
+    log_path: str = "/{user}/log"   # 日志文件夹路径
     log_file: str = "gpu_tool_debug.log"  # 主日志文件名
     console_output: bool = False   # 是否在控制台输出日志
 

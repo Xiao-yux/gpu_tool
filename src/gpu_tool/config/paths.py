@@ -38,6 +38,8 @@ REPORT_SUBDIR: Final[str] = "report"
 def current_user() -> str:
     """Return the effective user name (used as a path component)."""
     try:
+        if getpass.getuser() != "root":
+            return f"home/{getpass.getuser()}"
         return getpass.getuser()
     except (KeyError, OSError):  # pragma: no cover - exotic envs
         return os.environ.get("USER", "unknown")

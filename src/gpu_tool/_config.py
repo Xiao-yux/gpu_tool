@@ -12,11 +12,11 @@ language = "zh_cn"            # auto | en | zh_cn
 
 [paths]
 config_file  = "/etc/gpu_tool/config.toml"
-fd_path      = "/home/{user}/fd-40946"
-gpu_burn_path = "/home/{user}/gpu-burn"
-nccl_path    = "/home/{user}/nccl-tests/build"
-download     = "/home/{user}"
-fd_exe       = "fieldiag.sh"
+fd_path      = "/{user}/gpu-tests-tool/fieldiag"
+gpu_burn_path = "/{user}/gpu-tests-tool/gpu-burn"
+nccl_path    = "/{user}/gpu-tests-tool/nccl-tests/build"
+download     = "/{user}/gpu-tests-tool"
+
 gpu_burn_exe = "gpu_burn"
 nccl_exe     = "all_reduce_perf"
 
@@ -29,7 +29,7 @@ wsenable = false
 wsurl = "ws://127.0.0.1:8765"
 
 [log]
-log_path = "/home/{user}/log"
+log_path = "/{user}/log"
 log_file = "gpu_tool_debug.log"
 console_output = false
 

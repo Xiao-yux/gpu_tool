@@ -247,7 +247,7 @@ class Menu:
         cmd = f"dcgmi {pro.data}"
         self.log.info(f'用户选择DCGMI测试菜单: {pro}')
         self.run_command(cmd, logname="dcgmi_test",path=self.log.paths.run)
-        self.main_menu()
+        return
 
     def gpu_burn_menu(self):
         """GPU烧机测试菜单"""
@@ -277,9 +277,9 @@ class Menu:
         self.main_menu()
 
     def fd_menu(self):
-        """Folding测试菜单"""
-        cmd = f"{self.path.fd_path}/{self.path.fd_exe} "
+        """Folding测试菜单"""  #待更新
         path = f"{self.path.fd_path}"
+        cmd = f"{self.path.fd_path}/fieldiag.sh "
         self.tool.check_fd_path(f"\'{self.log.paths.run}/fd\'")
         logname = "fd_test"
         pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_fd_menu(),allow_filter=False).prompt()

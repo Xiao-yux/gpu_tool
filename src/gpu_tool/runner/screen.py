@@ -187,8 +187,6 @@ class TerminalManager:
                                 # 实时输出到屏幕，去掉末尾的换行符再 print，避免双换行
                                 sys.stdout.write(line)
                                 sys.stdout.flush() # 强制刷新缓冲区，确保立即显示
-                                print("log"+log_name)
-                                self.log.info("log"+log_name, file_name=log_name)
                                 self.log.info(line, file_name=log_name) # 也记录到日志中
                     
                     # 情况2：文件变小了（可能是 screen 清空了日志或重启了）

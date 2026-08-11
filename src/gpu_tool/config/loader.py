@@ -57,54 +57,6 @@ _DEFAULT_INSTALL_PATH: Final[str] = "/etc/gpu_tool/config.toml"
 # install. Subsequent reads never touch it again.
 DEFAULT_CONFIG_TEMPLATE: Final[str] = DEFAULT_CONFIG
 
-#用 _config.py 中的 DEFAULT_CONFIG_TEMPLATE 代替 方便修改
-"""\
-# gpu_tool configuration
-# Auto-generated on first run; edit freely.
-# Re-running ``gpu_tool config-install`` will not overwrite your changes.
-
-version = "{version}"
-
-[language]
-language = "auto"            # auto | en | zh_CN
-
-[paths]
-config_file  = "/etc/gpu_tool/config.toml"
-fd_path      = "/home/{user}/fd-40946"
-gpu_burn_path = "/home/{user}/gpu-burn"
-nccl_path    = "/home/{user}/nccl-tests/build"
-download     = "/home/{user}"
-fd_exe       = "fieldiag.sh"
-gpu_burn_exe = "gpu_burn"
-nccl_exe     = "all_reduce_perf"
-
-
-[system]
-bypass_root_check = false
-
-[update]
-wsenable = false
-wsurl = "ws://127.0.0.1:8765"
-
-[log]
-log_path = "/home/{user}/log"
-log_file = "gpu_tool_debug.log"
-console_output = false
-
-[report]
-# Phase 5: report layer settings.
-tester = "operator"
-generate_html = true
-generate_pdf = true
-no_report = false
-
-"""
-
-
-# ---------------------------------------------------------------------------
-# Discovery
-# ---------------------------------------------------------------------------
-
 
 def find_config_file() -> Path | None:
     """Return the first existing config file in the search order.
