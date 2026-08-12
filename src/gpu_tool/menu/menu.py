@@ -179,6 +179,8 @@ class Menu:
             cc = f"{cmd} --device={i}"
             self.run_command(cc, path, logname,input_user=False)
         self.run_command(f"{cmd} --device=all", path, logname)
+
+
     def sys_info_menu(self):
         """系统信息菜单"""
         a =0
@@ -278,8 +280,8 @@ class Menu:
 
     def fd_menu(self):
         """Folding测试菜单"""  #待更新
-        path = f"{self.path.fd_path}"
-        cmd = f"{self.path.fd_path}/fieldiag.sh "
+        path = f"{self.path.fd_path}/629-24287-XXXX-FLD-41741/"
+        cmd = f"{self.path.fd_path}/629-24287-XXXX-FLD-41741/fieldiag.sh "
         self.tool.check_fd_path(f"\'{self.log.paths.run}/fd\'")
         logname = "fd_test"
         pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_fd_menu(),allow_filter=False).prompt()

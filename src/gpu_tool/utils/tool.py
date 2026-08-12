@@ -172,7 +172,7 @@ class Tools:
     
     
     def get_query_gpu(self):
-        return os.popen(f"bash {self.get_tmp_path()}/bash/deviceQuery").read()
+        return os.popen(f"{self.get_tmp_path()}/bash/deviceQuery").read()
         
     def get_sys_info(self,arg='') -> str:
         """# 返回系统信息"""

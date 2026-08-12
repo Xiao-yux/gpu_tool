@@ -31,6 +31,7 @@
     "screen_created": "Screen session created",
     "invalid_time_format": "Invalid time format. Enter a number followed by S (seconds), M (minutes), or H (hours).",
     "input_time_gpu_burn":"Enter time - default in S (units (seconds/minutes/hours)-(S/M/H)) - 0 to exit:  ",
+    "input_proc_comm_num": "Enter number of worker processes (default 32):  ",
     "start_checksys": "Start checking system environment information",
     "no_dcgmi": "DCGM not detected.",
     "no_nvidia_smi": "nvidia-smi not detected.",

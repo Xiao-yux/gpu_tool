@@ -90,9 +90,9 @@ class CheckSystem:
             self.log.info(
                 self.i18n.get('no_nccl'),console=True)
         # 检测fieldiag
-        if not os.path.exists(f"{self.path.fd_path}/{self.path.fd_exe}"):
-            self.log.info(
-                self.i18n.get('no_fd'),console=True)
+        # if not os.path.exists(f"{self.path.fd_path}/{self.path.fd_exe}"):
+        #     self.log.info(
+        #         self.i18n.get('no_fd'),console=True)
         # 检测dcgmi
         if not os.path.exists("/usr/bin/dcgmi"):
             self.log.info(self.i18n.get('no_dcgmi'),console=True)
@@ -114,15 +114,13 @@ class CheckSystem:
         self.log.info(f"电源信息\n{self.info.get_power_info()}", file_name=a)
         self.log.info(f"SMART信息\n{self.info.get_smart_txt()}", file_name="system/smart_info")
         self.log.info(f"GPU查询信息\n{self.tool.get_query_gpu()}", file_name="system/query_gpu")
-        self.save_def_info()
-        try:
-            if GPU == 1:
-                gpu ,ecc =self.info.get_gpu_info()
-                self.log.info(f"GPU信息\n{gpu}", file_name="system_info")
-                self.log.info(f"ECC信息\n{ecc}", file_name="system_info")
+        if GPU >= 1:
+            gpu ,ecc =self.info.get_gpu_info()
+            self.log.info(f"GPU信息\n{gpu}", file_name="system_info")
+            self.log.info(f"ECC信息\n{ecc}", file_name="system_info")
             self.tool.get_nvidia_bug_report(f"{self.log.paths.system}")
-        except Exception as e:
-            self.log.info(f"{self.i18n.get('system_info_failed').format(e)}")
+        self.save_def_info()
+        
     def save_def_info(self):
         """收集系统原始数据 DEFAULT_COMMANDS 内的命令
         """

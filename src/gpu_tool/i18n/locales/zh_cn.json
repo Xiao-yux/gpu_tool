@@ -31,6 +31,7 @@
     "screen_created": "Screen 会话已创建",
     "invalid_time_format": "无效的时间格式。请输入数字后跟 S(秒)、M(分)或 H(小时)。",
     "input_time_gpu_burn":"请输入时间-默认S(单位(秒/分/小时)-(S/M/H))-0是退出:  ",
+    "input_proc_comm_num": "请输入worker进程数量(默认32):  ",
     "start_checksys": "开始检查系统环境信息",
     "no_dcgmi": "未检测到 DCGM。",
     "no_nvidia_smi": "未检测到 nvidia-smi。",

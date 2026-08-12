@@ -23,17 +23,14 @@ class Core:
         from i18n.i18n import init_i18n
         from log.logger import init_logger
         from utils.command import GpuToolApi
-
         self.config = load()
         # 初始化国际化
         # print("config tiem:{}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
         self.i18n = init_i18n()
-        
         # 初始化全局日志实例
         # print("i18 tiem:{}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
         self.log = init_logger(self.config.log)
         # print("log tiem:{}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
-
         self.log.info('Core initialized.§§')
         self.log.info(f'版本号:{self.config.version}')
         self.log.info('项目地址:https://github.com/Xiao-yux/gpu_tool')
@@ -46,14 +43,13 @@ class Core:
             self.wscline.start()
         GpuToolApi()
         # print("api tiem:{}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
-
         self.ch = threading.Thread(target=self._start_system_check, daemon=True)
         self.ch.start()
         self.log.info('系统检查已后台启动。')
         # print("check tiem:{}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
         self.menu = None
         # print("menu tiem:{}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
-
+        print("WS")
     def _start_system_check(self):
         from utils.check_and_save_system import CheckSystem
         CheckSystem(self.config.paths)
