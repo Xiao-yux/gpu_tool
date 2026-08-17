@@ -49,7 +49,7 @@ class Core:
         # print("check tiem:{}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
         self.menu = None
         # print("menu tiem:{}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
-        print("WS")
+
     def _start_system_check(self):
         from utils.check_and_save_system import CheckSystem
         CheckSystem(self.config.paths)

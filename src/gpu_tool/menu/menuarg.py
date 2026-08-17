@@ -52,6 +52,10 @@ class MenuChess:
     def get_sys_tool_menu(self) -> list[Choice]:
         return self._SYS_TOOL
     
+    def get_fd_b200_menu(self) -> list[Choice]:
+        return self._FD_B200
+    
+    
     _MAIN: ClassVar[list[Choice]] = [
                     # Choice("一键测试", "1"),
                     Choice("系统信息", "2"),
@@ -128,6 +132,14 @@ class MenuChess:
         Choice("运行Level1 测试", "1"),
         Choice("运行Level2 测试", "2"),
         Choice("单项测试", "3"),
+        Choice("自定义参数测试", "4"),
+        Choice("返回", "exit"),
+    ]
+
+    _FD_B200: ClassVar[list[Choice]] = [
+        Choice("运行Level1 测试(默认跳过网卡测试)", "1"),
+        Choice("运行Level2 测试(默认跳过网卡测试)", "2"),
+        Choice("单项测试(未完成)", "3"),
         Choice("自定义参数测试", "4"),
         Choice("返回", "exit"),
     ]

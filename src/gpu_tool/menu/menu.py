@@ -1,8 +1,11 @@
 import json
 import os
 from pathlib import Path
+import time
 
 from bash.bash import InfoBash
+from gpu_tool.runner.local import run_command
+from menu.fd_menu import FdMenu
 from config.model import PathConfig
 from i18n.i18n import get_i18n
 from log.logger import get_logger
@@ -280,34 +283,14 @@ class Menu:
 
     def fd_menu(self):
         """Folding测试菜单"""  #待更新
-        path = f"{self.path.fd_path}/629-24287-XXXX-FLD-41741/"
-        cmd = f"{self.path.fd_path}/629-24287-XXXX-FLD-41741/fieldiag.sh "
-        self.tool.check_fd_path(f"\'{self.log.paths.run}/fd\'")
-        logname = "fd_test"
-        pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_fd_menu(),allow_filter=False).prompt()
-        if pro.data == "exit":
-            return
-        if pro.data == "1":
-            cmd += f"--no_bmc --level1 --log '{self.log.paths.run}/fd'"
-            self.run_command(cmd, path, logname)
-        elif pro.data == "2":
-            cmd += f"--no_bmc --level2 --log '{self.log.paths.run}/fd'"
-            self.run_command(cmd, path, logname)
-        elif pro.data == "3":
-            a = CheckboxPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_fd_test_arg_menu(),annotation=self.defcheckinfo).prompt()
-            if not a:
-                self.gpu_test_menu()
-            cmd += f"--no_bmc {self.tool.fd_arg_chines(a)} --log '{self.log.paths.run}/fd'"
-            self.log.info(cmd)
-            self.run_command(cmd, path, logname)
-        elif pro.data == "4":
-            arg = InputPrompt(f"请输入自定义参数: {cmd} [input] --log {self.log.paths.run}/fd").prompt()
-            if not arg:
-                self.gpu_test_menu()
-            cmd += f"{arg} --log '{self.log.paths.run}/fd'"
-            self.run_command(cmd, path, logname)
-        self.log.info(f'用户选择Folding测试菜单: {pro}')
-        self.main_menu()
+        fd_menu = FdMenu()
+        run = fd_menu.main_menu()
+        if self.tool.check_fd_path(f"\'{self.log.paths.run}/fd\'"): 
+            #备份目录
+            run_command(f"mv \'{self.log.paths.run}/fd\' \'{self.log.paths.run}/fd_{time.strftime('%Y%m%d%H%M%S')}\'")
+        if run:
+            self.run_command(run["cmd"], run["path"], run["logname"])
+        return
 
     def run_command(self, command: str, path: str | Path = '/tmp', logname: str = "command", input_user=True):
         """运行命令并实时输出日志

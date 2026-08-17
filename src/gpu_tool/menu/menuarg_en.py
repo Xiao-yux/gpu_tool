@@ -40,6 +40,9 @@ class MenuChessEn:
     def get_aotu_test_menu(self) -> list[Choice]:
         return self._AOTU_TEST
 
+    def get_fd_b200_menu(self) -> list[Choice]:
+        return self._FD_B200
+
     def get_gpu_test_menu(self) -> list[Choice]:
         return self._GPU_TEST
 
@@ -125,6 +128,13 @@ class MenuChessEn:
     ]
 
     _FD: ClassVar[list[Choice]] = [
+        Choice("Run Level 1 Test", "1"),
+        Choice("Run Level 2 Test", "2"),
+        Choice("Single Item Test", "3"),
+        Choice("Custom Parameter Test", "4"),
+        Choice("Back", "exit"),
+    ]
+    _FD_B200: ClassVar[list[Choice]] = [
         Choice("Run Level 1 Test", "1"),
         Choice("Run Level 2 Test", "2"),
         Choice("Single Item Test", "3"),

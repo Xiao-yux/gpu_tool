@@ -108,13 +108,16 @@ class TerminalManager:
         # 创建日志文件路径
         log_file = self.get_rand_log_name(logname)
         
-        # 构建命令
-        # 直接使用 subprocess.Popen 在独立会话中执行, 输出写入日志文件
-        # 不再经过 screen 的 pty, 避免改变子进程运行环境
-        # (screen 的 pty/会话会触发 DCGM HangDetectMonitor 对线程指纹的误判)
+        # 构建 screen 命令
+        # 使用 -L -Logfile 参数记录输出到日志文件
+        # 使用 -dmS 参数创建 detached 模式的会话
+        # 保持 screen 会话打开，并在命令完成后写一个完成标志文件
         end_marker = f"__SCREEN_COMMAND_COMPLETE_{logname}__"
 
-        full_command = f"cd {path} && {{ {command}; }}; echo {end_marker}"
+        quoted_command = shlex.quote(
+            f"cd {path} && {{ {command}; }}; echo {end_marker} ; exec bash"
+        )
+        screen_cmd = f"screen -L -Logfile {shlex.quote(log_file)} -dmS {shlex.quote(screen_name)} bash -lc {quoted_command}"
         self.screens[screen_name] = {
             "end_marker": end_marker,
             "log_file": log_file,
@@ -122,24 +125,20 @@ class TerminalManager:
             "path": path
             }  
         try:
-            # 启动命令, 独立会话 + 输出重定向到日志文件
-            with open(log_file, 'w', encoding="utf-8", errors='ignore') as lf:
-                subprocess.Popen(
-                    full_command,
-                    shell=True,
-                    stdout=lf,
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                    start_new_session=True,
-                    cwd=path,
-                )
+            # 执行 screen 命令创建会话
+            subprocess.Popen(
+                screen_cmd,
+                shell=True,
+                start_new_session=True
+            )
+            
             return screen_name
             
-        except Exception as e:
-            self.log.info(f"创建执行进程失败: {e}")
-            raise RuntimeError(f"创建执行进程失败: {e}")
+        except subprocess.CalledProcessError as e:
+            self.log.info(f"创建 screen 会话失败: {e}")
+            raise RuntimeError(f"创建 screen 会话失败: {e}")
 
-        
+
     def wait_for_command_completion(self, screen_name: str) -> bool:
         """等待 screen 命令结束并输出会话执行信息到屏幕上"""
         if screen_name not in self.screens:
