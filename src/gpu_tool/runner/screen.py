@@ -10,51 +10,51 @@ from log.logger import get_logger
 
 
 class TerminalManager:
-    """使用 screen 命令管理持久化的终端会话"""
+    """使用 命令管理持久化的终端会话"""
 
     def __init__(self):
         self.log = get_logger()
         self.log.info("初始化 TerminalManager")
-        self.screens: dict[str, dict] = {}  # 存储所有 screen 会话信息
+        self.screens: dict[str, dict] = {}  # 存储所有 会话信息
         self.last_progress_line = ""
         self.last_size= 0
         self.progress_active = False
         self.tool = utils.Tools()
-        self._initialize_screen()  # 初始化 screen 环境
+        self._initialize_screen()  # 初始化 环境
 
     def _initialize_screen(self) -> None:
-        """初始化 screen 环境"""
+        """初始化 环境"""
         try:
-            # 检查 screen 是否已安装
+            # 检查 是否已安装
             result = subprocess.run(
                 ["which", "screen"],
                 capture_output=True,
                 text=True
             )
             if result.returncode != 0:
-                self.log.info("screen 未安装，请先安装 screen 命令")
+                self.log.info("未安装，请先安装 命令")
                 return
             
             # 确保屏幕日志目录存在
             # log_dir = os.path.join(os.path.expanduser("~"), "screen_logs")
             # os.makedirs(log_dir, exist_ok=True)
             
-            self.log.info("screen 环境初始化完成")
+            self.log.info("环境初始化完成")
         except Exception as e:
-            self.log.info(f"初始化 screen 环境失败: {e}")
+            self.log.info(f"初始化 环境失败: {e}")
 
 
 
     def _generate_screen_name(self, logname: str) -> str:
-        """生成 screen 会话名称
+        """生成 会话名称
 
         Args:
             logname: 日志名称
 
         Returns:
-            str: screen 会话名称
+            str: 会话名称
         """
-        result = subprocess.run(f"screen -ls | grep {logname}", shell=True, text=True,capture_output=True)
+        result = subprocess.run(f"-ls | grep {logname}", shell=True, text=True,capture_output=True)
         # 如果没有匹配的会话，直接返回 logname_1
         if result.returncode != 0 or not result.stdout.strip():
             return f"{logname}_1"
@@ -63,7 +63,7 @@ class TerminalManager:
         existing_sessions = []
         for line in result.stdout.split('\n'):
             if line.strip():
-                # screen -ls 的输出格式通常是: "12345.logname_id (Date Time)"
+                # -ls 的输出格式通常是: "12345.logname_id (Date Time)"
                 # 我们需要提取出 "logname_id" 部分
                 parts = line.split('.')
                 if len(parts) > 1:
@@ -85,18 +85,18 @@ class TerminalManager:
         return f"{logname}_{max_id + 1}"
 
     def execute_command(self, command: str, logname: str = "command", path: str | Path= "/tmp") -> str:
-        """在 screen 会话中执行命令
+        """在 会话中执行命令
 
         Args:
             command: 要执行的命令
-            logname: 日志名称，用于生成 screen 会话名称
+            logname: 日志名称，用于生成 会话名称
             log_callback: 日志回调函数，用于接收命令输出
             path: 执行命令的路径
 
         Returns:
-            str: screen 会话名称
+            str: 会话名称
         """
-        # 生成 screen 会话名称
+        # 生成 会话名称
         # if logname =="fd_test":
         #     self.fd_run(command, path)
         #     return "fd_test"
@@ -108,16 +108,13 @@ class TerminalManager:
         # 创建日志文件路径
         log_file = self.get_rand_log_name(logname)
         
-        # 构建 screen 命令
+        # 构建 命令
         # 使用 -L -Logfile 参数记录输出到日志文件
         # 使用 -dmS 参数创建 detached 模式的会话
-        # 保持 screen 会话打开，并在命令完成后写一个完成标志文件
+        # 保持 会话打开，并在命令完成后写一个完成标志文件
         end_marker = f"__SCREEN_COMMAND_COMPLETE_{logname}__"
 
-        quoted_command = shlex.quote(
-            f"cd {path} && {{ {command}; }}; echo {end_marker} ; exec bash"
-        )
-        screen_cmd = f"screen -L -Logfile {shlex.quote(log_file)} -dmS {shlex.quote(screen_name)} bash -lc {quoted_command}"
+        full_command = f"cd {path} && {{ {command}; }}; echo {end_marker}"
         self.screens[screen_name] = {
             "end_marker": end_marker,
             "log_file": log_file,
@@ -125,24 +122,27 @@ class TerminalManager:
             "path": path
             }  
         try:
-            # 执行 screen 命令创建会话
-            subprocess.Popen(
-                screen_cmd,
+            # 启动命令,输出重定向到日志文件
+            with open(log_file, 'w') as f:
+                subprocess.Popen(
+                full_command,
                 shell=True,
-                start_new_session=True
+                stdout=f,
+                stderr=f,
+                start_new_session=True,
+                cwd=path
             )
-            
             return screen_name
             
         except subprocess.CalledProcessError as e:
-            self.log.info(f"创建 screen 会话失败: {e}")
-            raise RuntimeError(f"创建 screen 会话失败: {e}")
+            self.log.info(f"创建会话失败: {e}")
+            raise RuntimeError(f"创建会话失败: {e}")
 
 
     def wait_for_command_completion(self, screen_name: str) -> bool:
-        """等待 screen 命令结束并输出会话执行信息到屏幕上"""
+        """等待 命令结束并输出会话执行信息到屏幕上"""
         if screen_name not in self.screens:
-            self.log.info(f"Screen 会话 {screen_name} 不存在")
+            self.log.info(f"会话 {screen_name} 不存在")
             return False
 
         screen_info = self.screens[screen_name]
@@ -151,11 +151,11 @@ class TerminalManager:
         log_name = f"run" + "/" + (screen_info.get('logname') or "unknown")
         # self.log.info(f"日志文件创建路径: {log_name}", file_name=log_name,console=True)
         if not log_file:
-            self.log.info(f"Screen 会话 {screen_name} 的日志信息不完整", console=True)
+            self.log.info(f"会话 {screen_name} 的日志信息不完整", console=True)
             return False
         
         if not marker:
-            self.log.info(f"Screen 会话 {screen_name} 没有设置结束标记", console=True)
+            self.log.info(f"会话 {screen_name} 没有设置结束标记", console=True)
             return False
         #等待日志文件被创建
         while not os.path.exists(log_file):
@@ -185,7 +185,7 @@ class TerminalManager:
                                 sys.stdout.flush() # 强制刷新缓冲区，确保立即显示
                                 self.log.info(line, file_name=log_name) # 也记录到日志中
                     
-                    # 情况2：文件变小了（可能是 screen 清空了日志或重启了）
+                    # 情况2：文件变小了（可能是 清空了日志或重启了）
                     elif current_size < _file_size:
                         print("[Info] 检测到日志文件被重置或截断，重新开始监控...")
                         try:

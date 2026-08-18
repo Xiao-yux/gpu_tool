@@ -4,7 +4,6 @@ from pathlib import Path
 import time
 
 from bash.bash import InfoBash
-from gpu_tool.runner.local import run_command
 from menu.fd_menu import FdMenu
 from config.model import PathConfig
 from i18n.i18n import get_i18n
@@ -39,6 +38,7 @@ class Menu:
         self.ipmi = ipmitools()
         self.terminal_manager = TerminalManager()
         self.info = InfoBash() 
+        self.jobs = []
 
     def main_menu(self):
         """主菜单"""
@@ -283,13 +283,15 @@ class Menu:
 
     def fd_menu(self):
         """Folding测试菜单"""  #待更新
-        fd_menu = FdMenu()
-        run = fd_menu.main_menu()
-        if self.tool.check_fd_path(f"\'{self.log.paths.run}/fd\'"): 
-            #备份目录
-            run_command(f"mv \'{self.log.paths.run}/fd\' \'{self.log.paths.run}/fd_{time.strftime('%Y%m%d%H%M%S')}\'")
+        fd_menu = FdMenu(self.path)
+        try:
+            run = fd_menu.main_menu()
+        except Exception as e:
+            self.log.info(f"{self.i18n.get('fd_menu_execution_failed')} {e}", console=True)
+            return
         if run:
             self.run_command(run["cmd"], run["path"], run["logname"])
+        self.log.info(f'用户选择Folding : {run}')
         return
 
     def run_command(self, command: str, path: str | Path = '/tmp', logname: str = "command", input_user=True):
@@ -304,12 +306,16 @@ class Menu:
         if logname == "fd_test":
             if self.tool.check_fd_path(f"\'{self.log.paths.run}/fd\'"):
                 self.tool.run_command(f"mv {self.log.paths.run}/fd {self.log.paths.run}/fd_$(date +%Y-%m-%d_%H-%M-%S)")
+            self.log.info("stop NVIDIA service", console=True)
             self.tool.stop_nvidia_service()
+            self.log.info("rm nvidia mod", console=True)
             # self.tool.stop_openvswitch()
             self.tool.rm_nvidia_mod()
             # self.tool.rm_switch_mod()
             
         self.log.info(f"执行命令: {command}", console=True)
+        self.log.info(f"执行目录: {path}", console=True)
+        
         try:
             
             # 使用TerminalManager在可用的TTY中执行命令
@@ -322,7 +328,8 @@ class Menu:
                     path=path
                 )
                 if logname != "fd_test":
-                    self.log.info(f"{self.i18n.get('screen_created')}: {screen_name}\n", console=True)
+                    self.jobs.append(self.tool.async_run(self.job, interval=300))  # 每5分钟执行一次job函数
+                #     self.log.info(f"{self.i18n.get('screen_created')}: {screen_name}\n", console=True)
 
 
             except RuntimeError as e:
@@ -332,6 +339,7 @@ class Menu:
             self.log.info(self.i18n.get("screen_session_created") + "\n")
             self.log.info(f"{self.i18n.get('log_path')}: {self.log.paths.run}/{logname}\n", console=True)
             self.terminal_manager.wait_for_command_completion(screen_name)
+            self.stop_jobs()  # 停止所有定时任务
             self.log.info(self.i18n.get("command_end") + "\n")
             if input_user:
                 input(self.i18n.get("press_enter_continue"))
@@ -439,3 +447,12 @@ class Menu:
         """每 5 分钟会被调用的任务函数"""
 
         self.log.info(self.gpu.get_gpu_info(), file_name="time_5_save_info")
+
+    def stop_jobs(self) -> None:
+        """停止所有定时任务"""
+        if not self.jobs:
+            self.log.info("没有正在运行的定时任务。")
+            return
+        for job in self.jobs:
+            job.stop()
+        self.jobs.clear()

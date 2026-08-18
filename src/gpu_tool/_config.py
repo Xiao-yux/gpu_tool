@@ -12,7 +12,7 @@ language = "zh_cn"            # auto | en | zh_cn
 
 [paths]
 config_file  = "/etc/gpu_tool/config.toml"
-fd_path      = "/{user}/gpu-tests-tool/fieldiag"
+fd_path      = "/{user}/gpu-tests-tool/fieldiags"
 gpu_burn_path = "/{user}/gpu-tests-tool/gpu-burn"
 nccl_path    = "/{user}/gpu-tests-tool/nccl-tests/build"
 download     = "/{user}/gpu-tests-tool"

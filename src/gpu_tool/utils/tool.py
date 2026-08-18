@@ -112,8 +112,9 @@ class Tools:
         if not os.path.exists('/usr/bin/nvidia-smi'):
             print("No nvidia-smi detected, cannot get GPU count")
             return 0
-
-        if not os.popen('nvidia-smi --query-gpu=count --format=csv,noheader,nounits | grep -i nvidia').read():
+        sub_list = ["NVIDAI","NVML"]
+        b = os.popen('nvidia-smi --query-gpu=count --format=csv,noheader,nounits').read()
+        if not any(sub in b for sub in sub_list):
             return os.popen('nvidia-smi --query-gpu=count --format=csv,noheader,nounits').read().split('\n')[0]
         else:
             return 0
@@ -172,7 +173,8 @@ class Tools:
     
     
     def get_query_gpu(self):
-        return os.popen(f"{self.get_tmp_path()}/bash/deviceQuery").read()
+        return self.run_command(f"{self.get_tmp_path()}/bash/deviceQuery")
+        
         
     def get_sys_info(self,arg='') -> str:
         """# 返回系统信息"""
@@ -204,7 +206,7 @@ class Tools:
                             return ""
                         for line in process.stdout:  # 逐行读，不会死锁
                             line = line.rstrip()
-                            print(line)
+                            # print(line)
                             full_output.append(line)
                         process.wait()  # 确保进程结束
                     else:

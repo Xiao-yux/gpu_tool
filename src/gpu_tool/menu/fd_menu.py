@@ -9,8 +9,8 @@ from runner.local import run_command
 
 
 class FdMenu:
-    def __init__(self):
-        self.path = "/mnt/e/gpu-tests-tool/fieldiag"
+    def __init__(self,conifg:PathConfig):
+        self.path = conifg.fd_path
         run = {}
         self.log = get_logger()
         self.i18n = get_i18n()
@@ -26,11 +26,10 @@ class FdMenu:
         fd_path = os.path.join(self.path, path)
         fd_exe = self.check_fd_exe(fd_path)
         cmd =f"./{fd_exe} "
-        print(f"fd_exe: {fd_exe}")
+        #print(f"fd_exe: {fd_exe}")
         logname = "fd_test"
         pro = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_fd_menu(),allow_filter=False).prompt()
-        print(f"您选择了: {pro.data}")
-        print(f"fd: {fd_exe}")
+        #print(f"pro.data: {pro.data}")
         if fd_exe == "fieldiag.sh":
             if pro.data == "exit":
                 return
@@ -49,7 +48,7 @@ class FdMenu:
                 if not arg:
                     return
                 cmd += f"{arg} --log '{self.log.paths.run}/fd'"
-            run ={"cmd": cmd,"logname": logname,"path": fd_path}
+        run ={"cmd": cmd,"logname": logname,"path": fd_path}
         if fd_exe == "partnerdiag":
             if pro.data == "exit":
                 return
@@ -69,20 +68,21 @@ class FdMenu:
                     return
                 cmd += f"{arg} --log '{self.log.paths.run}/fd'"
             run ={"cmd": cmd,"logname": logname,"path": fd_path}
-            return run
+        return run
 
         
     def B200_menu(self,path):
         fd_path = os.path.join(self.path, path)
         cmd = "./partnerdiag "
         logname = "fd_test"
+        spik ="--skip_tests=ibstressmad,EyeGradeBgStop,ThetaBgStop,EyeGradeBgStart,ThetaBgStart"
         res = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_fd_b200_menu(),allow_filter=False).prompt()
         if res.data == "exit":
             return
         if res.data == "1":
-            cmd += f"--field --level1 --no_bmc --log '{self.log.paths.run}/fd'"
+            cmd += f"--field --level1 {spik} --no_bmc --log '{self.log.paths.run}/fd'"
         elif res.data == "2":
-            cmd += f"--field --level2 --no_bmc --log '{self.log.paths.run}/fd'"
+            cmd += f"--field --level2 {spik} --no_bmc --log '{self.log.paths.run}/fd'"
         elif res.data == "3":
             print("未完成")
         elif res.data == "4":
@@ -148,16 +148,16 @@ class FdMenu:
         b200_pattern = r'\b(' + '|'.join(b200) + r')\b'
         b300_pattern = r'\b(' + '|'.join(b300) + r')\b'
         for i in os.listdir(fd_path):
-            print(i)
+            #print(i)
             match = re.search(h_pattern, i)
             if match:
-                print(f"匹配成功，匹配到的内容是: {match.group()}") 
+                #print(f"匹配成功，匹配到的内容是: {match.group()}") 
                 return 1
             if re.search(b200_pattern, i):
-                print(f"匹配成功，匹配到的内容是: {i}") 
+                #print(f"匹配成功，匹配到的内容是: {i}") 
                 return 2
             if re.search(b300_pattern, i):
-                print(f"匹配成功，匹配到的内容是: {i}") 
+                #print(f"匹配成功，匹配到的内容是: {i}") 
                 return 3
 
     def main_menu(self):
@@ -183,5 +183,6 @@ class FdMenu:
     
 
 if __name__ == "__main__":
-    fd = FdMenu()
-    fd.main_menu()
+    # fd = FdMenu()
+    # fd.main_menu()
+    pass

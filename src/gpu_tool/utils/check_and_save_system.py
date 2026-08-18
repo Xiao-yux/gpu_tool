@@ -13,6 +13,7 @@ class CheckSystem:
     
     DEFAULT_COMMANDS: ClassVar[dict[str, tuple[str, ...]]] = {
         "dmesg": ("dmesg",),
+        "nvidia-smi": ("nvidia-smi",),
         "nvidia-smi": ("nvidia-smi","-q"),
         "nvidia-smi-nvlink": ("nvidia-smi", "nvlink", "--status"),
         "nvidia-smi-topo": ("nvidia-smi", "topo", "-m"),
@@ -26,6 +27,8 @@ class CheckSystem:
         "ipmitool-fru": ("ipmitool", "fru"),
         "ipmitool-info":("ipmitool","mc","info"),
     }
+    
+    
     def __init__(self, config: PathConfig):
         self.log = get_logger()
         self.path = config
@@ -40,10 +43,9 @@ class CheckSystem:
     def check_system(self):
         """检查系统环境"""
         self.is_gpu_available()
-        g = 0
         if self.check_gpu():
-            g = 1
-        self.sys_save(GPU=g)
+            d = self.tool.get_gpu_count()
+            self.sys_save(GPU=int(d))
         
         return True
 

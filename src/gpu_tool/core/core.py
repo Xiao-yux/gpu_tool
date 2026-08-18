@@ -72,6 +72,8 @@ class Core:
         except KeyboardInterrupt:
             self.log.info('程序被用户中断，退出。', console=True)
             sys.exit(0)
+        except Exception as e:
+            self.log.error(f'程序异常退出，错误信息：{e}', console=True)
         finally:
             sys.exit(0)
 

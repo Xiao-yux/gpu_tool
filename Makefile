@@ -186,28 +186,6 @@ build: ## Build a onefile binary with Nuitka into ./dist
 		--show-progress \
 		$(SRC_DIR)/$(PACKAGE)/main.py
 
-.PHONY: build-dev
-build-dev: ## Fast dev build (no LTO, no UPX) — useful for quick local verification
-	@mkdir -p $(DIST_DIR)
-	$(PY) -m nuitka \
-		--onefile \
-		--noinclude-default-mode=allow \
-		--include-data-dir=$(SRC_DIR)/$(PACKAGE)/bash=bash \
-		--include-package=websockets \
-		--output-dir=$(DIST_DIR) \
-		--output-filename=$(PRODUCT_NAME) \
-		--remove-output \
-		$(SRC_DIR)/$(PACKAGE)/main.py
-
-.PHONY: build-module
-build-module: ## Build a Python module (not onefile) — faster, for testing
-	@mkdir -p $(DIST_DIR)
-	$(PY) -m nuitka \
-		--module \
-		--output-dir=$(DIST_DIR) \
-		--remove-output \
-		$(SRC_DIR)/$(PACKAGE)/__main__.py
-
 
 # =============================================================================
 # Cleaning
