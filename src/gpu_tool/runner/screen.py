@@ -90,7 +90,6 @@ class TerminalManager:
         Args:
             command: 要执行的命令
             logname: 日志名称，用于生成 会话名称
-            log_callback: 日志回调函数，用于接收命令输出
             path: 执行命令的路径
 
         Returns:
@@ -100,21 +99,22 @@ class TerminalManager:
         # if logname =="fd_test":
         #     self.fd_run(command, path)
         #     return "fd_test"
-        if logname == "dcgmi_test":
+        if logname != "fd_test":
             self.tool.run_command("nvidia-smi -pm 1")
             
         screen_name = self._generate_screen_name(logname)
         
         # 创建日志文件路径
-        log_file = self.get_rand_log_name(logname)
+        log_file = f"{self.log.paths.run}/{logname}.log"
         
         # 构建 命令
         # 使用 -L -Logfile 参数记录输出到日志文件
         # 使用 -dmS 参数创建 detached 模式的会话
         # 保持 会话打开，并在命令完成后写一个完成标志文件
         end_marker = f"__SCREEN_COMMAND_COMPLETE_{logname}__"
-
+        #print(f"执行命令: {command}，path: {path},logname: {logname}")
         full_command = f"cd {path} && {{ {command}; }}; echo {end_marker}"
+        #print(f"完整命令: {full_command}")
         self.screens[screen_name] = {
             "end_marker": end_marker,
             "log_file": log_file,
@@ -123,13 +123,13 @@ class TerminalManager:
             }  
         try:
             # 启动命令,输出重定向到日志文件
-            with open(log_file, 'w') as f:
+            with open(log_file, 'w',encoding="utf-8", errors='ignore') as f:
                 subprocess.Popen(
                 full_command,
                 shell=True,
                 stdout=f,
                 stderr=f,
-                start_new_session=True,
+                # start_new_session=True,
                 cwd=path
             )
             return screen_name
@@ -180,10 +180,10 @@ class TerminalManager:
                                     break
                                 if marker in line:
                                     return True
-                                # 实时输出到屏幕，去掉末尾的换行符再 print，避免双换行
+                               
                                 sys.stdout.write(line)
                                 sys.stdout.flush() # 强制刷新缓冲区，确保立即显示
-                                self.log.info(line, file_name=log_name) # 也记录到日志中
+                                #self.log.info(line, file_name=log_name) # 也记录到日志中
                     
                     # 情况2：文件变小了（可能是 清空了日志或重启了）
                     elif current_size < _file_size:

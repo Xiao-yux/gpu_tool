@@ -72,7 +72,7 @@ log_file = "gpu_tool_debug.log"
 - [main.py](src/gpu_tool/main.py) — 程序主入口
 - [menu/menu.py](src/gpu_tool/menu/menu.py) — 菜单逻辑
 
-
+edac-util -v
 
 ## 日志与结果
 日志与测试结果按配置保存到 'log_path' 中, 命名格式 `log_path/<SN>/time/*`

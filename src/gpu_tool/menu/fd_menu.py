@@ -171,6 +171,9 @@ class FdMenu:
         #print(f"您选择了: {res}")
         version = self.check_fd_version(res.data)
         #print(version)
+        if os.path.exists(os.path.join(self.log.paths.run, "fd")):
+            os.system(f"mv {os.path.join(self.log.paths.run, 'fd')} {os.path.join(self.log.paths.run, 'fd')}_{self.log.get_time()}")
+            return {}
         if version == 1:
             return self.HGX_menu(res.data)
         elif version == 2:

@@ -26,11 +26,13 @@ class CheckSystem:
         "ipmitool-sdr": ("ipmitool", "sdr"),
         "ipmitool-fru": ("ipmitool", "fru"),
         "ipmitool-info":("ipmitool","mc","info"),
+        "ipmitool-sel":("ipmitool","sel","list"),
     }
     
     
     def __init__(self, config: PathConfig):
         self.log = get_logger()
+        self.log.info("系统检查开始",console=True)
         self.path = config
         self.tool = Tools()
         self.info = InfoBash()
@@ -43,9 +45,8 @@ class CheckSystem:
     def check_system(self):
         """检查系统环境"""
         self.is_gpu_available()
-        if self.check_gpu():
-            d = self.tool.get_gpu_count()
-            self.sys_save(GPU=int(d))
+        d = self.tool.get_gpu_count()
+        self.sys_save(GPU=int(d))
         
         return True
 
@@ -107,6 +108,7 @@ class CheckSystem:
     def sys_save(self, GPU=0):
         """收集系统信息"""
         a = "system_info"
+        self.log.info("收集系统日志",console=True)
         self.log.info(f"{self.i18n.get('gpu_cont')} {self.tool.get_gpu_count()}\n",console=True,file_name=a)
         self.log.info(f"系统信息\n{self.info.get_sys_info()}", file_name=a)
         self.log.info(f"CPU信息\n{self.info.get_cpu_info()}", file_name=a)  
@@ -118,8 +120,9 @@ class CheckSystem:
         self.log.info(f"GPU查询信息\n{self.tool.get_query_gpu()}", file_name="system/query_gpu")
         if GPU >= 1:
             gpu ,ecc =self.info.get_gpu_info()
-            self.log.info(f"GPU信息\n{gpu}", file_name="system_info")
-            self.log.info(f"ECC信息\n{ecc}", file_name="system_info")
+            self.log.info(f"GPU信息\n{gpu}", file_name=a)
+            self.log.info(f"测试23123 {a}", file_name="2312")
+            self.log.info(f"ECC信息\n{ecc}", file_name=a)
             self.tool.get_nvidia_bug_report(f"{self.log.paths.system}")
         self.save_def_info()
         

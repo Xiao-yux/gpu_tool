@@ -1,8 +1,13 @@
 from bash.bash import InfoBash
+from runner.screen import TerminalManager
+from i18n.i18n import init_i18n
+from log.logger import init_logger
+from config.loader import load
+
 
 if __name__ == '__main__':
-    info = InfoBash()
-    date = None
+    #info = InfoBash()
+    #date = None
     # with open("bash/nvidia-smi.log", "r", encoding="utf-8") as f:
     #     date = f.read()
     # a= nvidia_to_json(date)
@@ -27,4 +32,10 @@ if __name__ == '__main__':
     # print(dd)
     # print(info.get_power_info())
     # print(info.get_net_info())
-    print(info._get_disk_info())
+    #print(info._get_disk_info())
+    config = load()
+    i18n = init_i18n()
+    log = init_logger(config.log)
+    terminal = TerminalManager()
+    a = terminal.execute_command("./fieldiag.sh --level2 --no_bmc --log '/home/houmao/log/fd'", logname="fd_test", path="/home/houmao/gpu-tests-tool/fieldiag/629-24287-XXXX-FLD-41741/")
+    terminal.wait_for_command_completion(a)

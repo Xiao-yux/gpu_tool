@@ -175,7 +175,11 @@ class gpuLogger:
         """Log a ``CRITICAL`` level message."""
         self._log("CRITICAL", message, file_name, console)
 
+    def get_time(self):
+        """获取当前时间"""
+        from datetime import datetime
 
+        return datetime.now().strftime("%Y%m%d_%H%M%S")
 # ---------------------------------------------------------------------------
 # Module-level 
 # ---------------------------------------------------------------------------

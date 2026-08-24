@@ -37,23 +37,20 @@ class Core:
         self.log.info('XiaoYu build')
         self.log.info('𝑪𝒊𝒂𝒍𝒍𝒐～(∠・ω< )⌒☆')
         self.wscline = None
+        
         if self.config.update.wsenable:
             from utils.wscline import Cline
             self.wscline = Cline(self.config.update.wsurl)
             self.wscline.start()
+        
         GpuToolApi()
         # print("api tiem:{}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
-        self.ch = threading.Thread(target=self._start_system_check, daemon=True)
-        self.ch.start()
-        self.log.info('系统检查已后台启动。')
-        # print("check tiem:{}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
-        self.menu = None
-        # print("menu tiem:{}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
-
-    def _start_system_check(self):
         from utils.check_and_save_system import CheckSystem
         CheckSystem(self.config.paths)
-        self.log.info('系统检查完成。')
+        
+
+
+
 
         
 
@@ -61,13 +58,9 @@ class Core:
     def run(self):
         try:
             self.init()
-            if self.menu is None:
-                from menu.menu import Menu
-                self.menu = Menu(self.config.paths)
-            if self.menu is None:
-                self.log.info('菜单初始化失败，无法加载主菜单。', console=True)
-                sys.exit(1)
-            self.ch.join()
+            self.log.info('初始化菜单', console=True)
+            from menu.menu import Menu
+            self.menu = Menu(self.config.paths)
             self.menu.main_menu()
         except KeyboardInterrupt:
             self.log.info('程序被用户中断，退出。', console=True)

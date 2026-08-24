@@ -91,7 +91,7 @@ class InfoBash:
         gpu = GPUInfo()
         title=[f"{self.i18n.get('gpu_id')}","Bus ID",f"{self.i18n.get('slot')}"
                ,f"{self.i18n.get('gpu_name')}"
-               ,f"{self.i18n.get('product_architecture')}", f"GPU{self.i18n.get('serial_number')}",
+               , f"GPU{self.i18n.get('serial_number')}",
              f"{self.i18n.get('vbios_version')}",
                f"{self.i18n.get('pcie_gen')}",f"{self.i18n.get('gpu_memory_usage')}",
                f"{self.i18n.get('gpu_power')}",f"{self.i18n.get('gpu_temp')}"]
@@ -119,7 +119,7 @@ class InfoBash:
             gpu.GPU_Current_Temp = i['Temperature']['GPU Current Temp']
             gpu.GPU_Power = [i['GPU Power Readings']['Max Power Limit'],i['GPU Power Readings']['Average Power Draw']]
             date.append([gpu.GPU_ID,gpu.bus_id[4:].lower(),f"{slot.get(gpu.bus_id[4:].lower())}",gpu.Product_Name,
-                         gpu.Product_Architecture,gpu.Serial_Number,
+                         gpu.Serial_Number,
                          gpu.Vbios_Version,
                          f"Pcie {gpu.PCIe_Generation} {gpu.Link_Width}",f"{gpu.Memory_Usage[1]}/{gpu.Memory_Usage[0]}",
                          f"{gpu.GPU_Power[1]}/{gpu.GPU_Power[0]}",gpu.GPU_Current_Temp])
@@ -139,6 +139,8 @@ class InfoBash:
     def _get_cpu_info(self):
         sysdate = sysInfo()
         # print(self.dmidecode['type_4'][1])
+        if self.dmidecode == {}:
+            return self.tab_format([["无CPU信息"]])
         if isinstance(self.dmidecode['type_4'],list):
             for cpu in self.dmidecode['type_4']:
                 tmp = cpu['fields']
@@ -160,6 +162,8 @@ class InfoBash:
                  f"{self.i18n.get('m_dlock')}",f"{self.i18n.get('max_clock')}",f"{self.i18n.get('serial_number')}",""]
         str = []
         count = 0
+        if self.dmidecode == {}:
+            return self.tab_format([["无内存信息"]])
         date = self.dmidecode['type_17']
         for i in date:
             info.slot = i['fields'].get("Locator")
@@ -344,7 +348,7 @@ class InfoBash:
         
         net_id = self._get_net_pci()  # 网络设备pci id
         if net_id == []:
-            return "无网卡信息"
+            return self.tab_format([["无网卡信息"]])
         for i in net_id:
             info_text = self.lspci.get(i, '')
             if not info_text:
@@ -389,7 +393,7 @@ class InfoBash:
         # 3. 排序后再进行字符串拼接
         date = []
         for item in sorted_data:
-            d = [f"{item['name']}\n{self.i18n.get('product_name')}:{item['Product_Name']}\n{self.i18n.get('part_number')}:{item['Part_number']}   {self.i18n.get('serial_number')}:{item['Serial_number']}   {self.i18n.get('mu_ma')}:{item['MuMa']}  {self.i18n.get('lnkstat')}:{item['LnkSta']}  {self.i18n.get('pcie_gen')}:{item['pci']}"]
+            d = [f"{item['name']}\n\n{self.i18n.get('product_name')}:{item['Product_Name']}\n\n{self.i18n.get('part_number')}:{item['Part_number']}   {self.i18n.get('serial_number')}:{item['Serial_number']}   {self.i18n.get('mu_ma')}:{item['MuMa']}  {self.i18n.get('lnkstat')}:{item['LnkSta']}  {self.i18n.get('pcie_gen')}:{item['pci']}"]
             date.append(d)
             
         # 4. 渲染表格

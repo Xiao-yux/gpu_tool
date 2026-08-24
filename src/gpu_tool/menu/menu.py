@@ -329,6 +329,7 @@ class Menu:
                 )
                 if logname != "fd_test":
                     self.jobs.append(self.tool.async_run(self.job, interval=300))  # 每5分钟执行一次job函数
+                    self.log.info(f"nvidia-smi info will be saved every 5 minutes to {self.log.paths.run}/time_5_save_info.log", console=True)
                 #     self.log.info(f"{self.i18n.get('screen_created')}: {screen_name}\n", console=True)
 
 
@@ -337,7 +338,7 @@ class Menu:
                 os._exit(1)
 
             self.log.info(self.i18n.get("screen_session_created") + "\n")
-            self.log.info(f"{self.i18n.get('log_path')}: {self.log.paths.run}/{logname}\n", console=True)
+            self.log.info(f"{self.i18n.get('log_path')} {self.log.paths.run}/{logname}\n", console=True)
             self.terminal_manager.wait_for_command_completion(screen_name)
             self.stop_jobs()  # 停止所有定时任务
             self.log.info(self.i18n.get("command_end") + "\n")
