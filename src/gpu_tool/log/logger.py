@@ -88,12 +88,16 @@ class gpuLogger:
         if cached is not None:
             return cached
 
-        logger = logging.getLogger(caller_name)
+        # Use a fresh, unmanaged Logger per resolved file path instead of the
+        # shared singleton returned by logging.getLogger().  getLogger() hands
+        # back the *same* object for a given caller module name, so the old
+        # "remove all handlers + add one" dance would clobber the handler that
+        # a previous file_path had attached.  With several file_paths sharing
+        # one caller module, every log call ended up in whichever file was
+        # resolved last — i.e. GPU info "leaked" into query_gpu.log.
+        logger = logging.Logger(caller_name)
         logger.setLevel(logging.DEBUG)
         logger.propagate = False
-        # Drop any pre-existing handlers to keep the logger self-contained.
-        for h in list(logger.handlers):
-            logger.removeHandler(h)
 
         formatter = logging.Formatter(_FORMAT)
         file_handler = logging.FileHandler(log_path, encoding="utf-8")

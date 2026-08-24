@@ -121,7 +121,6 @@ class CheckSystem:
         if GPU >= 1:
             gpu ,ecc =self.info.get_gpu_info()
             self.log.info(f"GPU信息\n{gpu}", file_name=a)
-            self.log.info(f"测试23123 {a}", file_name="2312")
             self.log.info(f"ECC信息\n{ecc}", file_name=a)
             self.tool.get_nvidia_bug_report(f"{self.log.paths.system}")
         self.save_def_info()
