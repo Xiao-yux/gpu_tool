@@ -1,6 +1,8 @@
 import os
 from typing import ClassVar
 
+from tqdm import tqdm
+
 from bash.bash import InfoBash
 from config.model import PathConfig
 from i18n.i18n import get_i18n
@@ -14,7 +16,7 @@ class CheckSystem:
     DEFAULT_COMMANDS: ClassVar[dict[str, tuple[str, ...]]] = {
         "dmesg": ("dmesg",),
         "nvidia-smi": ("nvidia-smi",),
-        "nvidia-smi": ("nvidia-smi","-q"),
+        "nvidia-smi-q": ("nvidia-smi","-q"),
         "nvidia-smi-nvlink": ("nvidia-smi", "nvlink", "--status"),
         "nvidia-smi-topo": ("nvidia-smi", "topo", "-m"),
         "lspci": ("lspci", "-vvv"),
@@ -128,11 +130,25 @@ class CheckSystem:
     def save_def_info(self):
         """收集系统原始数据 DEFAULT_COMMANDS 内的命令
         """
-        for cmd_name, cmd in self.DEFAULT_COMMANDS.items():
+        for cmd_name, cmd in tqdm(
+            self.DEFAULT_COMMANDS.items(), 
+            desc="执行系统命令", 
+            total=len(self.DEFAULT_COMMANDS)
+        ):
             try:
-                # print(" ".join(cmd))
+        # 如果你希望在进度条上动态显示当前正在执行的命令名，可以使用 set_postfix
+                tqdm.write(f"正在执行: {cmd_name}") # 使用 tqdm.write 替代 print，避免破坏进度条显示
                 output = run_command(" ".join(cmd))
                 self.log.info(output, file_name=f"system/{cmd_name}")
             except Exception as e:
-                self.log.info(f"{self.i18n.get('command_execution_failed').format(' '.join(cmd), e)}")
+                error_msg = self.i18n.get('command_execution_failed').format(' '.join(cmd), e)
+                # 异常信息也建议用 tqdm.write 输出，或者只写到日志里
+                self.log.info(error_msg)
+        # for cmd_name, cmd in self.DEFAULT_COMMANDS.items():
+        #     try:
+        #         # print(" ".join(cmd))
+        #         output = run_command(" ".join(cmd))
+        #         self.log.info(output, file_name=f"system/{cmd_name}")
+        #     except Exception as e:
+        #         self.log.info(f"{self.i18n.get('command_execution_failed').format(' '.join(cmd), e)}")
         

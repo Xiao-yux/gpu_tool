@@ -32,10 +32,13 @@ class InfoBash:
             return self._get_sys_info()
         except Exception as e:
             return f"{e}"
-    def get_gpu_info(self):
+    def get_gpu_info(self,json=False):
         """获取GPU信息,返回 gpuinfo,eccinfo"""
         try:
-            return self._get_gpu_info()
+            if json:
+                return nvidia_to_json(self.get_nvidia_smi())
+            else:
+                return self._get_gpu_info()
         except Exception as e:
             return f"{e}"
     def get_memory_info(self):
@@ -86,6 +89,24 @@ class InfoBash:
         # print(date)
         # self.refresh_dmi() # 刷新数据
         return date
+    
+    def highlight_non_zero(self,data):
+        """
+        递归遍历字典，将非零的数值用 <> 包裹并标红
+        """
+        if isinstance(data, dict):
+            # 如果是字典，递归处理每一个值
+            return {k: self.highlight_non_zero(v) for k, v in data.items()}
+        elif isinstance(data, (int, float)):
+            # 如果是数字，判断是否非零
+            if data != 0:
+                return f'\033[91m<{data}>\033[0m'
+            else:
+                return data
+        else:
+            # 如果是其他类型（如字符串 'No'），原样返回
+            return data
+    
     def _get_gpu_info(self):
         """GPU信息 返回 GPU,ECC  信息"""
         gpu = GPUInfo()
@@ -100,7 +121,7 @@ class InfoBash:
         ecc_title= [f"{self.i18n.get('gpu_id')}","ECC Mode",
                     "Volatile CE","UE","UE","CE","UE",
                     "Aggregate CE","UE","UE","CE","UE",
-                    "SRAM Sources","","","",""]
+                    "SRAM Sources","","","","","rows_ue","rows_ce"]
         ecc_error = []
         # print(self.nvidia_smi['gpus'][0])
         for i in self.nvidia_smi['gpus']:
@@ -115,7 +136,10 @@ class InfoBash:
             gpu.Link_Width = i['PCI']['GPU Link Info']['Link Width'].get("Current")
             gpu.Memory_Usage = [i['FB Memory Usage']['Total'],i['FB Memory Usage']['Used']]
             gpu.ECC_Mode = i['ECC Mode'].get("Current")
+            i['ECC Errors'] = self.highlight_non_zero(i['ECC Errors'])
             gpu.ECC_Errors = i['ECC Errors']
+            gpu.ECC_rows_error_ce = i['Remapped Rows']['Correctable Error']
+            gpu.ECC_rows_error_ue = i['Remapped Rows']['Uncorrectable Error']
             gpu.GPU_Current_Temp = i['Temperature']['GPU Current Temp']
             gpu.GPU_Power = [i['GPU Power Readings']['Max Power Limit'],i['GPU Power Readings']['Average Power Draw']]
             date.append([gpu.GPU_ID,gpu.bus_id[4:].lower(),f"{slot.get(gpu.bus_id[4:].lower())}",gpu.Product_Name,
@@ -129,8 +153,9 @@ class InfoBash:
                               gpu.ECC_Errors['Aggregate']['SRAM Uncorrectable SEC-DED'],gpu.ECC_Errors['Aggregate']['DRAM Correctable'],
                               gpu.ECC_Errors['Aggregate']['DRAM Uncorrectable'],gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM L2'],
                               gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM SM'],gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM Microcontroller'],
-                              gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM PCIE'],gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM Other']
-                              ])
+                              gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM PCIE'],gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM Other'],
+                              gpu.ECC_rows_error_ue,gpu.ECC_rows_error_ce])
+
         ss = tabulate(date, headers=title, tablefmt='rounded_outline',stralign="center",numalign="center")
         ecc = tabulate(ecc_error, headers=ecc_title, tablefmt='rounded_outline',stralign="center",numalign="center")
         self.refresh_nvidia() # 刷新数据
@@ -196,9 +221,14 @@ class InfoBash:
                     txt += f"{a}\n\n"
             return txt
         
-    def _get_smart_info(self) -> list[dict]:
+    def _get_smart_info(self,test=False) -> list[dict]:
         tmp = []
         c:int = 0
+        if test:
+            with open("tmp/nvme.txt", "r", encoding="utf-8") as f:
+                s = f.read()
+            a = [parse_smartctl_output(s)]
+            return a
         tran = ['null','usb',None]
         for i in self.disk['blockdevices']:
             # print(i)
@@ -212,9 +242,10 @@ class InfoBash:
     
     def _get_disk_info(self):
         a = self._get_smart_info()
+        print(a)
         title = [self.i18n.get('disk_name'), self.i18n.get('serial_number'), self.i18n.get('capacity'),
-                 self.i18n.get('firmware_version'), self.i18n.get('nvme_version'),
-                 self.i18n.get('temperature'), self.i18n.get('warning'), self.i18n.get('total_read_size'),
+                 self.i18n.get('firmware_version'),
+                 self.i18n.get('temperature'), self.i18n.get('total_read_size'),
                  self.i18n.get('total_write_size'), self.i18n.get('power_cycles'), self.i18n.get('power_on_hours'),
                  self.i18n.get('unsafe_shutdowns'), self.i18n.get('smart_test')]
         date = DiskInfo()
@@ -249,7 +280,7 @@ class InfoBash:
             date.unsafe_shutdowns = i['smart_info'].get('Unsafe Shutdowns',"")
             date.smart_test = i['smart_info'].get('SMART overall-health self-assessment test result',"")
             tmp.append([date.modu_name,date.serial_number,date.size,
-                   date.firmware_version,date.nvme_version,date.temper,date.critical_warning,
+                   date.firmware_version,date.temper,
                    date.date_units_read,date.date_units_written,date.power_cycles,date.power_on_hours,
                    date.unsafe_shutdowns,date.smart_test])
         

@@ -60,6 +60,8 @@ class GPUInfo(BaseModel):
     Memory_Usage: list = Field(default=[], description="内存使用情况(总大小/使用大小)")
     ECC_Mode:bool = Field(default=False, description="ECC模式")
     ECC_Errors:dict = Field(default={}, description="ECC错误")
+    ECC_rows_error_ue: str = Field(default="", description="ECC重映射单元错误")
+    ECC_rows_error_ce: str = Field(default="", description="ECC重映射单元错误")
     GPU_Current_Temp: str = Field(default="", description="GPU当前温度")
     GPU_Power:list = Field(default=[], description="GPU功率(最大功率/使用功率)")
     

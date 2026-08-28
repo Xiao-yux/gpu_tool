@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+import threading
 import time
 
 from bash.bash import InfoBash
@@ -39,6 +40,7 @@ class Menu:
         self.terminal_manager = TerminalManager()
         self.info = InfoBash() 
         self.jobs = []
+        self.stop_event = threading.Event()
 
     def main_menu(self):
         """主菜单"""
@@ -328,8 +330,8 @@ class Menu:
                     path=path
                 )
                 if logname != "fd_test":
-                    self.jobs.append(self.tool.async_run(self.job, interval=300))  # 每5分钟执行一次job函数
-                    self.log.info(f"nvidia-smi info will be saved every 5 minutes to {self.log.paths.run}/time_5_save_info.log", console=True)
+                    self.start_jobs()  # 启动定时任务
+                    self.log.info(f"启动定时任务: {self.jobs}", console=True)
                 #     self.log.info(f"{self.i18n.get('screen_created')}: {screen_name}\n", console=True)
 
 
@@ -444,16 +446,39 @@ class Menu:
             self.run_command(cmd4, logname=f"disk_speed_test_{disk.data[1]}")
         return None
 
-    def job(self) -> None:
-        """每 5 分钟会被调用的任务函数"""
+    def job(self):
+        """你的实际定时任务逻辑"""
+        if self.stop_event.is_set():
+            return  # 如果收到停止信号，立刻退出
+        
 
         self.log.info(self.gpu.get_gpu_info(), file_name="time_5_save_info")
+
+        # 任务执行完毕后，如果未收到停止信号，则安排下一次任务（递归调用 Timer）
+        if not self.stop_event.is_set():
+            timer = threading.Timer(interval=300, function=self.job)
+            self.jobs.append(timer)  # 将新的 Timer 加入列表以便追踪
+            timer.start()
+    
+    def start_jobs(self):
+        """启动定时任务"""
+        self.stop_event.clear()  # 清除停止信号
+        # 启动第一次任务
+        initial_timer = threading.Timer(interval=0, function=self.job) # interval=0 立即开始首次执行
+        self.jobs.append(initial_timer)
+        initial_timer.start()
+        self.log.info("定时任务已启动，每 300 秒执行一次。")
 
     def stop_jobs(self) -> None:
         """停止所有定时任务"""
         if not self.jobs:
             self.log.info("没有正在运行的定时任务。")
             return
-        for job in self.jobs:
-            job.stop()
+        
+        # 1. 发送停止信号，阻止 job 继续调度新的 Timer
+        self.stop_event.set()
+
+        # 2. 清空任务列表（注意：Timer 在 wait 期间无法被强制 kill，只能等它自然消亡或被信号跳过）
+        # 如果有正在 sleep 等待的 Timer，它们会在到达执行时间时检查 stop_event 并直接 return
         self.jobs.clear()
+        self.log.info("所有定时任务已发送停止信号，将不再调度新任务。")
