@@ -32,6 +32,11 @@ class Tools:
         """
         return Path(sys.argv[0]).parent.resolve()
 
+    def get_memort_ecc(self):
+        """获取内存ECC状态"""
+        return os.popen(f"bash edac-util -v | grep -i edac-util").read()
+    
+
     @staticmethod
     def poweoff():
         """关机"""

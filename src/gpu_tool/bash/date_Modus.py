@@ -273,7 +273,53 @@ def create_pci_info_dict(pci_data: str) -> dict:
         
     return pci_dict
 
+def parse_smartctl_stat_output(text):
+    result = {
+        "disk_info": {},
+        "smart_info": {}
+    }
+    
+    # 1. 解析 disk_info
+    # 匹配模式: 任意字符(键) + 冒号 + 可选的空格 + 任意字符(值)
+    # 使用非贪婪模式 .*? 防止跨行匹配，并去除首尾空格
+    disk_info_pattern = re.compile(r'^\s*(.*?)\s*:\s+(.*?)\s*$', re.MULTILINE)
+    
+    # 限定只在 === START OF INFORMATION SECTION === 区域内查找，避免误匹配其他区域的冒号行
+    info_section_match = re.search(r'=== START OF INFORMATION SECTION ===\n(.*?)(?=== START OF READ SMART DATA SECTION ===|$)', text, re.DOTALL)
+    
+    if info_section_match:
+        info_text = info_section_match.group(1)
+        for match in disk_info_pattern.finditer(info_text):
+            key = match.group(1).strip()
+            value = match.group(2).strip()
+            if key:  # 确保key不为空
+                result["disk_info"][key] = value
 
+    # 2. 解析 smart_info
+    # 匹配模式: 空格 + 数字(ID) + 空格 + 字符(属性名) + 连续空格/字符直到最后 + 空格 + 数字/横线(RAW_VALUE)
+    # RAW_VALUE 可能包含数字和横线(-)，例如某些时候是 "-" 或者 "41 (Min/Max 18/49)" 这种带括号的
+    smart_section_match = re.search(r'ID#\s+ATTRIBUTE_NAME.*?\n(.*?)(?=\n\n|\nSMART Error Log Version|$)', text, re.DOTALL)
+    
+    if smart_section_match:
+        smart_text = smart_section_match.group(1)
+        for line in smart_text.splitlines():
+            line = line.rstrip()
+            if not line.strip():
+                continue
+                
+            # 根据 smartctl 的标准输出对齐格式:
+            # ID#  ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+            # 0-3  4-28                    29-36    37-41 42-46 47-51 52-60      61-68    69-79       80-end
+            
+            # 确保行长度足够包含 RAW_VALUE 列 (至少大于 80)
+            if len(line) > 80:
+                attr_id = line[0:4].strip()
+                raw_value = line[80:].strip()
+                
+                if attr_id.isdigit():
+                    result["smart_info"][attr_id] = raw_value
+
+    return result
 
 def parse_smartctl_output(text):
     """

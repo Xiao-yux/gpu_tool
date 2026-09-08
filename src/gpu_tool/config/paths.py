@@ -136,6 +136,7 @@ class LogPaths:
 
     # ---- convenience accessors ----
 
+
     @property
     def root(self) -> Path:
         return self._root
@@ -159,6 +160,7 @@ class LogPaths:
     @property
     def time_5_log(self) -> Path:
         return self._root / "time_5_save_info.log"
+
 
     # ---- factory ----
 

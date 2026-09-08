@@ -48,7 +48,11 @@ class CheckSystem:
         """检查系统环境"""
         self.is_gpu_available()
         d = self.tool.get_gpu_count()
-        self.sys_save(GPU=int(d))
+        try:
+            d = int(d)
+        except:
+            d = 0
+        self.sys_save(GPU=d)
         
         return True
 
@@ -110,6 +114,7 @@ class CheckSystem:
     def sys_save(self, GPU=0):
         """收集系统信息"""
         a = "system_info"
+        # self.log.debug(f"测试1",console=True)
         self.log.info("收集系统日志",console=True)
         self.log.info(f"{self.i18n.get('gpu_cont')} {self.tool.get_gpu_count()}\n",console=True,file_name=a)
         self.log.info(f"系统信息\n{self.info.get_sys_info()}", file_name=a)
@@ -118,6 +123,7 @@ class CheckSystem:
         self.log.info(f"硬盘信息\n{self.info.get_disk_info()}", file_name=a)
         self.log.info(f"网卡信息\n{self.info.get_net_info()}", file_name=a)
         self.log.info(f"电源信息\n{self.info.get_power_info()}", file_name=a)
+        # self.log.debug(f"测试2",console=True)
         self.log.info(f"SMART信息\n{self.info.get_smart_txt()}", file_name="system/smart_info")
         self.log.info(f"GPU查询信息\n{self.tool.get_query_gpu()}", file_name="system/query_gpu")
         if GPU >= 1:
@@ -136,7 +142,7 @@ class CheckSystem:
             total=len(self.DEFAULT_COMMANDS)
         ):
             try:
-        # 如果你希望在进度条上动态显示当前正在执行的命令名，可以使用 set_postfix
+
                 tqdm.write(f"正在执行: {cmd_name}") # 使用 tqdm.write 替代 print，避免破坏进度条显示
                 output = run_command(" ".join(cmd))
                 self.log.info(output, file_name=f"system/{cmd_name}")

@@ -10,6 +10,7 @@ from bash.date_Modus import (
     dmicode_to_json,
     nvidia_to_json,
     parse_smartctl_output,
+    parse_smartctl_stat_output,
     sysInfo,
 )
 from i18n.i18n import get_i18n
@@ -118,9 +119,9 @@ class InfoBash:
                f"{self.i18n.get('gpu_power')}",f"{self.i18n.get('gpu_temp')}"]
         date = []
         slot = self.get_slot()
-        ecc_title= [f"{self.i18n.get('gpu_id')}","ECC Mode",
-                    "Volatile CE","UE","UE","CE","UE",
-                    "Aggregate CE","UE","UE","CE","UE",
+        ecc_title= [ f"{self.i18n.get('gpu_id')}","ECC Mode",
+                    "Volatile","UE","UE","CE","UE",
+                    "Aggregate","UE","UE","CE","UE",
                     "SRAM Sources","","","","","rows_ue","rows_ce"]
         ecc_error = []
         # print(self.nvidia_smi['gpus'][0])
@@ -225,9 +226,9 @@ class InfoBash:
         tmp = []
         c:int = 0
         if test:
-            with open("tmp/nvme.txt", "r", encoding="utf-8") as f:
+            with open("tmp/stat.txt", "r", encoding="utf-8") as f:
                 s = f.read()
-            a = [parse_smartctl_output(s)]
+            a = [parse_smartctl_stat_output(s)]
             return a
         tran = ['null','usb',None]
         for i in self.disk['blockdevices']:
@@ -239,10 +240,23 @@ class InfoBash:
                 c += 1
         return tmp
     
+    def _stat_disk_pr(self,date: dict):
+        """解析 stat smart数据
+
+        Args:
+            date (dict): _description_
+        """
+        dates = DiskInfo()
+        for i in date:
+            dates.modu_name = i['disk_info'].get('Model Number',"")
+            dates.serial_number = i['disk_info'].get('Serial Number',"")
+            dates.size = i['disk_info'].get('Total NVM Capacity',"")
+            dates.firmware_version = i['disk_info'].get('Firmware Version',"")
+        pass
     
     def _get_disk_info(self):
         a = self._get_smart_info()
-        print(a)
+        #print(a)
         title = [self.i18n.get('disk_name'), self.i18n.get('serial_number'), self.i18n.get('capacity'),
                  self.i18n.get('firmware_version'),
                  self.i18n.get('temperature'), self.i18n.get('total_read_size'),

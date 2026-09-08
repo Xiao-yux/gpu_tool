@@ -23,11 +23,6 @@ if __name__ == '__main__':
     #     date = f.read()
     # c= create_pci_info_dict(date)
     # info.lspci=c
-    gpu = info.get_gpu_info(json=True)
-    if isinstance(gpu,dict):
-        for i in gpu['gpus']:
-            print(i)
-    
     #print(info.get_sys_info())
     #print(info.get_cpu_info())
     #print(info.get_memory_info())
@@ -36,8 +31,10 @@ if __name__ == '__main__':
     # print(dd)
     # print(info.get_power_info())
     # print(info.get_net_info())
-    #print(info._get_disk_info())
-    
+    print(info._get_smart_info(test=True)[0])
+    a = info._get_smart_info(test=True)[0]
+    b = info._stat_disk_pr(a)
+    print(b)
     # config = load()
     # i18n = init_i18n()
     # log = init_logger(config.log)

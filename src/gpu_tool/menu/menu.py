@@ -194,54 +194,56 @@ class Menu:
             if pro.data == "exit":
                 break
             if pro.data == "1": #全部信息
-                self.log.info(f"系统信息\n{self.info.get_sys_info()}", file_name=f"{self.log.paths.script}/sys_info" ,console=True)
-                self.log.info(f"CPU信息\n{self.info.get_cpu_info()}", file_name=f"{self.log.paths.script}/cpu_info", console=True)
+                self.log.info(f"系统信息\n{self.info.get_sys_info()}", file_name=f"script/sys_info" ,console=True)
+                self.log.info(f"CPU信息\n{self.info.get_cpu_info()}", file_name=f"script/cpu_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
-                self.log.info(f"内存信息\n{self.info.get_memory_info()}", file_name=f"{self.log.paths.script}/memory_info", console=True)
+                self.log.info(f"内存信息\n{self.info.get_memory_info()}", file_name=f"script/memory_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
-                self.log.info(f"硬盘信息\n{self.info.get_disk_info()}", file_name=f"{self.log.paths.script}/disk_info", console=True)
+                self.log.info(f"硬盘信息\n{self.info.get_disk_info()}", file_name=f"script/disk_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
-                self.log.info(f"网卡信息\n{self.info.get_net_info()}", file_name=f"{self.log.paths.script}/net_info", console=True)
+                self.log.info(f"网卡信息\n{self.info.get_net_info()}", file_name=f"script/net_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
-                self.log.info(f"电源信息\n{self.info.get_power_info()}", file_name=f"{self.log.paths.script}/power_info", console=True)
+                self.log.info(f"电源信息\n{self.info.get_power_info()}", file_name=f"script/power_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
                 gpu ,ecc =self.info.get_gpu_info()
-                self.log.info(f"GPU信息\n{gpu}", file_name=f"{self.log.paths.script}/gpu_info", console=True)
-                self.log.info(f"ECC信息\n{ecc}", file_name=f"{self.log.paths.script}/ecc_info", console=True)
+                self.log.info(f"GPU信息\n{gpu}", file_name=f"script/gpu_info", console=True)
+                self.log.info(f"ECC信息\n{ecc}", file_name=f"script/ecc_info", console=True)
+                input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "2":  #系统信息
                 a=1
-                self.log.info(f"系统信息\n{self.info.get_sys_info()}", file_name=f"{self.log.paths.script}/sys_info", console=True)
+                self.log.info(f"系统信息\n{self.info.get_sys_info()}", file_name=f"script/sys_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "3":  #CPU 信息
                 a=2
-                self.log.info(f"CPU信息\n{self.info.get_cpu_info()}", file_name=f"{self.log.paths.script}/cpu_info", console=True)
+                self.log.info(f"CPU信息\n{self.info.get_cpu_info()}", file_name=f"script/cpu_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "4":  # 内存信息
                 a=3
-                self.log.info(f"内存信息\n{self.info.get_memory_info()}", file_name=f"{self.log.paths.script}/memory_info", console=True)
+                self.log.info(f"内存信息\n{self.info.get_memory_info()}", file_name=f"script/memory_info", console=True)
+                self.log.info(self.tool.get_memort_ecc(), file_name=f"script/memory_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "5": # 硬盘信息
                 a=4
-                self.log.info(f"硬盘信息\n{self.info.get_disk_info()}", file_name=f"{self.log.paths.script}/disk_info", console=True)
-                self.log.info(f"电源信息\n{self.info.get_power_info()}", file_name=f"{self.log.paths.script}/power_info", console=True)
+                self.log.info(f"硬盘信息\n{self.info.get_disk_info()}", file_name=f"script/disk_info", console=True)
+                self.log.info(f"电源信息\n{self.info.get_power_info()}", file_name=f"script/power_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "6":  # 网卡信息
                 a=5
-                self.log.info(f"网卡信息\n{self.info.get_net_info()}", file_name=f"{self.log.paths.script}/net_info", console=True)
+                self.log.info(f"网卡信息\n{self.info.get_net_info()}", file_name=f"script/net_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "7":  # GPU信息
                 a=6
                 gpu ,ecc =self.info.get_gpu_info()
-                self.log.info(f"GPU信息\n{gpu}", file_name=f"{self.log.paths.script}/gpu_info", console=True)
-                self.log.info(f"ECC信息\n{ecc}", file_name=f"{self.log.paths.script}/ecc_info", console=True)
+                self.log.info(f"GPU信息\n{gpu}", file_name=f"script/gpu_info", console=True)
+                self.log.info(f"ECC信息\n{ecc}", file_name=f"script/ecc_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "8": # IPMIlan信息
                 a=7
-                self.log.info(self.ipmi.lan(), file_name=f"{self.log.paths.script}/ipmi_lan_info", console=True)
+                self.log.info(self.ipmi.lan(), file_name=f"script/ipmi_lan_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             elif pro.data == "9": # fru
                 a=8
-                self.log.info(self.ipmi.fru(), file_name=f"{self.log.paths.script}/ipmi_fru_info", console=True)
+                self.log.info(self.ipmi.fru(), file_name=f"script/ipmi_fru_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
             self.log.info(f'用户选择: {pro}')
 
@@ -330,8 +332,9 @@ class Menu:
                     path=path
                 )
                 if logname != "fd_test":
+                    self.log.info(f"{self.i18n.get('run_command')}{command}",file_name="time_gpu_run_info")
                     self.start_jobs()  # 启动定时任务
-                    self.log.info(f"启动定时任务: {self.jobs}", console=True)
+                    self.log.info(f"启动定时任务: {self.jobs}")
                 #     self.log.info(f"{self.i18n.get('screen_created')}: {screen_name}\n", console=True)
 
 
@@ -365,7 +368,7 @@ class Menu:
         gpu_mem = int(c) * 256
         
         logname = "nccl_test"
-        cmd += f"-b 256M -e {gpu_mem} -f 2 -g {self.tool.get_gpu_count()}"
+        cmd += f"-b 256M -e {gpu_mem}M -f 2 -g {self.tool.get_gpu_count()}"
         self.run_command(cmd, path, logname)
 
     def system_test_menu(self):
@@ -452,13 +455,21 @@ class Menu:
             return  # 如果收到停止信号，立刻退出
         
 
-        self.log.info(self.gpu.get_gpu_info(), file_name="time_5_save_info")
-
+        self.log.info(self.gpu.get_gpu_info(), file_name="time_smi_info")
+        self.log.info(self.get_gpu_run_info(), file_name="time_gpu_run_info")
         # 任务执行完毕后，如果未收到停止信号，则安排下一次任务（递归调用 Timer）
         if not self.stop_event.is_set():
-            timer = threading.Timer(interval=300, function=self.job)
+            timer = threading.Timer(interval=15, function=self.job)
             self.jobs.append(timer)  # 将新的 Timer 加入列表以便追踪
             timer.start()
+    
+    def get_gpu_run_info(self):
+        gpu = self.info.get_gpu_info(json=True)
+        gpus = ""
+        if isinstance(gpu,dict):
+            for i in gpu['gpus']:
+                gpus += f"GPU{i['Minor Number']}:[T:{i['Temperature']['GPU Current Temp']},P:{i['GPU Power Readings']['Average Power Draw']}/{i['GPU Power Readings']['Max Power Limit']},C:{i['Clocks']['Graphics']},Mem:{i['Clocks']['Memory']}] | "
+        return gpus
     
     def start_jobs(self):
         """启动定时任务"""
@@ -467,7 +478,7 @@ class Menu:
         initial_timer = threading.Timer(interval=0, function=self.job) # interval=0 立即开始首次执行
         self.jobs.append(initial_timer)
         initial_timer.start()
-        self.log.info("定时任务已启动，每 300 秒执行一次。")
+        self.log.info("定时任务已启动，每 15 秒执行一次。")
 
     def stop_jobs(self) -> None:
         """停止所有定时任务"""
