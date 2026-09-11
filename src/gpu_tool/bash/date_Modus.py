@@ -299,25 +299,25 @@ def parse_smartctl_stat_output(text):
     # 匹配模式: 空格 + 数字(ID) + 空格 + 字符(属性名) + 连续空格/字符直到最后 + 空格 + 数字/横线(RAW_VALUE)
     # RAW_VALUE 可能包含数字和横线(-)，例如某些时候是 "-" 或者 "41 (Min/Max 18/49)" 这种带括号的
     smart_section_match = re.search(r'ID#\s+ATTRIBUTE_NAME.*?\n(.*?)(?=\n\n|\nSMART Error Log Version|$)', text, re.DOTALL)
-    
     if smart_section_match:
         smart_text = smart_section_match.group(1)
         for line in smart_text.splitlines():
             line = line.rstrip()
             if not line.strip():
                 continue
+                    
+                # 根据 smartctl 的标准输出对齐格式:
+                # ID#  ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+                # 0-3  4-28                    29-36    37-41 42-46 47-51 52-60      61-68    69-79       80-end
                 
-            # 根据 smartctl 的标准输出对齐格式:
-            # ID#  ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
-            # 0-3  4-28                    29-36    37-41 42-46 47-51 52-60      61-68    69-79       80-end
-            
-            # 确保行长度足够包含 RAW_VALUE 列 (至少大于 80)
+                # 确保行长度足够包含 RAW_VALUE 列 (至少大于 80)
             if len(line) > 80:
                 attr_id = line[0:4].strip()
+                attr_name = line[4:28].strip()
                 raw_value = line[80:].strip()
-                
-                if attr_id.isdigit():
-                    result["smart_info"][attr_id] = raw_value
+                    
+                if attr_id.isdigit() and attr_name and attr_name not in result["smart_info"]:
+                    result["smart_info"][attr_name] = raw_value
 
     return result
 

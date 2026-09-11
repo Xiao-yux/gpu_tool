@@ -75,6 +75,8 @@ class MenuChessEn:
             Choice("gpu info", "7"),
             Choice("BMC Lan info", "8"),
             Choice("BMC Fru info", "9"),
+            Choice("nvidia nvlink info", "10"),
+            Choice("nvidia top info", "11"),
             Choice("exit", "exit"),
         ]
 

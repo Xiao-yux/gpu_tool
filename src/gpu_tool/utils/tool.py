@@ -125,6 +125,15 @@ class Tools:
             return 0
 
     @staticmethod
+    def is_glob_dir(path: str , dirname: str) -> bool:
+        """检查路径下是否存在以 dirname 开头的目录"""
+        logs_dirs = [d for d in glob.glob(f"{path}/{dirname}*") if os.path.isdir(d)]
+        if logs_dirs:
+            return True
+        return False
+    
+    
+    @staticmethod
     def async_run(func, *args,daemon: bool = False, **kwargs) -> threading.Thread:
         """
     异步运行函数
@@ -254,7 +263,8 @@ class Tools:
     def stop_nvidia_service(self):
         """停止NVIDIA相关服务"""
         ser = ['nvidia-fabricmanager.service','nvidia-imex.service','nvidia-persistenced.service',
-               'nvidia-dcgm.service','openibd.service','nvidia-powerd.service','systemd-udevd.service','systemd-udevd-kernel.socket','systemd-udevd-control.socket']
+               'nvidia-dcgm.service','openibd.service','nvidia-powerd.service','systemd-udevd.service','systemd-udevd-kernel.socket',
+               'systemd-udevd-control.socket']
         for s in ser:
             cmd = "systemctl stop " + s
             try:

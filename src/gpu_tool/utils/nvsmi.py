@@ -14,6 +14,10 @@ class nvsmi:
         """获取GPU拓扑结构"""
         return run_command("nvidia-smi topo -m")
 
+    def get_gpu_nvlink(self):
+        """获取GPU NVLINK信息"""
+        return run_command("nvidia-smi nvlink -s")
+
     def get_gpu_info_by_id(self, id):
         ...
 

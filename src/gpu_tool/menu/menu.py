@@ -245,6 +245,15 @@ class Menu:
                 a=8
                 self.log.info(self.ipmi.fru(), file_name=f"script/ipmi_fru_info", console=True)
                 input(f"{self.i18n.get('press_enter_continue')}")
+            elif pro.data == "10": # nvlink
+                a=10
+                self.log.info(self.gpu.get_gpu_nvlink(), file_name=f"script/nvlink_info", console=True)
+                input(f"{self.i18n.get('press_enter_continue')}")
+            elif pro.data == "11": 
+                a=11
+                self.log.info(self.gpu.get_gpu_topo(), file_name=f"script/nvidia_topo_info", console=True)
+                input(f"{self.i18n.get('press_enter_continue')}")
+                
             self.log.info(f'用户选择: {pro}')
 
 
@@ -280,7 +289,8 @@ class Menu:
             self.log.info(self.i18n.get('invalid_time_format'), console=True)
             self.gpu_test_menu()
             return 
-        cmd = f"./{self.path.gpu_burn_exe} {time}"
+        arg = InputPrompt(self.i18n.get('input_arg_gpu_burn'),default_text="-tc").prompt()
+        cmd = f"./{self.path.gpu_burn_exe} {arg} {time}"
         self.run_command(cmd, path=self.path.gpu_burn_path, logname="gpu_burn_test")
         self.log.info(f'用户选择GPU烧机测试菜单: {pro}')
         self.main_menu()
@@ -295,6 +305,10 @@ class Menu:
             return
         if run:
             self.run_command(run["cmd"], run["path"], run["logname"])
+            # 移动日志文件
+            self.log.info(f"mv {run['path']}/dgx/logs* {self.log.paths.run}/",console=True)
+            self.tool.run_command(f"mv {run['path']}/dgx/logs* {self.log.paths.run}/")
+            self.log.info(f"move {self.tool.is_glob_dir(f'{self.log.paths.run}', 'logs')}",console=True)
         self.log.info(f'用户选择Folding : {run}')
         return
 

@@ -34,39 +34,39 @@ class FdMenu:
             if pro.data == "exit":
                 return
             if pro.data == "1":
-                cmd += f"--level1 --no_bmc --log '{self.log.paths.run}/fd'"
+                cmd += f"--level1 --no_bmc "
             elif pro.data == "2":
-                cmd += f"--level2 --no_bmc --log '{self.log.paths.run}/fd'"
+                cmd += f"--level2 --no_bmc "
             elif pro.data == "3":
                 a = CheckboxPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_fd_test_arg_menu(),annotation=self.defcheckinfo).prompt()
                 if not a:
                     return
-                cmd += f"{self.fd_arg_chines(a)} --no_bmc --log '{self.log.paths.run}/fd'"
+                cmd += f"{self.fd_arg_chines(a)} --no_bmc "
                 self.log.info(cmd)
             elif pro.data == "4":
-                arg = InputPrompt(f"请输入自定义参数: {cmd} [input] --log {self.log.paths.run}/fd").prompt()
+                arg = InputPrompt(f"请输入自定义参数: {cmd}").prompt()
                 if not arg:
                     return
-                cmd += f"{arg} --log '{self.log.paths.run}/fd'"
+                cmd += f"{arg}"
         run ={"cmd": cmd,"logname": logname,"path": fd_path}
         if fd_exe == "partnerdiag":
             if pro.data == "exit":
                 return
             if pro.data == "1":
-                cmd += f"--field --level1 --no_bmc --log '{self.log.paths.run}/fd'"
+                cmd += f"--field --level1 --no_bmc "
             elif pro.data == "2":
-                cmd += f"--field --level2 --no_bmc --log '{self.log.paths.run}/fd'"
+                cmd += f"--field --level2 --no_bmc "
             elif pro.data == "3":
                 a = CheckboxPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_fd_test_arg_menu(),annotation=self.defcheckinfo).prompt()
                 if not a:
                     return
-                cmd += f"{self.fd_arg_chines(a)} --no_bmc --log '{self.log.paths.run}/fd'"
+                cmd += f"{self.fd_arg_chines(a)} --no_bmc "
                 self.log.info(cmd)
             elif pro.data == "4":
-                arg = InputPrompt(f"请输入自定义参数: {cmd} [input] --log {self.log.paths.run}/fd").prompt()
+                arg = InputPrompt(f"请输入自定义参数: {cmd} [input] ").prompt()
                 if not arg:
                     return
-                cmd += f"{arg} --log '{self.log.paths.run}/fd'"
+                cmd += f"{arg}"
             run ={"cmd": cmd,"logname": logname,"path": fd_path}
         return run
 
@@ -80,16 +80,16 @@ class FdMenu:
         if res.data == "exit":
             return
         if res.data == "1":
-            cmd += f"--field --level1 {spik} --no_bmc --log '{self.log.paths.run}/fd'"
+            cmd += f"--field --level1 {spik} --no_bmc "
         elif res.data == "2":
-            cmd += f"--field --level2 {spik} --no_bmc --log '{self.log.paths.run}/fd'"
+            cmd += f"--field --level2 {spik} --no_bmc "
         elif res.data == "3":
             print("未完成")
         elif res.data == "4":
-            arg = InputPrompt(f"请输入自定义参数: {cmd} [input] --log {self.log.paths.run}/fd").prompt()
+            arg = InputPrompt(f"请输入自定义参数: {cmd} [input] ").prompt()
             if not arg:
                 return
-            cmd += f"{arg} --log '{self.log.paths.run}/fd'"
+            cmd += f"{arg} "
         run ={"cmd": cmd,"logname": logname,"path": fd_path}
         return run
 
@@ -97,21 +97,21 @@ class FdMenu:
         fd_path = os.path.join(self.path, path)
         cmd = "./partnerdiag "
         logname = "fd_test"
-        spik = "--skip_tests=CX8IBconnectivity,ibstress,ibstressmad,CX8EyeGradeBgStart,ExtThetaBgStart,ExtEyeGradeBgStart,ExtIBStress,ExtEyeGradeBgStop,ExtThetaBgStop,ExtIBconnectivity"
+        spik = "--skip_tests=CX8IBconnectivity,ibstress"
         res = ListPrompt(self.i18n.get('select_option'), choices=self.menu_chess.get_fd_b200_menu(),allow_filter=False).prompt()
         if res.data == "exit":
             return
         if res.data == "1":
-            cmd += f"--field --level1 {spik} --run_on_error --no_bmc --log '{self.log.paths.run}/fd'"
+            cmd += f"--field --level1 {spik} --run_on_error --no_bmc "
         elif res.data == "2":
-            cmd += f"--field --level2 {spik} --run_on_error --no_bmc --log '{self.log.paths.run}/fd'"
+            cmd += f"--field --level2 {spik} --run_on_error --no_bmc "
         elif res.data == "3":
             print("未完成")
         elif res.data == "4":
-            arg = InputPrompt(f"请输入自定义参数: {cmd} [input] --log {self.log.paths.run}/fd").prompt()
+            arg = InputPrompt(f"请输入自定义参数: {cmd} [input] ").prompt()
             if not arg:
                 return
-            cmd += f"{arg} --log '{self.log.paths.run}/fd'"
+            cmd += f"{arg} "
         run ={"cmd": cmd,"logname": logname,"path": fd_path}
         return run
     

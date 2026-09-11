@@ -75,6 +75,8 @@ class MenuChess:
         Choice("查看GPU信息", "7"),
         Choice("查看BMC Lan信息", "8"),
         Choice("查看BMC Fru信息", "9"),
+        Choice("查看nvidia nvlink信息", "10"),
+        Choice("查看nvidia top信息", "11"),
         Choice("返回", "exit"),
     ]
 

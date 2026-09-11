@@ -42,6 +42,14 @@ class InfoBash:
                 return self._get_gpu_info()
         except Exception as e:
             return f"{e}"
+    
+    def get_gpu_ecc_count(self):
+        """获取GPU ECC错误计数"""
+        try:
+            return self._get_ecc_count()
+        except Exception as e:
+            return f"{e}"
+    
     def get_memory_info(self):
         """获取内存信息"""
         try:
@@ -108,7 +116,8 @@ class InfoBash:
             # 如果是其他类型（如字符串 'No'），原样返回
             return data
     
-    def _get_gpu_info(self):
+    
+    def _get_gpu_info(self,ecccount=False):
         """GPU信息 返回 GPU,ECC  信息"""
         gpu = GPUInfo()
         title=[f"{self.i18n.get('gpu_id')}","Bus ID",f"{self.i18n.get('slot')}"
@@ -156,11 +165,43 @@ class InfoBash:
                               gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM SM'],gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM Microcontroller'],
                               gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM PCIE'],gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM Other'],
                               gpu.ECC_rows_error_ue,gpu.ECC_rows_error_ce])
-
         ss = tabulate(date, headers=title, tablefmt='rounded_outline',stralign="center",numalign="center")
         ecc = tabulate(ecc_error, headers=ecc_title, tablefmt='rounded_outline',stralign="center",numalign="center")
         self.refresh_nvidia() # 刷新数据
         return ss,ecc
+
+    def _get_ecc_count(self):
+        """GPU信息 返回 GPU,ECC  信息"""
+        gpu = GPUInfo()
+        self.refresh_nvidia()
+        count = 0
+        for i in self.nvidia_smi['gpus']:
+            gpu.ECC_Mode = i['ECC Mode'].get("Current")
+            gpu.ECC_Errors = i['ECC Errors']
+            gpu.ECC_rows_error_ce = i['Remapped Rows']['Correctable Error']
+            gpu.ECC_rows_error_ue = i['Remapped Rows']['Uncorrectable Error']
+            if i['ECC Mode'].get("Current") == "Enabled":
+                count = (count 
+                        + gpu.ECC_Errors['Volatile']['SRAM Correctable']
+                        + gpu.ECC_Errors['Volatile']['SRAM Uncorrectable Parity']
+                        + gpu.ECC_Errors['Volatile']['SRAM Uncorrectable SEC-DED']
+                        + gpu.ECC_Errors['Volatile']['DRAM Correctable']
+                        + gpu.ECC_Errors['Volatile']['DRAM Uncorrectable']
+                        + gpu.ECC_Errors['Aggregate']['SRAM Correctable']
+                        + gpu.ECC_Errors['Aggregate']['SRAM Uncorrectable Parity']
+                        + gpu.ECC_Errors['Aggregate']['SRAM Uncorrectable SEC-DED']
+                        + gpu.ECC_Errors['Aggregate']['DRAM Correctable']
+                        + gpu.ECC_Errors['Aggregate']['DRAM Uncorrectable']
+                        + gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM L2']
+                        + gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM SM']
+                        + gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM Microcontroller']
+                        + gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM PCIE']
+                        + gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM Other']
+                        + gpu.ECC_rows_error_ue
+                        + gpu.ECC_rows_error_ce)
+  
+        return count
+      
 
     def _get_cpu_info(self):
         sysdate = sysInfo()
@@ -235,24 +276,14 @@ class InfoBash:
             # print(i)
             if i['tran'] not in tran:
                 a = run_command(f"smartctl --all {i['path']}")
-                tmp.append(parse_smartctl_output(a))
+                if i['tran'] == 'nvme':
+                    tmp.append(parse_smartctl_output(a))
+                if i['tran'] == 'sata':
+                    tmp.append(parse_smartctl_stat_output(a))
                 tmp[c]['disk_type'] = i['tran']
                 c += 1
         return tmp
     
-    def _stat_disk_pr(self,date: dict):
-        """解析 stat smart数据
-
-        Args:
-            date (dict): _description_
-        """
-        dates = DiskInfo()
-        for i in date:
-            dates.modu_name = i['disk_info'].get('Model Number',"")
-            dates.serial_number = i['disk_info'].get('Serial Number',"")
-            dates.size = i['disk_info'].get('Total NVM Capacity',"")
-            dates.firmware_version = i['disk_info'].get('Firmware Version',"")
-        pass
     
     def _get_disk_info(self):
         a = self._get_smart_info()
@@ -261,7 +292,7 @@ class InfoBash:
                  self.i18n.get('firmware_version'),
                  self.i18n.get('temperature'), self.i18n.get('total_read_size'),
                  self.i18n.get('total_write_size'), self.i18n.get('power_cycles'), self.i18n.get('power_on_hours'),
-                 self.i18n.get('unsafe_shutdowns'), self.i18n.get('smart_test')]
+                 self.i18n.get('unsafe_shutdowns'), self.i18n.get('disk_tron')]
         date = DiskInfo()
         tmp = []
         # with open("bash/sma1", "r", encoding="utf-8") as f:
@@ -276,27 +307,64 @@ class InfoBash:
                 return result
             else:
                 return "None"
-                
+        def format_written_capacity(raw_value, sector_size=512):
+            """
+            将 Total_LBAs_Written 的 RAW_VALUE 格式化为人类可读的容量字符串。
+            
+            规则:
+                - 按 1000^3 字节 = 1 GB 计算
+                - 写入量 >= 1000 GB (即 1 TB) 时，返回 "xxx.xx TB"
+                - 否则返回 "xxx.xx GB"
+            
+            参数:
+                raw_value:   SMART 输出的 Total_LBAs_Written RAW_VALUE（LBA 扇区数）
+                sector_size: 扇区大小，默认 512 字节（4Kn 盘传 4096）
+            
+            返回:
+                格式化字符串，如 "473.34 GB" 或 "12.50 TB"
+            """
+            total_gb = int(raw_value) * sector_size / (1000 ** 3)
+            
+            if total_gb >= 1000:
+                return f"{total_gb / 1000:.2f} TB"
+            return f"{total_gb:.2f} GB"
         for i in a:
-            if i['disk_type'] != 'nvme':
-                continue
-            date.modu_name = i['disk_info'].get('Model Number',"")
-            date.serial_number = i['disk_info'].get('Serial Number',"")
-            date.size = get_size(i['disk_info'].get('Total NVM Capacity',""))
-            date.firmware_version = i['disk_info'].get('Firmware Version',"")
-            date.nvme_version = i['disk_info'].get('NVMe Version',"")
-            date.temper = i['smart_info'].get('Temperature',"")
-            date.critical_warning = i['smart_info'].get('Critical Warning',"")
-            date.date_units_read  = get_size(i['smart_info'].get('Data Units Read',""))
-            date.date_units_written  = get_size(i['smart_info'].get('Data Units Written',""))
-            date.power_cycles = i['smart_info'].get('Power Cycles',"")
-            date.power_on_hours = i['smart_info'].get('Power On Hours',"")
-            date.unsafe_shutdowns = i['smart_info'].get('Unsafe Shutdowns',"")
-            date.smart_test = i['smart_info'].get('SMART overall-health self-assessment test result',"")
-            tmp.append([date.modu_name,date.serial_number,date.size,
-                   date.firmware_version,date.temper,
-                   date.date_units_read,date.date_units_written,date.power_cycles,date.power_on_hours,
-                   date.unsafe_shutdowns,date.smart_test])
+            if i['disk_type'] == 'sata':
+                date.modu_name = i['disk_info'].get("Device Model","")
+                date.serial_number = i['disk_info'].get('Serial Number',"")
+                date.size = get_size(i['disk_info'].get('User Capacity',""))
+                date.firmware_version = i['disk_info'].get('Firmware Version',"")
+                date.nvme_version = i['disk_info'].get('SATA Version is',"")
+                date.temper = i['smart_info'].get('Temperature_Celsius',"")
+                date.critical_warning = i['smart_info'].get('Reported_Uncorrect',"")
+                date.date_units_read  = format_written_capacity(i['smart_info'].get('Total_LBAs_Read',0)) 
+                date.date_units_written  = format_written_capacity(i['smart_info'].get('Total_LBAs_Written',0)) #Total_LBAs_Written
+                date.power_cycles = i['smart_info'].get('Power_Cycle_Count',"")
+                date.power_on_hours = i['smart_info'].get('Power_On_Hours',"")
+                date.unsafe_shutdowns = "None"
+                date.smart_test = i['disk_type']
+                tmp.append([date.modu_name,date.serial_number,date.size,
+                                    date.firmware_version,date.temper,
+                                    date.date_units_read,date.date_units_written,date.power_cycles,date.power_on_hours,
+                                    date.unsafe_shutdowns,date.smart_test])
+            if i['disk_type'] == 'nvme':
+                date.modu_name = i['disk_info'].get('Model Number',"")
+                date.serial_number = i['disk_info'].get('Serial Number',"")
+                date.size = get_size(i['disk_info'].get('Total NVM Capacity',""))
+                date.firmware_version = i['disk_info'].get('Firmware Version',"")
+                date.nvme_version = i['disk_info'].get('NVMe Version',"")
+                date.temper = i['smart_info'].get('Temperature',"")
+                date.critical_warning = i['smart_info'].get('Critical Warning',"")
+                date.date_units_read  = get_size(i['smart_info'].get('Data Units Read',""))
+                date.date_units_written  = get_size(i['smart_info'].get('Data Units Written',""))
+                date.power_cycles = i['smart_info'].get('Power Cycles',"")
+                date.power_on_hours = i['smart_info'].get('Power On Hours',"")
+                date.unsafe_shutdowns = i['smart_info'].get('Unsafe Shutdowns',"")
+                date.smart_test = i['disk_type']
+                tmp.append([date.modu_name,date.serial_number,date.size,
+                    date.firmware_version,date.temper,
+                    date.date_units_read,date.date_units_written,date.power_cycles,date.power_on_hours,
+                    date.unsafe_shutdowns,date.smart_test])
         
         if tmp == []:
             tmp.append([self.i18n.get("no_disk_info")])

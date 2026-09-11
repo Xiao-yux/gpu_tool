@@ -47,7 +47,12 @@ class CheckSystem:
     def check_system(self):
         """检查系统环境"""
         self.is_gpu_available()
-        d = self.tool.get_gpu_count()
+        if self.check_nvidia_mod():
+            self.log.info(self.i18n.get('nvidia_mod'))
+            d = self.tool.get_gpu_count()
+        else:
+            self.log.info(self.i18n.get('no_nvidia_mod'),console=True)
+            d = 0
         try:
             d = int(d)
         except:
@@ -59,6 +64,10 @@ class CheckSystem:
     def check_ipmi(self) -> bool:
         """检查ipmi是否安装"""
         return bool(os.path.exists('/usr/bin/ipmitool'))
+
+    def check_nvidia_mod(self) -> bool:
+        """检查nvidia modprobe是否安装"""
+        return bool(run_command("lsmod | grep -q '^nvidia' && echo True || echo False"))
 
     def check_gpu(self) -> bool:
         """检查gpu是否安装"""
@@ -125,11 +134,12 @@ class CheckSystem:
         self.log.info(f"电源信息\n{self.info.get_power_info()}", file_name=a)
         # self.log.debug(f"测试2",console=True)
         self.log.info(f"SMART信息\n{self.info.get_smart_txt()}", file_name="system/smart_info")
-        self.log.info(f"GPU查询信息\n{self.tool.get_query_gpu()}", file_name="system/query_gpu")
         if GPU >= 1:
-            gpu ,ecc =self.info.get_gpu_info()
+            gpu ,ecc = self.info.get_gpu_info()
             self.log.info(f"GPU信息\n{gpu}", file_name=a)
             self.log.info(f"ECC信息\n{ecc}", file_name=a)
+            self.log.info(f"ECC统计信息: {self.info.get_gpu_ecc_count()}", console=True)
+            self.log.info(f"GPU查询信息\n{self.tool.get_query_gpu()}", file_name="system/query_gpu")
             self.tool.get_nvidia_bug_report(f"{self.log.paths.system}")
         self.save_def_info()
         
