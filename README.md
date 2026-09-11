@@ -42,10 +42,9 @@ python src/webserver/main.py
 #需要手动配置的项目
 [PATH]
 config_file = "/etc/gpu_tool/config.toml"  #默认配置文件路径
-fd_path = "/home/path/fd"  #fieldiag 路径    #配置的路径会成为该程序的运行路径
+fd_path = "/home/path/fd"  #fieldiag 路径    # 这个文件夹内是放置多个 fd版本的
 gpu_burn_path = "/home/path/gpu-burn"  #gpu_burn 路径
 nccl_path = "/home/path/nccl-tests/build"  #nccl 路径
-fd_exe = "fieldiag.sh"  #fieldiag 脚本名
 gpu_burn_exe = "gpu_burn" #gpu_burn 程序名称
 nccl_exe = "all_reduce_perf" #nccl 程序名称
 
@@ -72,7 +71,6 @@ log_file = "gpu_tool_debug.log"
 - [main.py](src/gpu_tool/main.py) — 程序主入口
 - [menu/menu.py](src/gpu_tool/menu/menu.py) — 菜单逻辑
 
-edac-util -v
 
 ## 日志与结果
 日志与测试结果按配置保存到 'log_path' 中, 命名格式 `log_path/<SN>/time/*`
