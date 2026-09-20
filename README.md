@@ -59,7 +59,7 @@ log_file = "gpu_tool_debug.log"
 - `core/`：核心加载逻辑
 - `menu/`：菜单交互与命令行参数解析
 - `config/`：配置文件解析与路径管理
-- `bash/`：系统信息显示脚本
+- `bash/`：系统信息显示脚本(cpu,内存,系统信息依赖的命令为:dmicode,网卡: lspci, 显卡: nvidia-smi，硬盘: smartctl,lsblk)
 - `i18n/`：国际化支持
 - `log/`：日志模块
 - `runner/`：screen会话管理与程序执行模块
