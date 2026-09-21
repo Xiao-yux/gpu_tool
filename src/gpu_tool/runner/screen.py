@@ -10,7 +10,7 @@ from log.logger import get_logger
 
 
 class TerminalManager:
-    """使用 命令管理持久化的终端会话"""
+    """命令执行 管理"""
 
     def __init__(self):
         self.log = get_logger()
@@ -20,29 +20,6 @@ class TerminalManager:
         self.last_size= 0
         self.progress_active = False
         self.tool = utils.Tools()
-        self._initialize_screen()  # 初始化 环境
-
-    def _initialize_screen(self) -> None:
-        """初始化 环境"""
-        try:
-            # 检查 是否已安装
-            result = subprocess.run(
-                ["which", "screen"],
-                capture_output=True,
-                text=True
-            )
-            if result.returncode != 0:
-                self.log.info("未安装，请先安装 命令")
-                return
-            
-            # 确保屏幕日志目录存在
-            # log_dir = os.path.join(os.path.expanduser("~"), "screen_logs")
-            # os.makedirs(log_dir, exist_ok=True)
-            
-            self.log.info("环境初始化完成")
-        except Exception as e:
-            self.log.info(f"初始化 环境失败: {e}")
-
 
 
     def _generate_screen_name(self, logname: str) -> str:
@@ -107,6 +84,8 @@ class TerminalManager:
         # 创建日志文件路径
         log_file = f"{self.log.paths.run}/{logname}.log"
         
+        self.log.info(f"执行命令: {command}", file_name=f"run/{logname}")
+        self.log.info(f"执行目录: {path}", file_name=f"run/{logname}")
         # 构建 命令
         # 使用 -L -Logfile 参数记录输出到日志文件
         # 使用 -dmS 参数创建 detached 模式的会话
@@ -123,7 +102,7 @@ class TerminalManager:
             }  
         try:
             # 启动命令,输出重定向到日志文件
-            with open(log_file, 'w',encoding="utf-8", errors='ignore') as f:
+            with open(log_file, 'a',encoding="utf-8", errors='ignore') as f:
                 subprocess.Popen(
                 full_command,
                 shell=True,

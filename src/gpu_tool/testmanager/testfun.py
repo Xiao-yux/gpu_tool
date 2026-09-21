@@ -1,8 +1,8 @@
 import json
 import os
-import subprocess
 import time
 
+from runner.screen import TerminalManager
 from i18n.i18n import get_i18n
 from log.logger import get_logger
 from utils.tool import Tools
@@ -12,6 +12,7 @@ class TestFun:
 
     def __init__(self,path):
         self.path = path
+        self.run = TerminalManager()
         self.log = get_logger()
         self.i18n = get_i18n()
         self.tool = Tools()
@@ -162,7 +163,7 @@ class TestFun:
             self.run_command(cmd4, logname=f"auto_disk_speed_test_{d}")
         return None
 
-    def run_command(self, command: str, path: str = '/tmp', logname: str = "TestFun"):
+    def run_command(self, command: str, path: str = '/tmp', logname: str = "TestManager"):
         """运行命令并实时输出日志
         command : 执行的命令
         path : 执行命令时的目录

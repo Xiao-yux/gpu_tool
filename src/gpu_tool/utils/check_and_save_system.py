@@ -125,7 +125,7 @@ class CheckSystem:
         a = "system_info"
         # self.log.debug(f"测试1",console=True)
         self.log.info("收集系统日志",console=True)
-        self.log.info(f"{self.i18n.get('gpu_cont')} {self.tool.get_gpu_count()}\n",console=True,file_name=a)
+        self.log.info(f"{self.i18n.get('gpu_cont')} {self.tool.get_gpu_count()}",console=True,file_name=a)
         self.log.info(f"系统信息\n{self.info.get_sys_info()}", file_name=a)
         self.log.info(f"CPU信息\n{self.info.get_cpu_info()}", file_name=a)  
         self.log.info(f"内存信息\n{self.info.get_memory_info()}", file_name=a)
@@ -152,7 +152,9 @@ class CheckSystem:
             total=len(self.DEFAULT_COMMANDS)
         ):
             try:
-
+                if os.path.exists(f"{self.log.paths.system}/{cmd_name}.log"):
+                    print(f"日志文件 {cmd_name}.log 已存在，跳过执行命令: {' '.join(cmd)}")
+                    continue  # 如果日志文件已存在，则跳过执行该命令
                 tqdm.write(f"正在执行: {cmd_name}") # 使用 tqdm.write 替代 print，避免破坏进度条显示
                 output = run_command(" ".join(cmd))
                 self.log.info(output, file_name=f"system/{cmd_name}")

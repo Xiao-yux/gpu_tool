@@ -123,9 +123,9 @@ class gpuLogger:
         # print(f"测试: {file_name}")
         caller_module = frame.frame.f_globals.get("__name__", "unknown")
         logger, _ = self._get_logger(caller_module, file_name)
-
+        out_msg = clean(message,out=True) if message is not None else ""
         if console:
-            print(f"[{level}] {text}", flush=True)
+            print(f"[{level}] {out_msg}", flush=True)
 
         log_fn = getattr(logger, level.lower())
         log_fn(text)

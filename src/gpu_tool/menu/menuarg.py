@@ -84,6 +84,7 @@ class MenuChess:
         Choice("FD压测", "1"),
         Choice("GPUburn压测", "2"),
         Choice("Dcgmi测试", "3"),
+        Choice("测试显存带宽", "8"),
         Choice("Nvbandwidth测试", "4"),
         Choice("Nccl测试", "5"),
         Choice("p2pBandwidthLatencyTest测试", "6"),

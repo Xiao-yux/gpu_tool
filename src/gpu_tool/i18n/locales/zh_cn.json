@@ -52,6 +52,8 @@
     "return_code": "返回码：",
     "command_execution_completed": "命令执行完成",
     "slot": "槽位",
+    "cpu_max_clock": "CPU 最大频率",
+    "cpu_current_clock": "CPU 当前频率",
     "gpu_id": "GPU ID",
     "gpu_name": "GPU 名称",
     "serial_number": "序列号",

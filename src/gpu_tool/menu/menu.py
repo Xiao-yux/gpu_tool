@@ -171,6 +171,10 @@ class Menu:
                 self.run_command(cmd, path, logname)
             elif pro.data == "7":
                 self.cuda_band_test()
+            elif pro.data == "8":
+                from utils.bandwidth import get_gpumemory_bandwidth
+                bandwidth = get_gpumemory_bandwidth()
+                self.log.info(f"显存带宽测试结果:\n{bandwidth}", file_name="run/memory_bandwidth", console=True)
             self.log.info(f'用户选择GPU测试菜单: {pro}')
         return
 
@@ -289,7 +293,7 @@ class Menu:
             self.log.info(self.i18n.get('invalid_time_format'), console=True)
             self.gpu_test_menu()
             return 
-        arg = InputPrompt(self.i18n.get('input_arg_gpu_burn'),default_text="-tc").prompt()
+        arg = InputPrompt(self.i18n.get('input_arg_gpu_burn'),default_text="").prompt()
         cmd = f"./{self.path.gpu_burn_exe} {arg} {time}"
         self.run_command(cmd, path=self.path.gpu_burn_path, logname="gpu_burn_test")
         self.log.info(f'用户选择GPU烧机测试菜单: {pro}')
@@ -330,7 +334,10 @@ class Menu:
             # self.tool.stop_openvswitch()
             self.tool.rm_nvidia_mod()
             # self.tool.rm_switch_mod()
-            
+        
+        if logname == "dcgmi_test":
+            self.tool.run_command("rm /var/log/nvidia-dcgm/nvvs.log")
+        
         self.log.info(f"执行命令: {command}", console=True)
         self.log.info(f"执行目录: {path}", console=True)
         
@@ -357,8 +364,11 @@ class Menu:
                 os._exit(1)
 
             self.log.info(self.i18n.get("screen_session_created") + "\n")
-            self.log.info(f"{self.i18n.get('log_path')} {self.log.paths.run}/{logname}\n", console=True)
+            self.log.info(f"{self.i18n.get('log_path')}{self.log.paths.run}/{logname}\n", console=True)
             self.terminal_manager.wait_for_command_completion(screen_name)
+            if logname == "dcgmi_test":
+                self.tool.run_command("mv /var/log/nvidia-dcgm/nvvs.log " + f"{self.log.paths.run}/nvvs.log")
+                self.log.info(f"mv /var/log/nvidia-dcgm/nvvs.log {self.log.paths.run}/nvvs.log", console=True)
             self.stop_jobs()  # 停止所有定时任务
             self.log.info(self.i18n.get("command_end") + "\n")
             if input_user:
@@ -454,13 +464,13 @@ class Menu:
             cmd4 = f"fio --name=randrw --filename={disk.data[0]} --size=5G --rw=randrw --rwmixread=70 --bs=4k --ioengine=libaio --direct=1 --numjobs=8 --iodepth=32 --runtime=30 --time_based --group_reporting"
 
             self.log.info("正在测试 顺序写大文件\n", console=True)
-            self.run_command(cmd, logname=f"disk_speed_test_{disk.data[1]}")
+            self.run_command(cmd, logname=f"disk_speed_test_{disk.data[1]}",input_user=False)
             self.log.info("正在测试 顺序读大文件\n", console=True)
-            self.run_command(cmd2, logname=f"disk_speed_test_{disk.data[1]}")
+            self.run_command(cmd2, logname=f"disk_speed_test_{disk.data[1]}",input_user=False)
             self.log.info("正在测试 随机读 4K\n", console=True)
-            self.run_command(cmd3, logname=f"disk_speed_test_{disk.data[1]}")
+            self.run_command(cmd3, logname=f"disk_speed_test_{disk.data[1]}",input_user=False)
             self.log.info("正在测试 混合读写\n", console=True)
-            self.run_command(cmd4, logname=f"disk_speed_test_{disk.data[1]}")
+            self.run_command(cmd4, logname=f"disk_speed_test_{disk.data[1]}",input_user=False)
         return None
 
     def job(self):

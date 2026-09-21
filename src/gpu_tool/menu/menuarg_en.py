@@ -84,6 +84,7 @@ class MenuChessEn:
         Choice("FD Stress Test", "1"),
         Choice("GPU Burn Stress Test", "2"),
         Choice("DCGMI Test", "3"),
+        Choice("Test Memory Bandwidth", "8"),
         Choice("NVBandwidth Test", "4"),
         Choice("NCCL Test", "5"),
         Choice("P2P Bandwidth Latency Test", "6"),

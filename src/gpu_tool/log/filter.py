@@ -31,7 +31,7 @@ _BACKSPACE: Final[re.Pattern[str]] = re.compile(r"\x08+")
 _ANSI_ESC: Final[re.Pattern[str]] = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
 
 
-def clean(line: str | None) -> str:
+def clean(line: str | None , out=False) -> str:
     """Sanitise a line for logging.
 
     * Strips ``\\x08+`` backspace clusters (memtester overwrites).
@@ -39,6 +39,10 @@ def clean(line: str | None) -> str:
     * Strips trailing ``\\r\\n`` / ``\\n``.
     * Returns ``""`` for ``None``.
     """
+    if out:
+        if line is None:
+            return ""
+        return line.rstrip("\r\n")
     if line is None:
         return ""
     line = _BACKSPACE.sub("", line)
