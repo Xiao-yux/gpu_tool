@@ -48,7 +48,6 @@ _SEARCH_PATHS: Final[tuple[str, ...]] = (
 # The canonical install location for the first-run copy.
 _DEFAULT_INSTALL_PATH: Final[str] = "/etc/gpu_tool/config.toml"
 
-
 # ---------------------------------------------------------------------------
 # Built-in default config (rendered on first run)
 # ---------------------------------------------------------------------------

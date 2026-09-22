@@ -9,6 +9,7 @@
             "logpath":"",
             "exe":"echo 'True' >> /tmp/test.log",
             "arg":""
-
+        }
+    }
 
 }

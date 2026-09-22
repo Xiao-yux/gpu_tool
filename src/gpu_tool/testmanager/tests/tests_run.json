@@ -1,0 +1,7 @@
+{
+    "name":"运行中的测试",
+    "auto_run":false,
+    "run_list":["test1"],   
+    "start_run": "",    
+    "stop_run":[]         
+}

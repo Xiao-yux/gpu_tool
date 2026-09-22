@@ -87,9 +87,7 @@ class TerminalManager:
         self.log.info(f"执行命令: {command}", file_name=f"run/{logname}")
         self.log.info(f"执行目录: {path}", file_name=f"run/{logname}")
         # 构建 命令
-        # 使用 -L -Logfile 参数记录输出到日志文件
-        # 使用 -dmS 参数创建 detached 模式的会话
-        # 保持 会话打开，并在命令完成后写一个完成标志文件
+
         end_marker = f"__SCREEN_COMMAND_COMPLETE_{logname}__"
         #print(f"执行命令: {command}，path: {path},logname: {logname}")
         full_command = f"cd {path} && {{ {command}; }}; echo {end_marker}"

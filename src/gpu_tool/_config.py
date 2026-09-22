@@ -16,6 +16,8 @@ fd_path      = "/{user}/gpu-tests-tool/fieldiags"
 gpu_burn_path = "/{user}/gpu-tests-tool/gpu-burn"
 nccl_path    = "/{user}/gpu-tests-tool/nccl-tests/build"
 download     = "/{user}/gpu-tests-tool"
+config_path   = "/etc/gpu_tool"
+tests_file    =  "auto_tests.json"
 
 gpu_burn_exe = "gpu_burn"
 nccl_exe     = "all_reduce_perf"

@@ -1,0 +1,15 @@
+{
+    "version":"1.0",
+    "name":"测试合集",
+    "tests":{
+        "test1":{
+            "name":"测试1",
+            "desc":"测试1的描述",
+            "type":"gpu",
+            "logpath":"",
+            "exe":"echo 'True' >> /tmp/test.log",
+            "arg":""
+        }
+    }
+
+}
