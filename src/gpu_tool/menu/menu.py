@@ -268,7 +268,11 @@ class Menu:
             return
         cmd = f"dcgmi {pro.data}"
         self.log.info(f'用户选择DCGMI测试菜单: {pro}')
+        self.tool.run_command("rm /var/log/nvidia-dcgm/nvvs.log")
         self.run_command(cmd, logname="dcgmi_test",path=self.log.paths.run)
+        # 移动日志文件
+        self.tool.run_command("mv /var/log/nvidia-dcgm/nvvs.log " + f"{self.log.paths.run}/nvvs{time.strftime('%Y%m%d%H%M%S')}.log")
+        self.log.info(f"mv /var/log/nvidia-dcgm/nvvs.log {self.log.paths.run}/nvvs{time.strftime('%Y%m%d%H%M%S')}.log", console=True)
         return
 
     def gpu_burn_menu(self):
@@ -311,6 +315,13 @@ class Menu:
             self.run_command(run["cmd"], run["path"], run["logname"])
             # 移动日志文件
             self.log.info(f"mv {run['path']}/dgx/logs* {self.log.paths.run}/",console=True)
+            if self.tool.check_fd_path(f"\'{self.log.paths.run}/fd\'"):
+                self.tool.run_command(f"mv {self.log.paths.run}/fd {self.log.paths.run}/fd_$(date +%Y-%m-%d_%H-%M-%S)")
+                self.log.info("stop NVIDIA service", console=True)
+                self.tool.stop_nvidia_service()
+                self.log.info("rm nvidia mod", console=True)
+                self.tool.rm_nvidia_mod()
+
             self.tool.run_command(f"mv {run['path']}/dgx/logs* {self.log.paths.run}/")
             self.log.info(f"move {self.tool.is_glob_dir(f'{self.log.paths.run}', 'logs')}",console=True)
         self.log.info(f'用户选择Folding : {run}')
@@ -325,21 +336,8 @@ class Menu:
             logname: 日志名称
             input_user: 是否需要用户按回车继续
         """
-        if logname == "fd_test":
-            if self.tool.check_fd_path(f"\'{self.log.paths.run}/fd\'"):
-                self.tool.run_command(f"mv {self.log.paths.run}/fd {self.log.paths.run}/fd_$(date +%Y-%m-%d_%H-%M-%S)")
-            self.log.info("stop NVIDIA service", console=True)
-            self.tool.stop_nvidia_service()
-            self.log.info("rm nvidia mod", console=True)
-            # self.tool.stop_openvswitch()
-            self.tool.rm_nvidia_mod()
-            # self.tool.rm_switch_mod()
-        
-        if logname == "dcgmi_test":
-            self.tool.run_command("rm /var/log/nvidia-dcgm/nvvs.log")
-        
         self.log.info(f"执行命令: {command}", console=True)
-        self.log.info(f"执行目录: {path}", console=True)
+        self.log.info(f"执行目录: {path}\n", console=True)
         
         try:
             
@@ -366,9 +364,6 @@ class Menu:
             self.log.info(self.i18n.get("screen_session_created") + "\n")
             self.log.info(f"{self.i18n.get('log_path')}{self.log.paths.run}/{logname}\n", console=True)
             self.terminal_manager.wait_for_command_completion(screen_name)
-            if logname == "dcgmi_test":
-                self.tool.run_command("mv /var/log/nvidia-dcgm/nvvs.log " + f"{self.log.paths.run}/nvvs.log")
-                self.log.info(f"mv /var/log/nvidia-dcgm/nvvs.log {self.log.paths.run}/nvvs.log", console=True)
             self.stop_jobs()  # 停止所有定时任务
             self.log.info(self.i18n.get("command_end") + "\n")
             if input_user:

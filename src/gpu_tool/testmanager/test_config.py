@@ -38,4 +38,18 @@ class TestFun:
             return self._load_json(tests_config)
         return {}
     def get_name_test(self, test_name):
-        return self.date.get(test_name)
+        """根据测试名称查询,返回测试ID
+
+        Args:
+            test_name (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        tests = self.date.get("tests", {})
+        for test_id, test_info in tests.items():
+            # 判断字典中的 name 是否与传入的 test_name 匹配
+            if isinstance(test_info, dict) and test_info.get("name") == test_name:
+                return f"{test_id}"
+                
+        return None

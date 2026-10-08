@@ -22,5 +22,5 @@ if __name__ == '__main__':
     init_i18n()
     init_logger(config.log)
     test_fun = TestFun()
-    print(test_fun.get_name_test("tests"))
+    print(test_fun.get_name_test("测试1"))
  

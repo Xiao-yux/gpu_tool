@@ -88,9 +88,13 @@ class TerminalManager:
         self.log.info(f"执行目录: {path}", file_name=f"run/{logname}")
         # 构建 命令
 
-        end_marker = f"__SCREEN_COMMAND_COMPLETE_{logname}__"
+        end_marker = f"__SCREEN_COMMAND_COMPLETE_{logname}__{time.time()}__"  #命令结束标记
         #print(f"执行命令: {command}，path: {path},logname: {logname}")
-        full_command = f"cd {path} && {{ {command}; }}; echo {end_marker}"
+        full_command = f"cd '{path}' && {{ {command } >> '{log_file}' 2>&1; }}; echo {end_marker} >> '{log_file}'"
+        print(f"完整命令: {full_command}")
+
+        
+        
         #print(f"完整命令: {full_command}")
         self.screens[screen_name] = {
             "end_marker": end_marker,
@@ -100,13 +104,11 @@ class TerminalManager:
             }  
         try:
             # 启动命令,输出重定向到日志文件
-            with open(log_file, 'a',encoding="utf-8", errors='ignore') as f:
-                subprocess.Popen(
+            subprocess.Popen(
                 full_command,
                 shell=True,
-                stdout=f,
-                stderr=f,
-                # start_new_session=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
                 cwd=path
             )
             return screen_name
