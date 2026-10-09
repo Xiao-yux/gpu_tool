@@ -408,6 +408,13 @@ class Menu:
             self.run_command(cmd, logname="memtester_test")
         if pro.data == "3":
             self.disk_speed_test_menu()
+        if pro.data == "4":
+            cmd = f"DATA_DIR={self.log.paths.run} ./run_spec.sh"
+            self.run_command(cmd, logname="spec_cpu_test", path=self.path.spec_path)
+        if pro.data == "5":
+            cmd = f"./run_stream.sh"
+            self.run_command(cmd, logname="stream_mpi_test", path=self.path.stream_path)
+
         return
 
     def disk_speed_test_menu(self):

@@ -7,7 +7,26 @@
             "desc":"测试1的描述",
             "type":"gpu",
             "logpath":"",
+            "runpath":"",
             "exe":"echo 'True' >> /tmp/test.log",
+            "arg":""
+        },
+        "test2":{
+            "name":"测试2",
+            "desc":"测试2的描述",
+            "type":"gpu",
+            "logpath":"",
+            "runpath":"",
+            "exe":"echo 'False' >> /tmp/test.log",
+            "arg":""
+        },
+        "runspec":{
+            "name":"CPU测试",
+            "desc":"CPU测试的描述",
+            "type":"cpu",
+            "logpath":"run",
+            "runpath":"/home/houmao/gpu-tests-tool/speccpu",
+            "exe":"DATA_DIR={LOG_PATH} ./run_spec.sh",
             "arg":""
         }
     }

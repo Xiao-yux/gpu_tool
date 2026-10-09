@@ -91,7 +91,6 @@ class TerminalManager:
         end_marker = f"__SCREEN_COMMAND_COMPLETE_{logname}__{time.time()}__"  #命令结束标记
         #print(f"执行命令: {command}，path: {path},logname: {logname}")
         full_command = f"cd '{path}' && {{ {command } >> '{log_file}' 2>&1; }}; echo {end_marker} >> '{log_file}'"
-        print(f"完整命令: {full_command}")
 
         
         

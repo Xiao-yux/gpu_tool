@@ -44,6 +44,8 @@ class PathConfig(BaseModel):
     download: str = "/{user}"                  # 下载路径
     gpu_burn_exe: str = "gpu_burn"                  # gpu_burn 可执行文件名
     nccl_exe: str = "all_reduce_perf"               # nccl-tests 可执行文件名
+    spec_path: str = "/{user}/gpu-tests-tool/speccpu"  # SPEC CPU 测试路径
+    stream_path: str = "/{user}/gpu-tests-tool/memtest"  # Stream MPI 测试路径
     config_path: str = "/etc/gpu_tool"  # 配置文件路径
     tests_file: str = "auto_tests.json"  # 自动化测试配置文件名
 

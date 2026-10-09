@@ -16,6 +16,8 @@ fd_path      = "/{user}/gpu-tests-tool/fieldiags"
 gpu_burn_path = "/{user}/gpu-tests-tool/gpu-burn"
 nccl_path    = "/{user}/gpu-tests-tool/nccl-tests/build"
 download     = "/{user}/gpu-tests-tool"
+spec_path   = "/{user}/gpu-tests-tool/speccpu"
+stream_path = "/{user}/gpu-tests-tool/memtest"
 config_path   = "/etc/gpu_tool"
 tests_file    =  "auto_tests.json"
 

@@ -94,7 +94,9 @@ class MenuChessEn:
 
     _SYS_TEST: ClassVar[list[Choice]] = [
         Choice("CPU Stress Test", "1"),
+        Choice("Spec CPU 2017 Test", "4"),
         Choice("Memory Stress Test", "2"),
+        Choice("stream_mpi Test", "5"),
         Choice("Disk Speed Test", "3"),
         Choice("Back", "exit"),
     ]

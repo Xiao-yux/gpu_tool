@@ -93,9 +93,11 @@ class MenuChess:
     ]
 
     _SYS_TEST: ClassVar[list[Choice]] = [
-        Choice("cpu 压测", "1"),
-        Choice("内存压测", "2"),
-        Choice("硬盘速度测试", "3"),
+        Choice("cpu 压测(stress-ng)", "1"),
+        Choice("cpu 压测(spec cpu)", "4"),
+        Choice("内存压测(memtester)", "2"),
+        Choice("内存压测(stream_mpi)", "5"),
+        Choice("硬盘速度测试(fio)", "3"),
         Choice("返回", "exit"),
     ]
     _SYS_TOOL: ClassVar[list[Choice]] = [
