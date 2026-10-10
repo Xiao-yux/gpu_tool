@@ -15,7 +15,14 @@ from bash.date_Modus import (
 )
 from i18n.i18n import get_i18n
 from runner.local import run_command
-from tabulate import tabulate
+
+
+def _tabulate(*args, **kwargs):
+    """延迟导入 tabulate。
+    """
+    from tabulate import tabulate
+
+    return tabulate(*args, **kwargs)
 
 
 class InfoBash:
@@ -165,8 +172,8 @@ class InfoBash:
                               gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM SM'],gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM Microcontroller'],
                               gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM PCIE'],gpu.ECC_Errors['Aggregate Uncorrectable SRAM Sources']['SRAM Other'],
                               gpu.ECC_rows_error_ue,gpu.ECC_rows_error_ce])
-        ss = tabulate(date, headers=title, tablefmt='rounded_outline',stralign="center",numalign="center")
-        ecc = tabulate(ecc_error, headers=ecc_title, tablefmt='rounded_outline',stralign="center",numalign="center")
+        ss = _tabulate(date, headers=title, tablefmt='rounded_outline',stralign="center",numalign="center")
+        ecc = _tabulate(ecc_error, headers=ecc_title, tablefmt='rounded_outline',stralign="center",numalign="center")
         self.refresh_nvidia() # 刷新数据
         return ss,ecc
 
@@ -248,7 +255,7 @@ class InfoBash:
                 str.append([info.slot,info.manufacturer,info.product_name,info.size,info.type,info.speed,info.maxspeed,info.sn,f"{count}"])
                 continue
             str.append([info.slot,info.manufacturer,info.product_name,info.size,info.type,info.speed,info.maxspeed,info.sn,""])
-        date = tabulate(str, tablefmt="rounded_outline",headers=title,stralign="center",numalign="center")
+        date = _tabulate(str, tablefmt="rounded_outline",headers=title,stralign="center",numalign="center")
         # print(date)
         return date
     
@@ -368,7 +375,7 @@ class InfoBash:
         
         if tmp == []:
             tmp.append([self.i18n.get("no_disk_info")])
-        return tabulate(tmp,headers=title,tablefmt="rounded_outline",stralign="center",numalign="center")
+        return _tabulate(tmp,headers=title,tablefmt="rounded_outline",stralign="center",numalign="center")
     
     
     
@@ -381,7 +388,7 @@ class InfoBash:
         date =[]
         if self.dmidecode.get('type_39',[]) == []:
             date.append([self.i18n.get("no_power_info")])
-            return tabulate(date,headers=title,tablefmt="rounded_outline",stralign="center",numalign="center")
+            return _tabulate(date,headers=title,tablefmt="rounded_outline",stralign="center",numalign="center")
         for i in self.dmidecode['type_39']:
             power.location = i['fields'].get("Location")
             power.name = i['fields'].get("Name")
@@ -395,7 +402,7 @@ class InfoBash:
             power.hot_replaceable = i['fields'].get("Hot Replaceable")
             date.append([power.location,power.name,power.manufacturer,power.sn,power.rversion,
                          power.type,power.maxpower,power.status,power.plugged,power.hot_replaceable])
-        ss = tabulate(date,headers=title,tablefmt="rounded_outline",stralign="center",numalign="center")
+        ss = _tabulate(date,headers=title,tablefmt="rounded_outline",stralign="center",numalign="center")
         # print(ss)
         return ss
     def get_slot(self):
@@ -443,7 +450,7 @@ class InfoBash:
         """刷新nvidia-smi数据"""
         self.nvidia_smi = nvidia_to_json(self.get_nvidia_smi())
     def tab_format(self,data,tablefmt="rounded_grid"):
-        return tabulate(data, tablefmt=tablefmt,stralign="center",numalign="center")
+        return _tabulate(data, tablefmt=tablefmt,stralign="center",numalign="center")
         
     def retlace_txt(self,str: str):
         """ 替换文本"""
@@ -510,7 +517,7 @@ class InfoBash:
             date.append(d)
             
         # 4. 渲染表格
-        return tabulate(tabular_data=date, tablefmt="rounded_grid", stralign="left", numalign="left")
+        return _tabulate(tabular_data=date, tablefmt="rounded_grid", stralign="left", numalign="left")
                 
     def _get_lspci(self):
         """获取lspci数据"""

@@ -2,10 +2,19 @@ import argparse
 import sys
 
 from _version import __version__
-from art import text2art
 from bash.bash import InfoBash
-from utils.show_xid import show_xid
 from utils.tool import Tools
+
+
+def _text2art(*args, **kwargs):
+    """延迟导入 art。
+
+    ``art`` 在模块级导入时会一次性载入全部字体数据（实测约 0.2-0.5 s），
+    而它只在打印横幅时才用到。改成调用时导入，启动路径上不再付出这份代价。
+    """
+    from art import text2art
+
+    return text2art(*args, **kwargs)
 
 
 class GpuToolApi:
@@ -40,9 +49,13 @@ class GpuToolApi:
             self.tool.fd_log_print(args.check_fd_log)
             sys.exit(0)
         if args.xid is not None:
-            show_xid(self.xid_path,args.xid)
+            # 延迟导入：utils.show_xid 会连带载入 openpyxl（179 个模块，
+            # 实测约 2.8 s），而它只服务于 --xid 这一个参数。
+            from utils.show_xid import show_xid
+
+            show_xid(self.xid_path, args.xid)
             sys.exit(0)
-        print(text2art(tx1, chr_ignore=True))
+        print(_text2art(tx1, chr_ignore=True))
         print(f"\033[92mv{__version__}\033[0m")
     @staticmethod
     def parse_arguments(ver=None):

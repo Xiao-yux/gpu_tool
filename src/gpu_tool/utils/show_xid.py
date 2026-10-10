@@ -4,8 +4,6 @@ import argparse
 from pathlib import Path
 from typing import Any
 
-from openpyxl import load_workbook
-
 SHEET_NAME = "Xids"
 GREEN = "\033[32m"
 RESET = "\033[0m"
@@ -45,6 +43,8 @@ def _find_header_indexes(ws) -> dict[str, int]:
 
 def show_xid(path: str | Path, xid: int | str) -> None:
     """Print information for one XID from the Chinese Xid catalog workbook."""
+    from openpyxl import load_workbook  # 延迟导入：见文件头部说明
+
     workbook_path = Path(path)
     wb = load_workbook(workbook_path, data_only=True)
 
